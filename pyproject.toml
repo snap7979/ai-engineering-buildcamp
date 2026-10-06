@@ -16,6 +16,7 @@ dependencies = [
     "minsearch>=0.2.0",
     "openai>=3.19.2",
     "python-frontmatter>=1.3.0",
+    "qdrant-client>=1.19.1",
 ]
 
 [project.scripts]

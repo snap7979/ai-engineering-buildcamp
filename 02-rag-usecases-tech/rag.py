@@ -1,5 +1,6 @@
 
 import json
+import requests
 
 from typing import Literal
 from pydantic import BaseModel, Field
@@ -110,3 +111,23 @@ class RAG:
         prompt = self.build_prompt(question, search_results)
         answer = self.llm(prompt)
         return answer
+
+
+
+
+
+def load_faq_documents():
+    base_faq_url = 'https://datatalks.club/faq'
+    courses_index_url = f'{base_faq_url}/json/courses.json'
+
+    courses_index = requests.get(courses_index_url).json()
+
+    documents = []
+
+    for course in courses_index:
+        course_path = course['path']
+        course_url = f'{base_faq_url}/{course_path}'
+        course_data = requests.get(course_url).json()
+        documents.extend(course_data)
+
+    return documents

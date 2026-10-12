@@ -1,0 +1,21 @@
+[project]
+name = "pydantic-mcp-client"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "snap7979", email = "faizothman@hotmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "openai>=3.19.2",
+    "pydantic-ai[mcp]>=2.54.0",
+    "toyaikit>=0.0.11",
+]
+
+[project.scripts]
+pydantic-mcp-client = "pydantic_mcp_client:main"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13.0"]
+build-backend = "uv_build"

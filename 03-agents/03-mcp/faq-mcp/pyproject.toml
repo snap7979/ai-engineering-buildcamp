@@ -1,0 +1,22 @@
+[project]
+name = "faq-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "snap7979", email = "faizothman@hotmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastmcp>=4.1.0",
+    "minsearch>=0.2.0",
+    "requests>=2.34.2",
+    "toyaikit>=0.0.11",
+]
+
+[project.scripts]
+faq-mcp = "faq_mcp:main"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13.0"]
+build-backend = "uv_build"

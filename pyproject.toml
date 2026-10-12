@@ -27,3 +27,9 @@ ai-engineering-buildcamp = "ai_engineering_buildcamp:main"
 [build-system]
 requires = ["uv_build>=0.12.18,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.workspace]
+members = [
+    "03-agents/04-mcp/faq-mcp",
+    "03-agents/03-mcp/pydantic-mcp-client",
+]

@@ -1,5 +1,7 @@
 import asyncio
 import json
+from html import escape
+from urllib.parse import quote
 
 import streamlit as st
 from jaxn import JSONParserHandler, StreamingJSONParser
@@ -61,6 +63,31 @@ st.markdown(
 }
 .activity-item a:hover {
     text-decoration: underline;
+}
+
+/* Answer references */
+.references-box {
+    margin: 0.4rem 0 0.8rem 0;
+    padding: 0.6rem 1rem;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #c9d1d9;
+    font-size: 0.85rem;
+}
+.reference-item {
+    padding: 0.25rem 0;
+}
+.reference-item a {
+    color: #58a6ff;
+    text-decoration: none;
+}
+.reference-item a:hover {
+    text-decoration: underline;
+}
+.reference-explanation {
+    color: #8b949e;
+    margin-left: 0.35rem;
 }
 
 /* Metadata badges */
@@ -158,6 +185,31 @@ def render_metadata(meta: dict) -> str:
     )
 
 
+def render_references(references: list[dict]) -> str:
+    """Render document references below the answer."""
+    if not references:
+        return ""
+
+    items = []
+    for reference in references:
+        file_path = str(reference.get("file_path", ""))
+        explanation = str(reference.get("explanation", ""))
+        url = GITHUB_BASE + quote(file_path, safe="/")
+        items.append(
+            f'<div class="reference-item">'
+            f'<a href="{escape(url, quote=True)}" target="_blank" '
+            f'rel="noopener noreferrer">{escape(file_path)}</a>'
+            f'<span class="reference-explanation">{escape(explanation)}</span>'
+            f"</div>"
+        )
+
+    return (
+        '<div class="references-box"><strong>📚 References</strong>'
+        + "".join(items)
+        + "</div>"
+    )
+
+
 def activity_html_for_tool(tool_name: str, args_str: str) -> str:
     """Format a single tool call as an HTML activity line."""
     try:
@@ -182,11 +234,13 @@ def activity_html_for_tool(tool_name: str, args_str: str) -> str:
 class UIStreamHandler(JSONParserHandler):
     """Captures streaming JSON chunks for the answer field."""
 
-    def __init__(self, text_placeholder):
+    def __init__(self, text_placeholder, references_placeholder):
         self._placeholder = text_placeholder
+        self._references_placeholder = references_placeholder
         self._answer_so_far = ""
         self.metadata = {}
         self.followup_questions = []
+        self.references = []
 
     def on_value_chunk(self, path: str, field_name: str, chunk: str) -> None:
         if path == "" and field_name == "answer":
@@ -213,6 +267,13 @@ class UIStreamHandler(JSONParserHandler):
     def on_array_item_end(self, path: str, field_name: str, item=None) -> None:
         if field_name == "followup_questions" and item is not None:
             self.followup_questions.append(item)
+        elif field_name == "references" and isinstance(item, dict):
+            self.references.append(item)
+            self.metadata["references"] = self.references
+            self._references_placeholder.markdown(
+                render_references(self.references),
+                unsafe_allow_html=True,
+            )
 
     @property
     def answer(self) -> str:
@@ -237,6 +298,7 @@ async def run_streaming(user_prompt: str, message_history: list, activities_ref:
     # Placeholders injected from outside via closure
     text_ph = activities_ref[0]  # text placeholder for the answer
     act_ph = activities_ref[1]  # placeholder for activity panel
+    references_ph = activities_ref[2]  # placeholder below the answer
     act_list = []  # accumulates activity items
 
     def _update_activities(status: str):
@@ -244,7 +306,7 @@ async def run_streaming(user_prompt: str, message_history: list, activities_ref:
 
     _update_activities("Thinking…")
 
-    parser = StreamingJSONParser(UIStreamHandler(text_ph))
+    parser = StreamingJSONParser(UIStreamHandler(text_ph, references_ph))
     handler = parser.handler  # type: UIStreamHandler
 
     args_so_far = ""
@@ -308,6 +370,14 @@ for idx, msg in enumerate(st.session_state.messages):
                 )
         st.markdown(msg["content"])
         if msg["role"] == "assistant":
+            references = msg.get("references") or msg.get("meta", {}).get(
+                "references", []
+            )
+            if references:
+                st.markdown(
+                    render_references(references),
+                    unsafe_allow_html=True,
+                )
             # Metadata below the answer
             if msg.get("meta"):
                 st.markdown(render_metadata(msg["meta"]), unsafe_allow_html=True)
@@ -356,13 +426,14 @@ if prompt:
     with st.chat_message("assistant"):
         act_placeholder = st.empty()  # activity panel
         answer_placeholder = st.empty()  # streaming answer
+        references_placeholder = st.empty()  # references below the answer
 
         # Run the agent
         answer, metadata, followup_questions, new_messages, act_list = asyncio.run(
             run_streaming(
                 prompt,
                 st.session_state.agent_messages,
-                [answer_placeholder, act_placeholder],
+                [answer_placeholder, act_placeholder, references_placeholder],
             )
         )
 
@@ -378,6 +449,7 @@ if prompt:
             "content": answer,
             "activities": act_list,
             "meta": metadata,
+            "references": metadata.get("references", []),
             "followup_questions": followup_questions,
         }
     )

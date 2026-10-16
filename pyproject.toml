@@ -34,3 +34,12 @@ members = [
     "03-agents/04-mcp/faq-mcp",
     "03-agents/03-mcp/pydantic-mcp-client",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["04-documentation-agent"]

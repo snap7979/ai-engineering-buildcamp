@@ -1,5 +1,8 @@
-from collections import defaultdict
-from pydantic_ai.usage import RunUsage
+import json
+from pathlib import Path
+
+
+COST_FILE = Path("/tmp/buildcamp_cost_usage.jsonl")
 
 
 MODEL_PRICES = {
@@ -14,7 +17,7 @@ MODEL_PRICES = {
 }
 
 
-usages = defaultdict(RunUsage)
+
 
 
 def calculate_cost(model_name, input_tokens, output_tokens):
@@ -32,22 +35,55 @@ def calculate_cost(model_name, input_tokens, output_tokens):
 
 
 def capture_usage(model, result):
-    usages[model] += result.usage
+    usage = result.usage
+
+    entry = {
+        "model": model,
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+    }
+
+    with open(COST_FILE, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+
 
 
 def display_total_usage():
     print()
 
+    if not COST_FILE.exists():
+        print("Total cost: $0.000000")
+        return
+
+    totals = {}
+
+    for line in COST_FILE.read_text().splitlines():
+        entry = json.loads(line)
+        model = entry["model"]
+
+        if model not in totals:
+            totals[model] = {
+                "input_tokens": 0,
+                "output_tokens": 0,
+            }
+
+        totals[model]["input_tokens"] += entry["input_tokens"]
+        totals[model]["output_tokens"] += entry["output_tokens"]
+
     total_cost = 0
 
-    for model, usage in usages.items():
+    for model, tokens in totals.items():
         cost = calculate_cost(
             model,
-            usage.input_tokens,
-            usage.output_tokens,
+            tokens["input_tokens"],
+            tokens["output_tokens"],
         )
 
         print(f"{model}: ${cost:.6f}")
         total_cost += cost
 
     print(f"Total cost: ${total_cost:.6f}")
+
+
+def reset_cost_file():
+    COST_FILE.unlink(missing_ok=True)

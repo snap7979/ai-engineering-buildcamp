@@ -1,6 +1,6 @@
 import pytest
 from time import time
-from tests.utils import collect_tools, ToolCall
+from tests.utils import collect_tools, ToolCall, run_agent_test
 from doc_agent import AgentStreamRunner
 from jaxn import JSONParserHandler
 from tests.cost_tracker import capture_usage
@@ -14,42 +14,8 @@ from doc_agent import (
 )
 
 
-@pytest.fixture(scope="module")
-def agent():
-    t0 = time()
-
-    tools = create_documentation_tools_cached()
-
-    agent_config = DocumentationAgentConfig(
-        instructions=DEFAULT_INSTRUCTIONS
-    )
-
-    agent = create_agent(agent_config, tools)
-
-    t1 = time()
-    print(f"loading agent took {t1 - t0}")
-
-    return agent
 
 
-async def run_agent_test(agent, user_prompt, message_history=None):
-    runner = AgentStreamRunner(
-        agent,
-        JSONParserHandler()
-    )
-
-    result = await runner.run(
-        user_prompt,
-        message_history
-    )
-
-    provider = agent.model.system
-    model_name = agent.model.model_name
-    model = f"{provider}:{model_name}"
-
-    capture_usage(model, result)
-
-    return result
 
 
 @pytest.mark.asyncio(loop_scope="module")

@@ -13,8 +13,14 @@ from models import RAGResponse
 from tools import create_documentation_tools_cached
 
 import dotenv
+import logfire
 
-dotenv.load_dotenv()
+dotenv.load_dotenv(
+    "/workspaces/.codespaces/shared/.env"
+)
+
+logfire.configure()
+logfire.instrument_pydantic_ai()
 
 
 GITHUB_BASE = "https://github.com/evidentlyai/docs/blob/main/"
@@ -131,10 +137,13 @@ if "agent_messages" not in st.session_state:
     st.session_state.agent_messages = []  # pydantic-ai message history
 if "pending_followup" not in st.session_state:
     st.session_state.pending_followup = None
+if "logfire_context" not in st.session_state:
+    with logfire.span("streamlit_session"):
+        st.session_state.logfire_context = logfire.get_context()
 
 
 # ── Load agent (cached per session) ─────────────────────────────────────────
-@st.cache_resource(show_spinner=False)
+
 def load_agent():
     tools = create_documentation_tools_cached()
     config = DocumentationAgentConfig(instructions=SIMPLE_INSTRUCTIONS)
@@ -151,12 +160,16 @@ with st.sidebar:
     st.title("📚 Docs Assistant")
     st.caption("Powered by Evidently AI documentation")
     st.divider()
+
     if st.button("🗑️ Clear conversation", use_container_width=True):
         st.session_state.messages = []
         st.session_state.agent_messages = []
         st.session_state.pending_followup = None
-        st.rerun()
 
+        with logfire.span("streamlit_session"):
+            st.session_state.logfire_context = logfire.get_context()
+
+        st.rerun()
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 def render_activities(activities: list[str], status: str):
@@ -382,6 +395,18 @@ for idx, msg in enumerate(st.session_state.messages):
             if msg.get("meta"):
                 st.markdown(render_metadata(msg["meta"]), unsafe_allow_html=True)
 
+            f1, f2 = st.columns(2)
+
+            if f1.button("👍", key=f"upvote_{idx}"):
+                with logfire.attach_context(st.session_state.logfire_context):
+                     logfire.info("user_feedback", feedback=1)
+                st.toast("Thanks for the feedback!", icon="👍")
+
+            if f2.button("👎", key=f"downvote_{idx}"):
+                with logfire.attach_context(st.session_state.logfire_context):
+                 logfire.info("user_feedback", feedback=-1)
+                st.toast("Thanks for the feedback!", icon="👎")
+
 
 # ── Follow-up buttons (only for last assistant message) ─────────────────────
 last_followups = []
@@ -398,9 +423,10 @@ if last_followups and st.session_state.pending_followup is None:
     cols = st.columns(len(last_followups))
     for col, q in zip(cols, last_followups):
         if col.button(q, key=f"followup_{q[:40]}"):
-            st.session_state.pending_followup = q
-            st.rerun()
-
+            with logfire.attach_context(st.session_state.logfire_context):
+                logfire.info("followup_question_clicked", question=q)
+                st.session_state.pending_followup = q
+                st.rerun()
 
 # ── Chat input ───────────────────────────────────────────────────────────────
 user_input = st.chat_input("Ask about Evidently documentation…")
@@ -428,14 +454,15 @@ if prompt:
         answer_placeholder = st.empty()  # streaming answer
         references_placeholder = st.empty()  # references below the answer
 
-        # Run the agent
-        answer, metadata, followup_questions, new_messages, act_list = asyncio.run(
+        # Run the agent within the session context
+        with logfire.attach_context(st.session_state.logfire_context):
+            answer, metadata, followup_questions, new_messages, act_list = asyncio.run(
             run_streaming(
-                prompt,
-                st.session_state.agent_messages,
-                [answer_placeholder, act_placeholder, references_placeholder],
+            prompt,
+            st.session_state.agent_messages,
+            [answer_placeholder, act_placeholder, references_placeholder],
             )
-        )
+         )
 
         # Render final metadata
         if metadata:

@@ -38,6 +38,7 @@ members = [
 
 [dependency-groups]
 dev = [
+    "jupyter>=1.1.1",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
 ]

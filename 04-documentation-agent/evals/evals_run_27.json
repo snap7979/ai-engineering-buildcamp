@@ -1,0 +1,1637 @@
+[
+  {
+    "input": {
+      "question": "How do I set up LLM as a judge?",
+      "group": "LLM evaluation",
+      "type": "direct"
+    },
+    "rag_response": {
+      "answer": "To set up an LLM (Large Language Model) as a judge for evaluating text, follow these steps:\n\n### 1. Installation and Imports\n- First, ensure you have the necessary library installed by running:\n  ```bash\n  pip install evidently\n  ```\n- Then, import the necessary modules in your Python script:\n  ```python\n  import pandas as pd\n  import os\n  from evidently import Dataset, DataDefinition, Report\n  from evidently.llm.templates import BinaryClassificationPromptTemplate\n  from evidently.descriptors import LLMEval\n  ```\n\n### 2. Configure Your OpenAI API Key\nMake sure to set your OpenAI API key to authenticate requests:\n```python\nos.environ[\"OPENAI_API_KEY\"] = \"YOUR_KEY\"\n```\n\n### 3. Create a Dataset\n- Prepare a dataset that includes the questions, target responses, new responses, and any manual labels you have. Here’s an example:\n```python\ndata = [\n    [\"Hi there, how do I reset my password?\", ...],\n    ...\n]\n\ngolden_dataset = pd.DataFrame(data, columns=[\"question\", \"target_response\", \"new_response\", \"label\", \"comment\"])\n```\n- Define the data structure for evaluation:\n```python\ndefinition = DataDefinition(\n    text_columns=[\"question\", \"target_response\", \"new_response\"],\n    categorical_columns=[\"label\"]\n)\n\neval_dataset = Dataset.from_pandas(golden_dataset, data_definition=definition)\n```\n\n### 4. Set Up the Judging Criteria\nDefine what constitutes a correct or concise response using a prompt template:\n```python\ncorrectness = BinaryClassificationPromptTemplate(\n    criteria=\"An ANSWER is correct when it is the same as the REFERENCE in all facts and details...\",\n    target_category=\"incorrect\",\n    non_target_category=\"correct\",\n)\n```\n\n### 5. Evaluate Responses\nAdd the LLM evaluation to your dataset:\n```python\n eval_dataset.add_descriptors(descriptors=[\n    LLMEval(\"new_response\",\n            template=correctness,\n            provider=\"openai\",\n            model=\"gpt-4o-mini\",\n            alias=\"Correctness\"\n    )\n])\n```\n\n### 6. Generate a Report\nFinally, generate a report to review the evaluation results:\n```python\nreport = Report([TextEvals()])\nmy_eval = report.run(eval_dataset, None)\nmy_eval\n```\n\n### Additional Options\n- You can refine the criteria and templates according to what specific attributes you wish the LLM to evaluate (e.g., conciseness, accuracy). \n- Consider integrating this into a cloud workspace for easier management of results and collaboration.\n\nFor more detailed instructions, refer to the complete [documentation on LLM judges](https://www.evidentlyai.com).",
+      "references": [
+        {
+          "file_path": "examples/LLM_judge.mdx",
+          "explanation": "This document provides a comprehensive guide on how to set up and evaluate an LLM as a judge."
+        },
+        {
+          "file_path": "examples/LLM_jury.mdx",
+          "explanation": "This document discusses using multiple LLMs for evaluation, which may offer insights on aggregating results."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.9,
+      "confidence_explanation": "The answer is derived directly from the guided steps provided in the documentation, ensuring accuracy and adherence to the setup process.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the criteria for evaluating responses?",
+        "Can I use other LLMs as judges?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts from the documentation",
+          "passed": true,
+          "explanation": "All information is sourced from the relevant documents."
+        },
+        {
+          "rule": "Answer the question directly",
+          "passed": true,
+          "explanation": "The response provides a step-by-step guide to the user's question."
+        },
+        {
+          "rule": "Provide relevant references",
+          "passed": true,
+          "explanation": "References to relevant documentation are included."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"set up LLM as a judge\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_judge.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_jury.mdx\"}"
+      }
+    ],
+    "cost": 0.0020766
+  },
+  {
+    "input": {
+      "question": "I want to evaluate my chatbot responses",
+      "group": "LLM evaluation",
+      "type": "vague"
+    },
+    "rag_response": {
+      "answer": "To evaluate your chatbot responses, you can utilize various techniques and tools provided in the documentation:\n\n1. **Using Metrics for Evaluation**: You can assess different aspects of your chatbot's performance using Retrieval-Augmented Generation (RAG) metrics. This includes:\n   - **Retrieval Quality**: Evaluate the quality of the contexts retrieved for user inputs. This can include checking the relevance of the information provided in response to user questions.\n   - **Generation Quality**: Measure how well your chatbot generates responses in relation to ground truth answers. This can include metrics like correctness, faithfulness, and coherence of the generated answers.\n\n   Documentation references:\n   - **[LLM RAG evals](examples/LLM_rag_evals.mdx)** details how to set up evaluations for both retrieval and generation.\n   - **[LLM Evaluation](quickstart_llm.mdx)** covers automatic evaluation methods for text outputs, including using custom descriptors.\n\n2. **Using LLM as a Judge**: You can create and evaluate an LLM judge, which can assess chatbot responses against established criteria. This includes:\n   - **Reference-Based Evaluation**: Compare the responses of your chatbot against a set of approved or correct responses.\n   - **Open-Ended Quality Evaluation**: Judge the responses based on custom criteria defined in a prompt, which is particularly useful when there’s no set answer.\n   \n   Documentation references:\n   - **[LLM as a judge](examples/LLM_judge.mdx)** provides an overview on setting up an LLM judge along with examples.\n\n3. **Running Evaluations in Local Environment**: You can run evaluations in a local setup using Python scripts, which enable you to compute relevant metrics promptly.\n   - Set up the environment and use the Evidently library to create datasets that include your chatbot’s outputs, and then apply descriptors to evaluate metrics like sentiment, length, and correctness.\n   \n   Documentation references:\n   - **[Quickstart LLM](quickstart_llm.mdx)** offers guidance on quickly setting up evaluations and displaying results in a Jupyter notebook or Google Colab.\n\n4. **Creating Reports**: Summarize your evaluation with a report that makes it easy to analyze the performance of your chatbot. This could involve visualizing results, checking for areas of improvement, and monitoring changes over time.\n   - You can use the Report functionality available in the Evidently library to generate comprehensive evaluation results.\n\n5. **Iterate and Improve**: Use the findings from your evaluations to fine-tune your chatbot's algorithms, prompts or datasets, ensuring better responses in future interactions.\n   \nIn summary, start by evaluating the response quality using defined metrics and LLM judges. Use the Evidently library to automate this process and analyze the performance systematically with visual reporting.",
+      "references": [
+        {
+          "file_path": "examples/LLM_rag_evals.mdx",
+          "explanation": "Document explaining metrics to evaluate retrieval and generation quality."
+        },
+        {
+          "file_path": "examples/LLM_judge.mdx",
+          "explanation": "Document on how to create and evaluate an LLM judge."
+        },
+        {
+          "file_path": "quickstart_llm.mdx",
+          "explanation": "Quickstart guide for automatically evaluating LLM outputs."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on specific tools and metrics described in the documentation, ensuring high relevance to the user's query.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific metrics should I track for my chatbot?",
+        "Can I automate the evaluation process further?",
+        "How do I interpret the evaluation results effectively?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer should use only documented information",
+          "passed": true,
+          "explanation": "The response is based solely on the provided documentation."
+        },
+        {
+          "rule": "The answer should be clear and understandable",
+          "passed": true,
+          "explanation": "The answer gives a structured overview of chatbot evaluation methods."
+        },
+        {
+          "rule": "The answer must reference the relevant documentation",
+          "passed": true,
+          "explanation": "All mentioned points are directly linked to specific documents."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"evaluate chatbot responses\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_rag_evals.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_judge.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"quickstart_llm.mdx\"}"
+      }
+    ],
+    "cost": 0.0024763499999999996
+  },
+  {
+    "input": {
+      "question": "How do I customize evaluation criteria for my use case?",
+      "group": "LLM evaluation",
+      "type": "specific"
+    },
+    "rag_response": {
+      "answer": "To customize evaluation criteria for your use case, you can use the LLMEval class with built-in or custom evaluation templates. Here’s how you can do it:\n\n### 1. Built-in Evaluators\nYou can use built-in evaluators with preset criteria. Some examples include:\n- **ToxicityLLMEval**: to detect toxic responses.\n- **DeclineLLMEval**: to check if the generated response is a refusal.\n\nYou can set these descriptors in your dataset as follows:\n```python\neval_df.add_descriptors(descriptors=[\n    ToxicityLLMEval(\"response\", alias=\"toxicity\"),\n])\n```\n\n### 2. Custom Criteria with Templates\nYou can create your own evaluation criteria using **BinaryClassificationPromptTemplate** or **MulticlassClassificationPromptTemplate**. Here’s a basic example:\n\n#### Binary Classification\n```python\nfrom evidently.llm.templates import BinaryClassificationPromptTemplate\n\ncustom_criteria = BinaryClassificationPromptTemplate(\n    criteria=\"\"\"An appropriate question is any educational query.\n    An inappropriate question is anything irrelevant or offensive.\"\"\",\n    target_category=\"APPROPRIATE\",\n    non_target_category=\"INAPPROPRIATE\",\n    include_reasoning=True,\n)\n\neval_df.add_descriptors(descriptors=[\n    LLMEval(\"question\", template=custom_criteria, provider=\"openai\", model=\"gpt-4o-mini\", alias=\"Appropriateness\"),\n])\n```\nThis will evaluate the questions based on your specified criteria.\n\n#### Multiclass Classification\nYou can also classify responses into multiple categories using the **MulticlassClassificationPromptTemplate**:\n```python\nfrom evidently.llm.templates import MulticlassClassificationPromptTemplate\n\ncustom_multi_criteria = MulticlassClassificationPromptTemplate(\n    criteria=\"\"\"Evaluate the response based on its relevance to the question.\n    Categories can be: Irrelevant, Partially Relevant, Relevant.\"\"\",\n    category_criteria={\n        \"Irrelevant\": \"Does not address the question at all.\",\n        \"Partially Relevant\": \"Addresses part of the question but misses key details.\",\n        \"Relevant\": \"Fully addresses the question in detail.\"\n    },\n    include_reasoning=True,\n)\n\neval_df.add_descriptors(descriptors=[\n    LLMEval(\"response\", template=custom_multi_criteria, provider=\"openai\", model=\"gpt-4o-mini\", alias=\"Relevance\"),\n])\n```\n\n### Summary\nBy using these built-in and custom templates, you can tailor the evaluation criteria to suit your specific requirements. Your evaluations will thus yield outputs that closely align with your expectations and operational needs.",
+      "references": [
+        {
+          "file_path": "metrics/customize_llm_judge.mdx",
+          "explanation": "This document provides details on configuring LLM judges with built-in or custom criteria."
+        },
+        {
+          "file_path": "quickstart_llm.mdx",
+          "explanation": "The quickstart guide illustrates how to set up evaluations with examples of using built-in and custom descriptors."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer synthesizes direct instructions found in the documentation about using templates and descriptors for evaluations.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are some examples of built-in evaluation criteria?",
+        "How can I view the results of my evaluations?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer is factually accurate and derived from documentation.",
+          "passed": true,
+          "explanation": "The response is constructed solely from documented features and examples."
+        },
+        {
+          "rule": "The answer addresses the user's question directly.",
+          "passed": true,
+          "explanation": "The answer directly provides steps for customizing evaluation criteria."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"customize evaluation criteria\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_llm_judge.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"quickstart_llm.mdx\"}"
+      }
+    ],
+    "cost": 0.00202995
+  },
+  {
+    "input": {
+      "question": "What metrics are available?",
+      "group": "Metrics and descriptors",
+      "type": "broad"
+    },
+    "rag_response": {
+      "answer": "### Available Metrics\n\nEvidently provides a variety of metrics across different tasks. Here’s a summary:\n\n#### 1. **Classification Metrics**\n- **Accuracy**: Measures the number of correct predictions.\n- **Precision**: The proportion of true positive results in predicted positive cases.\n- **Recall (TPR)**: The ratio of correctly predicted positive observations to all actual positives.\n- **F1-score**: The harmonic mean of precision and recall.\n- **ROC AUC**: The area under the Receiver Operating Characteristic curve.\n- **Log Loss**: Measures the performance of a classification model where the prediction input is a probability value between 0 and 1.\n\n#### 2. **Regression Metrics**\n- **Mean Error (ME)**: The average of errors made in predictions.\n- **Mean Absolute Error (MAE)**: The average of the absolute errors between predicted and actual values.\n- **Mean Absolute Percentage Error (MAPE)**: The average of absolute percentage errors.\n- **Root Mean Square Error (RMSE)**: The square root of the average of squared differences between predicted and actual values.\n- **R² Score**: Represents the proportion of the variance for a dependent variable that's explained by an independent variable.\n\n#### 3. **Ranking and Recommendation System Metrics**\n- **Recall at K**: Measures the proportion of relevant items retrieved in the top K results.\n- **Precision at K**: Measures the proportion of relevant items in the top K results.\n- **F-beta Score at K**: A combined measure of precision and recall.\n- **Mean Average Precision (MAP)**: Evaluates the quality of the order in the recommended list.\n- **Normalized Discounted Cumulative Gain (NDCG)**: Evaluates the relevance and ranking of results.\n- **Mean Reciprocal Rank (MRR)**: Measures the ranking quality based on the position of the first relevant item.\n\nThis framework also includes numerous visualizations for analysis, helping in model evaluation and performance improvements. For a full reference of all available metrics, check the documentation [here](https://docs.evidentlyai.com).",
+      "references": [
+        {
+          "file_path": "metrics/explainer_classification.mdx",
+          "explanation": "Describes standard classification metrics."
+        },
+        {
+          "file_path": "metrics/explainer_regression.mdx",
+          "explanation": "Details regression quality metrics."
+        },
+        {
+          "file_path": "metrics/explainer_recsys.mdx",
+          "explanation": "Covers ranking and recommendation system metrics."
+        },
+        {
+          "file_path": "metrics/all_metrics.mdx",
+          "explanation": "Provides a comprehensive list of metrics."
+        },
+        {
+          "file_path": "metrics/introduction.mdx",
+          "explanation": "Introduction to evaluations and customization of metrics."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on comprehensive details from relevant documents covering all the requested metric categories.",
+      "answer_type": "reference",
+      "followup_questions": [
+        "Can you explain how to interpret these metrics?",
+        "What are the specific use cases for each metric?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer must be factually accurate.",
+          "passed": true,
+          "explanation": "The answer includes accurately stated metrics from the documentation."
+        },
+        {
+          "rule": "The response should not include any assumptions or outside information.",
+          "passed": true,
+          "explanation": "All information is derived from the provided documentation only."
+        },
+        {
+          "rule": "The explanation should be clear and concise.",
+          "passed": true,
+          "explanation": "The answer summarizes metrics clearly categorized for user understanding."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"available metrics\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_classification.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_regression.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_recsys.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/all_metrics.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/introduction.mdx\"}"
+      }
+    ],
+    "cost": 0.0038664
+  },
+  {
+    "input": {
+      "question": "How do I measure text length?",
+      "group": "Metrics and descriptors",
+      "type": "specific descriptor"
+    },
+    "rag_response": {
+      "answer": "To measure text length within your datasets, you can utilize the `TextLength` descriptor available in your analysis setup. This descriptor is designed to compute the length of text entries in specified columns. Below are steps to implement this:\n\n### Basic Flow to Measure Text Length:\n1. **Import Required Modules**:\n   ```python\n   from evidently import Dataset\n   from evidently import DataDefinition\n   from evidently import Report\n   from evidently.descriptors import TextLength\n   ```\n\n2. **Prepare Your Dataset**: Create your dataset using a DataFrame. For instance:\n   ```python\n   import pandas as pd\n   data = [\n       [\"Sample text for measurement.\"],\n       [\"Another text entry.\"],\n   ]\n   df = pd.DataFrame(data, columns=[\"text_column\"])\n   ```\n\n3. **Create the Dataset Object**: Add a `TextLength` descriptor for the column you wish to evaluate:\n   ```python\n   eval_dataset = Dataset.from_pandas(\n       df,\n       data_definition=DataDefinition(text_columns=[\"text_column\"]),\n       descriptors=[TextLength(\"text_column\", alias=\"Length\")],\n   )\n   ```\n\n4. **Generate the Report**: After adding the descriptor, you will generate a report that summarizes the results:\n   ```python\n   report = Report([TextEvals()])\n   my_eval = report.run(eval_dataset)\n   ```\n\n### Additional Considerations:\n- You can set conditions (tests) on the `TextLength` descriptor to check if the text entries are within certain length constraints, such as being under or over specific character limits.\n- The results from the report will include the text length statistics, allowing you to analyze the lengths of your text entries effectively.\n\nThis framework facilitates both measuring and customizing evaluations of text length within your datasets.",
+      "references": [
+        {
+          "file_path": "metrics/preset_text_evals.mdx",
+          "explanation": "Contains details on using TextEvals for summarizing text evaluations, including length metrics."
+        },
+        {
+          "file_path": "docs/library/descriptors.mdx",
+          "explanation": "Describes how to create and use descriptors, particularly the TextLength descriptor for measuring text length."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer synthesizes the use of the TextLength descriptor from the documentation and provides clear implementation guidance, reflecting a high level of accuracy.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "Can I set specific length limits for the text?",
+        "What other text metrics can I evaluate?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts from the documentation knowledge base.",
+          "passed": true,
+          "explanation": "Only information from the documentation was used."
+        },
+        {
+          "rule": "No outside knowledge or assumptions introduced.",
+          "passed": true,
+          "explanation": "The answer strictly adheres to the content found in the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"measure text length\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_text_evals.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/descriptors.mdx\"}"
+      }
+    ],
+    "cost": 0.0013903499999999998
+  },
+  {
+    "input": {
+      "question": "What's the difference between metrics and descriptors?",
+      "group": "Metrics and descriptors",
+      "type": "conceptual"
+    },
+    "rag_response": {
+      "answer": "### Difference Between Metrics and Descriptors\n\n1. **Definition**:\n   - **Metrics** are quantifiable measures used to assess the performance or quality of a model, system, or process. They often summarize key attributes of a dataset or model performance, like precision, recall, or accuracy.\n   - **Descriptors** are specific evaluations that compute scores or labels for each row of a dataset. They serve to analyze characteristics of text data, generating insights or statistics about that data.\n\n2. **Functionality**:\n   - **Metrics** provide overall insight into performance, such as through recall metrics for ranking systems, which evaluate the number of relevant items retrieved.\n   - **Descriptors** evaluate individual data points within a dataset. For example, a sentiment descriptor evaluates the sentiment of each text entry in a dataset, allowing for granular analysis.\n\n3. **Implementation**:\n   - Metrics often aggregate information across multiple evaluations, providing broader insights into model effectiveness. Examples include mean average precision (MAP) or F-score.\n   - Descriptors can be built-in or custom functions that assess characteristics per row. They can also include pass/fail conditions, aggregating results for overall dataset assessments.\n\nIn summary, while metrics give a macro view of performance, descriptors focus on the micro-level evaluation of individual data entries within datasets.",
+      "references": [
+        {
+          "file_path": "metrics/explainer_recsys.mdx",
+          "explanation": "Provides details about different metrics applicable in ranking and recommendation systems."
+        },
+        {
+          "file_path": "docs/library/descriptors.mdx",
+          "explanation": "Describes descriptors, including their purpose and how they operate on dataset rows."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The response is based on detailed definitions and functionalities of metrics and descriptors derived from the respective documents.",
+      "answer_type": "comparison",
+      "followup_questions": [
+        "Can you provide examples of both metrics and descriptors?",
+        "How are metrics calculated in practice?"
+      ],
+      "checks": [
+        {
+          "rule": "Provide clear distinctions between concepts",
+          "passed": true,
+          "explanation": "The response clearly separates the definitions, functionalities, and implementations of metrics and descriptors."
+        },
+        {
+          "rule": "Cite relevant documentation",
+          "passed": true,
+          "explanation": "Relevant documents regarding metrics and descriptors have been cited."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"difference between metrics and descriptors\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_recsys.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/descriptors.mdx\"}"
+      }
+    ],
+    "cost": 0.0016074
+  },
+  {
+    "input": {
+      "question": "How do I add a scoring function?",
+      "group": "Metrics and descriptors",
+      "type": "wrong terminology"
+    },
+    "rag_response": {
+      "answer": "To add a scoring function, you can implement custom evaluation logic using either `CustomColumnDescriptor` or `CustomDescriptor`. Here’s how to do it:\n\n### 1. CustomColumnDescriptor\nThis allows you to create a function that evaluates a single column of your dataset.\n\n**Example:**\nTo evaluate if the values in a column are empty:\n\n```python\nimport pandas as pd\nfrom evidently import Dataset, DataDefinition\nfrom evidently.core.datasets import DatasetColumn\nfrom evidently.descriptors import CustomColumnDescriptor\n\n\ndef is_empty(data: DatasetColumn) -> DatasetColumn:\n    return DatasetColumn(\n        type=\"cat\",\n        data=pd.Series([\n            \"EMPTY\" if val == \"\" else \"NON EMPTY\"\n            for val in data.data]))\n\n# Usage\neval_df.add_descriptors(descriptors=[\n    CustomColumnDescriptor(\"answer\", is_empty, alias=\"is_empty\"),\n])\n\n# Publish to a DataFrame\neval_df.as_dataframe()\n```\n\n### 2. CustomDescriptor\nUse this when you need to evaluate multiple columns or perform more complex operations.\n\n**Example:**\nTo check for an exact match between two columns:\n\n```python\ndef exact_match(dataset: Dataset) -> DatasetColumn:\n    return DatasetColumn(\n        type=\"cat\",\n        data=pd.Series([\n            \"MATCH\" if val else \"MISMATCH\"\n            for val in dataset.column(\"target_answer\").data\n            == dataset.column(\"answer\").data]))\n\n# Usage\neval_df.add_descriptors(descriptors=[\n    CustomDescriptor(exact_match, alias=\"exact\"),\n])\n```\n\nYou can create more complex logic as required, such as returning multiple scores or manipulating data across several columns.\n\n### Additional Features\nAlso, you can log evaluations with tags, which helps in categorizing your scoring function based on different criteria, such as model versions or statuses.\n\n```python\nreport = Report([\n    ClassificationPreset()\n], tags=[\"classification\", \"production\"])\n```\n\nThis approach allows you to track and manage your evaluations effectively, adding context and enriching your data analysis process.",
+      "references": [
+        {
+          "file_path": "metrics/customize_descriptor.mdx",
+          "explanation": "Provided detailed instructions for creating custom scoring functions using CustomColumnDescriptor and CustomDescriptor."
+        },
+        {
+          "file_path": "docs/library/tags_metadata.mdx",
+          "explanation": "Explained how to add tags and metadata to help categorize and manage report evaluations."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The procedures for adding scoring functions and managing metadata were clearly outlined in the documentation.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the benefits of using custom scoring functions?",
+        "Can I integrate external libraries with scoring functions?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in the documentation.",
+          "passed": true,
+          "explanation": "The response is based solely on documented procedures for adding scoring functions."
+        },
+        {
+          "rule": "Do not introduce outside knowledge or assumptions.",
+          "passed": true,
+          "explanation": "All information provided is directly from the relevant documentation."
+        },
+        {
+          "rule": "Clearly inform if the answer cannot be found in the retrieved documents.",
+          "passed": true,
+          "explanation": "The answer was found in the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"add scoring function\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_descriptor.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/tags_metadata.mdx\"}"
+      }
+    ],
+    "cost": 0.0011067
+  },
+  {
+    "input": {
+      "question": "How do I export a report as HTML?",
+      "group": "Reports",
+      "type": "direct how-to"
+    },
+    "rag_response": {
+      "answer": "To export a report as HTML, you can use the following method after generating your report:\n\n```python\nmy_report.save_html(\"file.html\")\n```\nThis command will save the interactive visual report as an HTML file, which you can then open in a web browser. This functionality is especially useful for sharing reports with others or for use in environments where you cannot directly display interactive visuals.\n\nMake sure you've already generated the report using the `Report` class and executed it with your evaluation data. Here are the basic steps to follow:\n1. Import the necessary packages and create your report.\n2. Run the report with your evaluation data.\n3. Save the report as HTML using the method mentioned above.",
+      "references": [
+        {
+          "file_path": "docs/library/output_formats.mdx",
+          "explanation": "This document explains how to export reports in different formats, including HTML."
+        },
+        {
+          "file_path": "docs/library/report.mdx",
+          "explanation": "This document describes how to generate and run reports using the Evidently library."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 1.0,
+      "confidence_explanation": "The answer is directly based on the retrieved documentation, which provides specific instructions for exporting a report as HTML.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What other formats can I export reports to?",
+        "How do I generate a report?"
+      ],
+      "checks": [
+        {
+          "rule": "The response is based on facts from the documentation.",
+          "passed": true,
+          "explanation": "All information provided is taken directly from the retrieved documents."
+        },
+        {
+          "rule": "The response answers the user's question clearly and accurately.",
+          "passed": true,
+          "explanation": "The steps to export a report as HTML are clearly outlined."
+        },
+        {
+          "rule": "The response includes relevant references to documentation.",
+          "passed": true,
+          "explanation": "References to the relevant documents are included."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"export report as HTML\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/output_formats.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/report.mdx\"}"
+      }
+    ],
+    "cost": 0.00094605
+  },
+  {
+    "input": {
+      "question": "How do I save my results as a PDF?",
+      "group": "Reports",
+      "type": "wrong terminology"
+    },
+    "rag_response": {
+      "answer": "To save your results as a PDF, you'll need to export your reports through the available formats. Currently, you can save the evaluation results in several formats such as HTML or JSON. However, to convert your results to PDF, you can follow these steps:\n\n1. **Generate and Save as HTML**: First, you can generate your report and save it as an HTML file. Use the following command:\n   ```python\n   my_report.save_html(“file.html”)\n   ```\n   This file can then be opened in a web browser.\n\n2. **Convert HTML to PDF**: After saving your report as HTML, you can use various tools or libraries (like `wkhtmltopdf`, `weasyprint`, or even browser print options) to convert the HTML file to a PDF document.\n\n3. **Alternative Formats**: While direct PDF export isn't mentioned, you can also view and export Reports in JSON format, which can be used for further processing or reporting needs.\n\nFor saving your results directly to a workspace or obtaining visual summaries in interactive environments like Jupyter Notebook, you can use the following command:\n```python\nws.add_run(project.id, my_eval, include_data=False)\n```\n\n4. **Accessing Reports**: Navigate to the \"Reports\" section in your Project to browse and download published reports.  \n\nIf you need to compare results, you can do so by selecting multiple reports and analyzing them side by side. Take full advantage of these features to effectively manage and report your evaluation results!",
+      "references": [
+        {
+          "file_path": "docs/library/output_formats.mdx",
+          "explanation": "This document details various output formats including how to save and export reports."
+        },
+        {
+          "file_path": "docs/platform/evals_explore.mdx",
+          "explanation": "This document explains how to access and browse evaluation results."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on clear instructions found in the documentation about exporting reports and the need for further steps to convert to PDF.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "Are there specific tools available for HTML to PDF conversion?",
+        "Can I export results in any other format?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in the documentation knowledge base",
+          "passed": true,
+          "explanation": "The response is entirely based on the documentation provided."
+        },
+        {
+          "rule": "Clearly inform the user if the answer cannot be found in the documents",
+          "passed": true,
+          "explanation": "The response provided clear guidance on saving results to PDF from available formats."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"save results as PDF\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/output_formats.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/evals_explore.mdx\"}"
+      }
+    ],
+    "cost": 0.0009385499999999999
+  },
+  {
+    "input": {
+      "question": "How do I add a panel to my dashboard?",
+      "group": "Dashboards",
+      "type": "direct"
+    },
+    "rag_response": {
+      "answer": "To add a panel to your dashboard, follow these steps:\n\n1. **Enter Edit Mode**: Open your dashboard and click on the \"Edit\" mode button located in the top right corner.\n\n2. **Add a Panel**: Click on the \"Add Panel\" button next to the dashboard.\n\n3. **Configure the Panel**: \n   - Choose the type of panel you want (e.g., text, counter, pie chart, line plot, etc.) and follow the prompts to set up its configuration.\n   - **Select Metrics**: Specify which metric from your reports will be displayed. Make sure the metric matches names in your Reports.\n   - **Filter by Tag (optional)**: If necessary, you can filter which reports to pull metrics from by using specific tags.\n   - Set other parameters such as the legend, the type of plot, and the desired aggregation method (like sum or average).\n\n4. **Preview & Save**: Review the panel setup using the preview feature, then click \"Save\" to finalize the addition of the panel. You can also select which tab in the dashboard the panel should be added to.\n\n### Example:\nIf you want to add a line chart for the 'RowCount' metric:\n```python\nproject.dashboard.add_panel(\n           DashboardPanelPlot(\n              title=\"Row count\",\n              subtitle=\"Number of evaluations over time.\",\n              size=\"half\",\n              values=[\n                  PanelMetric(\n                      legend=\"Row count\",\n                      metric=\"RowCount\",\n                  ),\n              ],\n              plot_params={\"plot_type\": \"line\"},\n          ),\n          tab=\"My tab\",\n      )\n```  \nThis command will create a line chart that shows the 'RowCount' metric over time in the specified tab. Remember, if the tab doesn’t exist, it will be created automatically.\n\nBy following these steps, you can effectively add and customize panels on your dashboard.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_add_panels_ui.mdx",
+          "explanation": "Document provides a detailed procedure for adding panels to the dashboard interface."
+        },
+        {
+          "file_path": "docs/platform/dashboard_add_panels.mdx",
+          "explanation": "Document explains how to programmatically add panels using the Python API."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on comprehensive details from both UI and API documentation concerning the addition of panels to a dashboard.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "Can I remove a panel from the dashboard?",
+        "What types of panels can I add to my dashboard?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer is based solely on the documentation",
+          "passed": true,
+          "explanation": "The response is entirely derived from the provided documentation."
+        },
+        {
+          "rule": "Instructions must be clear and actionable",
+          "passed": true,
+          "explanation": "Step-by-step instructions are clearly outlined."
+        },
+        {
+          "rule": "Include relevant examples where applicable",
+          "passed": true,
+          "explanation": "An example of code for adding a panel is included."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"add panel to dashboard\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels_ui.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels.mdx\"}"
+      }
+    ],
+    "cost": 0.00145275
+  },
+  {
+    "input": {
+      "question": "I want to visualize my evaluation results",
+      "group": "Dashboards",
+      "type": "vague"
+    },
+    "rag_response": {
+      "answer": "To visualize your evaluation results, follow these steps based on the platform's features:\n\n1. **Access Evaluation Reports**:  \n   - Navigate to the \"Reports\" section in your Project. Here you can browse all evaluation artifacts, which can be filtered by Tags, time, or metadata. \n   - Individual reports can be viewed, which includes metrics and visuals summarizing the evaluation results.\n   \n2. **Explore and Compare Results**:  \n   - Click on \"Explore\" next to a report to view details and potentially linked datasets. To compare different reports, select them from the Report list and click the **\"Compare\"** button to see side-by-side performance metrics.\n   \n3. **Track Progress Over Time**:  \n   - As you conduct multiple evaluations, you can create a Dashboard that visualizes results over time, so you can monitor improvements and performance trends across evaluations.\n   \n4. **Export Formats**:  \n   - You can render your reports in interactive formats such as Jupyter notebook, save the summary as HTML for web viewing, or export results in JSON for processing elsewhere.\n   \n   Here are some code snippets for exporting results:\n   ```python\n   # To save HTML report\n   my_report.save_html(\"file.html\")\n   \n   # To get JSON\n   my_report.json()\n   \n   # To save JSON to a file\n   my_report.save_json(\"file.json\")\n   \n   # Convert to Python dictionary\n   my_report.dict()\n   ```\nThese steps will help you effectively visualize and manage your evaluation results in different formats depending on your needs.",
+      "references": [
+        {
+          "file_path": "docs/platform/evals_explore.mdx",
+          "explanation": "Details on accessing and exploring evaluation results including reports and comparison features."
+        },
+        {
+          "file_path": "docs/library/output_formats.mdx",
+          "explanation": "Information on exporting evaluation results to different formats."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 1.0,
+      "confidence_explanation": "The answer is directly based on the documented functionalities for visualizing and managing evaluation results.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What formats can I export my results to?",
+        "How do I create a dashboard for tracking evaluations?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in the documentation",
+          "passed": true,
+          "explanation": "The response is based solely on the provided documentation."
+        },
+        {
+          "rule": "Do not introduce outside knowledge or assumptions",
+          "passed": true,
+          "explanation": "The answer does not include any outside knowledge."
+        },
+        {
+          "rule": "Provide clear instructions for users",
+          "passed": true,
+          "explanation": "The steps provided are clear and actionable."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"visualize evaluation results\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/evals_explore.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/output_formats.mdx\"}"
+      }
+    ],
+    "cost": 0.0009519
+  },
+  {
+    "input": {
+      "question": "How do I add a chart?",
+      "group": "Dashboards",
+      "type": "wrong terminology"
+    },
+    "rag_response": {
+      "answer": "To add a chart in your dashboard, you will use the Panel feature in the dashboard settings. Here's how to do it:\n\n1. **Enter Edit Mode**: Navigate to your Dashboard and click on the \"Edit\" button (top right corner).\n\n2. **Add a Panel**: Click the \"Add Panel\" button to create a new panel.\n\n3. **Configure the Panel**:\n   - **Select Metrics**: Choose a metric that you want to visualize. The metric name must match the name logged in your Reports.\n   - **Panel Type**: Select the type of chart or panel you wish to use (e.g., pie chart, line plot, bar plot).\n   - **Set Aggregation**: For metrics with multiple instances, specify any additional parameters, such as column names or value types.\n   - **Legend and Labels**: Set a custom legend if needed.\n\n4. **Save the Panel**: After configuring, save the panel and choose which tab you want to place it in. You can create new tabs to organize your panels better.\n\n5. **Check Your Dashboard**: Once panels are added, make sure that they display the expected data from your reports.\n\nThis process allows you to visualize various metrics and evaluate them over time effectively.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_add_panels.mdx",
+          "explanation": "This document outlines how to add panels, including text, counters, and charts, to the dashboard."
+        },
+        {
+          "file_path": "docs/platform/dashboard_add_panels_ui.mdx",
+          "explanation": "This document provides additional details on using the user interface to add and configure dashboard panels."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information provided is consistent and detailed based on the retrieved documentation about adding panels to a dashboard, including charts.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What types of charts can I add?",
+        "How do I manage my dashboard panels?"
+      ],
+      "checks": [
+        {
+          "rule": "Only facts from the documentation knowledge base are included.",
+          "passed": true,
+          "explanation": "The answer strictly uses details from the provided documents without external sources."
+        },
+        {
+          "rule": "Clear instructions are provided to the user.",
+          "passed": true,
+          "explanation": "Step-by-step instructions are given for adding charts to the dashboard."
+        },
+        {
+          "rule": "Relevant document references are included.",
+          "passed": true,
+          "explanation": "Two relevant documents related to adding panels and configurations are referenced."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"add a chart\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels_ui.mdx\"}"
+      }
+    ],
+    "cost": 0.0013415999999999999
+  },
+  {
+    "input": {
+      "question": "How do I set up alerts?",
+      "group": "Monitoring",
+      "type": "direct"
+    },
+    "rag_response": {
+      "answer": "To set up alerts in the Evidently platform, follow these steps:\n\n1. **Open Your Project**: Navigate to the \"Alerts\" section in the left menu of your project.\n\n2. **Set Notification Channels**: Choose how you want to receive alerts. You can set notifications via:\n   - **Email**: Add email addresses to send alerts to.\n   - **Slack**: Integrate by adding a Slack webhook.\n   - **Discord**: Integrate by adding a Discord webhook.\n\n3. **Define Alert Conditions**: You can configure alert conditions based on:\n   - **Failed Tests**: If your project includes conditional checks (Tests), you can toggle an option to get alerts if any Test fails. \n   - **Custom Conditions**: Set alerts on specific Metric values. For example, you can create alerts for when the proportion of drifting features exceeds a defined threshold. To do this, click the plus sign below \"Add new Metric alert\" and follow the prompts to set your desired condition.\n\n### Tips\n- To avoid alert fatigue, consider using the `is_critical` parameter for non-critical tests to mark them as warnings. Setting this to `False` will prevent alerts for those checks even if they fail.\n\nMake sure you have the necessary Pro features enabled in your deployment since built-in alerting is part of the Pro feature set in the platform.",
+      "references": [
+        {
+          "file_path": "docs/platform/alerts.mdx",
+          "explanation": "This document provides detailed steps on setting up alerts, including notification channels and alert conditions."
+        },
+        {
+          "file_path": "docs/setup/cloud.mdx",
+          "explanation": "This document includes information on connecting to the Evidently platform, setting up an account, and relevant configurations."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information provided is directly derived from two relevant documents that explicitly describe alert setup processes and options.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What kind of alerts can I set up?",
+        "Can I customize alert notifications?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts from the documentation",
+          "passed": true,
+          "explanation": "The response is entirely based on the content retrieved from the relevant documentation."
+        },
+        {
+          "rule": "Avoid introducing outside knowledge",
+          "passed": true,
+          "explanation": "The answer does not include any external information and strictly adheres to the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"set up alerts\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/alerts.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/setup/cloud.mdx\"}"
+      }
+    ],
+    "cost": 0.0008851499999999999
+  },
+  {
+    "input": {
+      "question": "How do I track models in production?",
+      "group": "Monitoring",
+      "type": "wrong terminology"
+    },
+    "rag_response": {
+      "answer": "To track models in production, you can utilize AI monitoring tools that provide insights into the performance of your machine learning models. Here are the key approaches based on the documentation:\n\n### 1. **Monitoring Overview**  \n   - **Evaluate Inputs and Outputs**: Set up AI observability to monitor the quality of inputs and outputs as your models run in production. This process helps in identifying and resolving issues promptly.\n   - **Batch Monitoring**:  \n     - Create a pipeline for monitoring jobs scheduled at regular intervals (e.g., hourly, daily).  \n     - Utilize the Evidently Python library to run evaluations, compute metrics, and generate reports.  \n     - Store and visualize results in dashboards, giving you decoupled control over logging and monitoring.  \n   - This monitoring method is best suited for batch ML pipelines and can easily integrate with existing workflows.\n\n### 2. **Tracing for Scheduled Evaluations**  \n   - **Instrumenting Applications**: Use libraries like `Tracely` to capture all relevant data from applications, including inputs, outputs, and intermediate results.\n   - **Automatic Scheduling**: Set evaluations to run at specific times to generate reports on model performance or manually run evaluations to check individual outputs.\n   - This method stores raw data for easy re-run of evaluations and is particularly beneficial for applications utilizing large language models (LLMs).\n\n### 3. **Running Evaluations**  \n   - **Set Up Environment and Dataset**: Install the necessary libraries, prepare datasets with questions and answers, and utilize functions provided by Evidently to run tests on these datasets.  \n   - **Evaluation Criteria**: You can customize your evaluations to check for sentiment, text length, and other relevant metrics. \n   - **Reporting**: Generate reports that summarize evaluation results; these can be visualized in your development environment or uploaded to a central server for team collaboration.\n\nIn summary, effective model tracking in production involves continuous monitoring through scheduled evaluations and systematic reporting to ensure that each model's performance aligns with expectations.",
+      "references": [
+        {
+          "file_path": "docs/platform/monitoring_overview.mdx",
+          "explanation": "Provided an overview of how to monitor models, including batch monitoring, scheduled evaluations, and the relevance of AI observability."
+        },
+        {
+          "file_path": "quickstart_llm.mdx",
+          "explanation": "Detailed the setup of specific evaluations for LLMs and outlined the process for running evaluations and generating reports."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information extracted from the documents was comprehensive and directly addressed the query on tracking models in production.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific tools should I use for model monitoring?",
+        "How can I visualize model performance over time?"
+      ],
+      "checks": [
+        {
+          "rule": "Information must be drawn from the documentation only.",
+          "passed": true,
+          "explanation": "All information provided is based on the retrieved documentation."
+        },
+        {
+          "rule": "The answer must be clear and actionable.",
+          "passed": true,
+          "explanation": "Step-by-step methods for model tracking were outlined."
+        },
+        {
+          "rule": "Include references to the documents used.",
+          "passed": true,
+          "explanation": "References to relevant documents were included in the response."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"track models in production\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/monitoring_overview.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"quickstart_llm.mdx\"}"
+      }
+    ],
+    "cost": 0.00132555
+  },
+  {
+    "input": {
+      "question": "How do I create a new project?",
+      "group": "Projects",
+      "type": "direct"
+    },
+    "rag_response": {
+      "answer": "To create a new project, you can use either Python code or the User Interface (UI).\n\n### Using Python\n1. **Connect to Evidently Cloud (if applicable)**:\n   ```python\n   ws = CloudWorkspace(token=\"YOUR_API_TOKEN\", url=\"https://app.evidently.cloud\")\n   ```\n2. **Create a project** inside a workspace with the following code:\n   ```python\n   project = ws.create_project(\"My project name\", org_id=\"YOUR_ORG_ID\")\n   project.description = \"My project description\"\n   project.save()\n   ```\n   - If you are using a self-hosted installation, you do not need to provide `org_id`:\n   ```python\n   project = ws.create_project(\"My project name\")\n   project.description = \"My project description\"\n   project.save()\n   ```\n\n### Using the User Interface\n1. Click on the “plus” sign on the home page.\n2. Set the Project name and description.\n3. Save your project.\n\n### Important Notes\n- Always use the `save()` command after making any changes to your project.\n- When deleting a project, note that it will permanently delete all the data inside it.",
+      "references": [
+        {
+          "file_path": "docs/platform/projects_manage.mdx",
+          "explanation": "Contains instructions on creating a project using both Python and the UI."
+        },
+        {
+          "file_path": "snippets/create_project.mdx",
+          "explanation": "Provides code snippets for creating projects in both cloud and self-hosted installations."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on detailed documentation describing project creation methods.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the project parameters?",
+        "How do I edit an existing project?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer incorporates relevant documentation.",
+          "passed": true,
+          "explanation": "Used content from the retrieved documents to summarize the process for creating a project."
+        },
+        {
+          "rule": "Answer is clear and concise.",
+          "passed": true,
+          "explanation": "Structured the information in a clear format for understanding."
+        },
+        {
+          "rule": "No outside knowledge introduced.",
+          "passed": true,
+          "explanation": "All information is sourced from the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"create new project\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/projects_manage.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"snippets/create_project.mdx\"}"
+      }
+    ],
+    "cost": 0.0008985
+  },
+  {
+    "input": {
+      "question": "How do I set up Evidently Cloud?",
+      "group": "Projects",
+      "type": "setup question"
+    },
+    "rag_response": {
+      "answer": "### Setting Up Evidently Cloud\n\n1. **Create an Account**  \n   - Sign up for a [free Evidently Cloud account](https://app.evidently.cloud/signup) if you haven't already.  \n   - After logging in, create an **Organization** and give it a name.\n\n2. **Connect from Python**  \n   - You need to connect for tasks like tracing or logging local evaluations.\n   - **Get a Token**: Click the **Key** menu icon to open the [Token page](https://app.evidently.cloud/token). Generate and securely save your token.\n\n3. **Install Evidently**  \n   - Install the Evidently Python library using:  \n     ```bash  \n     pip install evidently  \n     # or for LLM support  \n     pip install evidently[llm]  \n     ```\n\n4. **Connect**  \n   - Import the cloud workspace and connect using your API token:  \n     ```python  \n     from evidently.ui.workspace import CloudWorkspace  \n     ws = CloudWorkspace(  \n         token=\"YOUR_API_KEY\",  \n         url=\"https://app.evidently.cloud\"  \n     )  \n     ```\n\n   - Alternatively, you can set your API key as an environment variable:  \n     ```bash  \n     export EVIDENTLY_API_KEY=YOUR_API_KEY  \n     ```\n\n5. **Create a Project**  \n   - Once connected, create a Project and run your first [evaluation](#).  \n\n#### Notes  \n- Evidently Cloud is transitioning from v1 to v2. By May 31, 2025, free users will only have access to Cloud v1 in read-only mode, so upgrading is crucial for continuity.\n- Cloud v2 introduces a redesigned dashboard and better performance, but ensure you are using `evidently>=0.7.0` for compatibility.\n\nIf you need assistance with the transition or setup, contact [support@evidentlyai.com](mailto:support@evidentlyai.com) for help with migrating assets and updating code.",
+      "references": [
+        {
+          "file_path": "docs/setup/cloud.mdx",
+          "explanation": "Provided steps for account creation, Python connection, and installation."
+        },
+        {
+          "file_path": "faq/cloud_v2.mdx",
+          "explanation": "Detailed information about the transition from Cloud v1 to Cloud v2 and compatibility."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The response is based on specific instructions found in the documentation regarding account setup, installation, and compatibility considerations.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the features of Evidently Cloud v2?",
+        "How do I migrate from Cloud v1 to Cloud v2?"
+      ],
+      "checks": [
+        {
+          "rule": "The response should be based solely on the documentation.",
+          "passed": true,
+          "explanation": "The answer uses only information from the retrieved documents."
+        },
+        {
+          "rule": "Answer should be clear and actionable.",
+          "passed": true,
+          "explanation": "The steps provided are straightforward and clearly written."
+        },
+        {
+          "rule": "Include references used in the response.",
+          "passed": true,
+          "explanation": "References to the specific documents used for compiling the answer are provided."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"set up Evidently Cloud\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/setup/cloud.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"faq/cloud_v2.mdx\"}"
+      }
+    ],
+    "cost": 0.0010547999999999998
+  },
+  {
+    "input": {
+      "question": "How do I integrate Evidently with MLflow?",
+      "group": "Edge cases",
+      "type": "partial/missing"
+    },
+    "rag_response": {
+      "answer": "To integrate Evidently with MLflow, you can follow these key steps:\n\n1. **Setup Your Environment**: Ensure you have both Evidently and MLflow installed in your Python environment.\n\n2. **Define Your Dataset**:\n   - Create an `Evidently` `Dataset` object that will serve as the basis for your evaluations. This includes specifying your data and its definitions (roles, types).\n\n3. **Configure Your Evaluations**:\n   - Use Evidently's API to specify the metrics and evaluations you want to perform on your MLflow model outputs. This may include descriptors for data quality or LLM evaluations.\n\n4. **Run Evaluations**:\n   - Execute the evaluations by running an Evidently `Report`, which will process the dataset and provide insights.\n\n5. **Store and Review Results**:\n   - Use the results from the evaluations to track model performance over time. Optionally, integrate this with reporting tools or CI/CD pipelines to automate this process.\n\n6. **Use CI/CD**: Consider integrating with GitHub Actions or similar CI/CD tools to automate model evaluations whenever you push updates to your codebase. You define your dataset and evaluation parameters directly in your CI configuration.\n\n### Example Code Snippet:\n```python\nfrom evidently import Dataset, Report\n\n# Define your dataset \neval_data = Dataset.from_pandas(your_dataframe, data_definition=your_data_definition)\n\n# Create a report for evaluation \nreport = Report([\n    YourMetric(),  # Define your specific metrics\n])\n\n# Run the evaluations \nresults = report.run(eval_data, None)\n```  \nThis setup allows you to continuously monitor and improve your ML models effectively.",
+      "references": [
+        {
+          "file_path": "examples/introduction.mdx",
+          "explanation": "This document provides an overview of integrating Evidently with other tools, including MLflow."
+        },
+        {
+          "file_path": "faq/migration.mdx",
+          "explanation": "This document discusses the changes in Evidently which could be relevant for integrations."
+        },
+        {
+          "file_path": "examples/GitHub_actions.mdx",
+          "explanation": "This document outlines how to utilize Evidently within CI/CD pipelines, which can be useful for integrating with MLflow."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information retrieved includes relevant guidance on integrating Evidently with MLflow and related practices in CI/CD workflows.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific metrics can I evaluate with Evidently?",
+        "Is there any additional documentation for setting up this integration?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer should be based on documented facts without assumptions.",
+          "passed": true,
+          "explanation": "The answer is constructed from retrieved documentation only."
+        },
+        {
+          "rule": "Include references to relevant documents used for the answer.",
+          "passed": true,
+          "explanation": "References are provided to support the answer."
+        },
+        {
+          "rule": "The explanation must be coherent and structured.",
+          "passed": true,
+          "explanation": "The answer clearly outlines steps for integration."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"integrate with MLflow\"}"
+      },
+      {
+        "name": "search",
+        "args": "{\"query\":\"MLflow integration\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/introduction.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"faq/migration.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/GitHub_actions.mdx\"}"
+      }
+    ],
+    "cost": 0.00231825
+  },
+  {
+    "input": {
+      "question": "How do I use Evidently with streaming data?",
+      "group": "Edge cases",
+      "type": "not covered"
+    },
+    "rag_response": {
+      "answer": "To use Evidently with streaming data, you can follow these guidelines:\n\n1. **Data Preparation**: Start by ensuring that you know how to prepare your data using the Data Definition. This is essential before evaluating any metrics.\n\n2. **Using Data Drift Detection**:\n   - You will need **two datasets**: the *current dataset* (the streaming data you want to evaluate) and a *reference dataset* (the baseline or previously established dataset).\n   - You can utilize the `DataDriftPreset` to compare these two datasets for any significant shifts in data distribution:\n     ```python\n     report = Report([\n         DataDriftPreset(),\n     ])\n     \n     my_eval = report.run(current, ref)\n     ```\n\n3. **Subsequent Evaluations**: Monitor features like `Feature Drift` and `Prediction Drift` to see if the model continues operating in a familiar environment. You can implement tests that explicitly pass or fail based on your criteria:\n   ```python\n   report = Report([\n       DataDriftPreset(),\n       include_tests=True\n   ])\n   \n   my_eval = report.run(current, ref)\n   ```\n\n4. **Statistical Testing**: Evidently applies various statistical tests depending on the column types and the number of observations in the datasets. This can include methods such as the Kolmogorov-Smirnov test for numerical columns or chi-squared tests for categorical data.\n\n5. **Visualizations**: Use the built-in capabilities to visualize the drift, helping you identify any important changes between the current and reference datasets.\n\n6. **Exploration and Adjustments**: If drift is detected, you may need to assess the changes in features over time and decide if retraining is necessary.\n\n7. **Customization**: You can modify the thresholds and testing methods according to your needs. Evidently allows for customizing the drift detection logic to suit different types of data and monitoring scenarios.\n\nFor detailed instructions on implementing these features and adjusting them for your specific data type, refer to the Evidently documentation on **Data Drift Detection** and **Data Definition**.",
+      "references": [
+        {
+          "file_path": "docs/platform/datasets_generate.mdx",
+          "explanation": "This document outlines how to generate datasets and prepare data for evaluation."
+        },
+        {
+          "file_path": "metrics/preset_data_drift.mdx",
+          "explanation": "This document describes the `DataDriftPreset`, the main tool for evaluating shifts in data distribution."
+        },
+        {
+          "file_path": "metrics/explainer_drift.mdx",
+          "explanation": "This document explains how data drift detection works and provides insights into statistical methods."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.9,
+      "confidence_explanation": "The answer is based on multiple relevant documents that provide direct instructions and methodologies for using Evidently with streaming data.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the best practices for monitoring data drift over time?",
+        "How can I visualize data drift in my reports?"
+      ],
+      "checks": [
+        {
+          "rule": "The response should include specific steps or guidelines from the documentation.",
+          "passed": true,
+          "explanation": "The final answer includes clear steps for using Evidently with streaming data, directly supported by retrieved documents."
+        },
+        {
+          "rule": "Only information from the documentation should be included.",
+          "passed": true,
+          "explanation": "The response is based solely on the documentation without any external assumptions or knowledge."
+        },
+        {
+          "rule": "The answer should reference relevant documents used to generate the information.",
+          "passed": true,
+          "explanation": "The answer includes references to multiple documents that were consulted."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"streaming data\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/datasets_generate.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_data_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_drift.mdx\"}"
+      }
+    ],
+    "cost": 0.00187755
+  },
+  {
+    "input": {
+      "question": "What's the pricing?",
+      "group": "Edge cases",
+      "type": "non-doc"
+    },
+    "rag_response": {
+      "answer": "The pricing details for Evidently can be found on their official [pricing page](https://www.evidentlyai.com/pricing). \n\nEvidently offers two primary deployment options:\n1. **Open-source Edition**: This has a basic feature set and is free to use but requires your team to manage the setup and maintenance.\n2. **Commercial Edition**: This includes additional advanced features and support, available through **Evidently Cloud** (fully managed and hosted) and **Evidently Enterprise** (self-hosted). The commercial version has a cost associated with it, which varies based on the selected plan and features.\n\nFor specific pricing figures, it’s best to refer directly to the [pricing page](https://www.evidentlyai.com/pricing) or contact their sales team for detailed inquiries. Additionally, if you are a startup, you may apply for a discount through their [startup program](https://www.evidentlyai.com/sign-up-startups).",
+      "references": [
+        {
+          "file_path": "docs/platform/datasets_generate.mdx",
+          "explanation": "Discusses Generating Synthetic Data and includes a reference to the pricing page."
+        },
+        {
+          "file_path": "synthetic-data/introduction.mdx",
+          "explanation": "Also highlights the necessity to check the pricing page for details on features offered."
+        },
+        {
+          "file_path": "faq/oss_vs_cloud.mdx",
+          "explanation": "Details various offerings and compares the open-source edition with commercial options, emphasizing the pricing relevant to the commercial platform."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is directly based on multiple reliable documentation sources that specifically reference pricing and features included in different editions.",
+      "answer_type": "reference",
+      "followup_questions": [
+        "What features are included in the different pricing tiers?",
+        "Are there any trial options available?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer must provide relevant pricing information based on the documentation.",
+          "passed": true,
+          "explanation": "The answer includes direct references to pricing details available in the documentation."
+        },
+        {
+          "rule": "Cite correct references from the documentation.",
+          "passed": true,
+          "explanation": "References provided are accurate and related to the pricing context."
+        },
+        {
+          "rule": "Information must be factually correct based on the source materials.",
+          "passed": true,
+          "explanation": "The synthesized information correctly summarizes the details from the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"pricing\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/datasets_generate.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"synthetic-data/introduction.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"faq/oss_vs_cloud.mdx\"}"
+      }
+    ],
+    "cost": 0.0012435
+  },
+  {
+    "input": {
+      "question": "How do I set up monitoring?",
+      "group": "Edge cases",
+      "type": "follow-up"
+    },
+    "rag_response": {
+      "answer": "To set up monitoring, follow these steps:\n\n1. **Connect to a Workspace**: Make sure you are connected to Evidently Cloud or a local workspace.\n\n2. **Create a Project**:\n   - **Using Python**:\n     ```python\n     project = ws.create_project(\"My test project\")\n     project.description = \"My project description\"\n     project.save()\n     ```\n   - **Using UI**: Click on the “plus” sign on the home page, and set a project name and description.\n\n3. **Configure Monitoring**:\n   - **Set Up Metrics**: Define an Evidently Report with optional Test conditions for your monitoring metrics. You’ll need a dataset and a report configured to capture the necessary statistics.\n   - **Run Evaluations**: Execute your reports on a chosen schedule (e.g., using tools like Airflow). You can cover different aspects such as data quality, data drift, and prediction drift.\n   - **Upload Results**: Choose whether to store raw inferences or only the summary of metrics back to the platform.\n\n4. **Dashboard Configuration**:\n   - Set up a dashboard to visualize your results over time. You can use pre-built dashboards or customize your own monitoring panels.\n   \n5. **Set Up Alerts**:\n   - Configure alerts based on metric values or test failures to get notified of issues.\n\nYou can reference the detailed guides for each step of the process, including alert setup and dashboard configuration, to ensure you cover all aspects of monitoring effectively.",
+      "references": [
+        {
+          "file_path": "docs/platform/projects_manage.mdx",
+          "explanation": "Provided steps to create and manage projects for monitoring."
+        },
+        {
+          "file_path": "docs/platform/monitoring_local_batch.mdx",
+          "explanation": "Outlined the workflow for batch monitoring, including report configuration and evaluation."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "Information from multiple relevant documents confirmed the setup process for monitoring.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the best practices for monitoring?",
+        "How do I set up alerts in my project?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer is based only on the documentation knowledge base.",
+          "passed": true,
+          "explanation": "All information was sourced exclusively from the provided documents."
+        },
+        {
+          "rule": "Answer includes relevant and accurate information.",
+          "passed": true,
+          "explanation": "The steps are directly supported by the documentation on project management and monitoring."
+        },
+        {
+          "rule": "Clear and actionable instructions are provided.",
+          "passed": true,
+          "explanation": "The response outlines a clear process for setting up monitoring."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"set up monitoring\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/projects_manage.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/monitoring_local_batch.mdx\"}"
+      }
+    ],
+    "cost": 0.00101745
+  },
+  {
+    "input": {
+      "question": "Actually, can I just use alerts instead?",
+      "group": "Edge cases",
+      "type": "follow-up"
+    },
+    "rag_response": {
+      "answer": "Yes, you can use alerts as they are a built-in feature, available in both **Evidently Cloud** and **Evidently Enterprise**. Here’s how you can set them up:\n\n1. **Enable Alerts**: Open your Project and navigate to the \"Alerts\" section in the left menu.\n\n2. **Set Notification Channels**: You have options for notifications:\n   - **Email**: Add email addresses to receive alerts.\n   - **Slack**: Incorporate a Slack webhook.\n   - **Discord**: Utilize a Discord webhook.\n\n3. **Define Alert Conditions**:\n   - **Failed Tests**: You can tie alerts to failed Tests in your Test Suite. If any Tests fail, an alert will be sent to the defined channel.\n   - **Custom Conditions**: Set alerts based on specific Metric values, such as when the share of drifting features exceeds a certain threshold.  \n\nTo add a custom metric alert, click the plus sign under the \"Add new Metric alert\" section and follow the prompts for setting an alert condition.\n\n4. **Avoiding Alert Fatigue**: Use the `is_critical` parameter to designate non-critical Tests as Warnings. Setting it to `False` prevents alerts for those checks even if they fail.",
+      "references": [
+        {
+          "file_path": "docs/platform/alerts.mdx",
+          "explanation": "Detailed guide on setting up alerts and notification rules."
+        },
+        {
+          "file_path": "docs/platform/evals_api.mdx",
+          "explanation": "Information on configuring alerts in the context of evaluations."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information on alerts is explicitly detailed in the corresponding documentation, ensuring a high level of confidence in the answer.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the types of notifications I can set up?",
+        "Can I customize alert conditions for specific metrics?"
+      ],
+      "checks": [
+        {
+          "rule": "The response is based solely on documentation facts.",
+          "passed": true,
+          "explanation": "All information provided is extracted directly from the relevant documents."
+        },
+        {
+          "rule": "The answer addresses the user's question clearly and completely.",
+          "passed": true,
+          "explanation": "The response explicitly details how alerts can be set up and utilized."
+        },
+        {
+          "rule": "References to documents are included for verification.",
+          "passed": true,
+          "explanation": "References to the specific documentation sections are provided in the answer."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"alerts\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/alerts.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/evals_api.mdx\"}"
+      }
+    ],
+    "cost": 0.0009170999999999999
+  },
+  {
+    "input": {
+      "question": "Compare Evidently reports to Weights & Biases dashboards",
+      "group": "Edge cases",
+      "type": "comparison"
+    },
+    "rag_response": {
+      "answer": "### Comparison of Evidently Reports and Weights & Biases Dashboards\n\n#### 1. **Purpose**\n- **Reports**: Primarily used for performing evaluations on datasets, summarizing results, and providing insights into model performance through various metrics. They allow for data summarization and detailed analysis based on specific criteria.\n- **Dashboards**: Focused on providing a clear, visual overview of AI application performance. They help in tracking evaluation results across experiments and monitoring live production quality over time.\n\n#### 2. **Data Handling**\n- **Reports**: Users can create reports by selecting metrics, which can evaluate both single and multiple datasets. Reports can incorporate a variety of metrics like data drift, data summary, and group-based evaluations.\n- **Dashboards**: Functionality depends on having Reports as a data source. Users can visualize data trends and metrics over time by pulling values from previous reports recorded in the project, making dashboards more suited for ongoing monitoring and visualization.\n\n#### 3. **Customization**\n- **Reports**: Highly customizable; users can create either standard or custom reports by selecting specific metrics and adjusting report parameters. They can include multiple datasets and combine various preset metrics into one report efficiently.\n- **Dashboards**: Users can organize visual elements (Panels) into tabs, define their types, and specify parameters visually or programmatically. Customization is available, but it’s generally designed for quick visual access rather than in-depth analysis like Reports.\n\n#### 4. **Visual Representation**\n- **Reports**: Provide detailed snapshots of evaluations but in a more textual format, presenting metrics, visualizations, and metadata comprehensively. Reports can be exported in various formats like HTML or JSON.\n- **Dashboards**: Offer a dynamic and interactive visual representation that allows users to track metrics graphically. Panels can depict different types of plots or counters, which make dashboards ideal for quick insights at a glance.\n\n#### 5. **Integration**\n- **Reports**: Can be logged and saved to the platform, enabling retrieval in dashboards for visual purposes. This interlinking enables a workflow where the detailed evaluations can inform broader visual dashboards.\n- **Dashboards**: Cannot function independently without reports; they rely on the existence of reports to populate metrics and visualize information effectively.\n\n### Conclusion\nWhile Evidently Reports and Weights & Biases Dashboards serve different purposes, they complement each other well. Reports focus on detailed evaluations and can feed data into dashboards, which provide a high-level visual overview of performance metrics. Together, they form a robust framework for monitoring and enhancing AI model performance.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_overview.mdx",
+          "explanation": "This document explains the features and purpose of the Dashboard."
+        },
+        {
+          "file_path": "docs/library/report.mdx",
+          "explanation": "This document outlines how to generate and utilize Reports for performing evaluations."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "Retrieved documents provide relevant comparisons between reports and dashboards, indicating clear distinctions and use cases for each.",
+      "answer_type": "comparison",
+      "followup_questions": [
+        "What are the specific metrics available in Evidently Reports?",
+        "How can I customize a Dashboard in Evidently?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts from the documentation knowledge base.",
+          "passed": true,
+          "explanation": "The answer is based solely on information retrieved from the provided documents."
+        },
+        {
+          "rule": "Include relevant references for the information provided.",
+          "passed": true,
+          "explanation": "References from the documents used to compile the answer are included."
+        },
+        {
+          "rule": "Ensure a clear and structured comparison is provided.",
+          "passed": true,
+          "explanation": "The answer is structured with headings and bullet points for clarity."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"compare reports to dashboards\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_overview.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/report.mdx\"}"
+      }
+    ],
+    "cost": 0.0012108
+  },
+  {
+    "input": {
+      "question": "What is the Queen's Gambit in chess?",
+      "group": "Unrelated",
+      "type": "chess"
+    },
+    "rag_response": {
+      "answer": "I couldn't find specific documentation on the Queen's Gambit in chess. It typically refers to a popular chess opening where White offers a pawn on d4 to control the center and gain a strategic advantage. If you're looking for general chess resources or openings, I can help with that.",
+      "references": [],
+      "found_answer": false,
+      "confidence": 0.5,
+      "confidence_explanation": "The search did not yield relevant results regarding the Queen's Gambit, thus the confidence level is lower.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are other chess openings?",
+        "How to play the Queen's Gambit?"
+      ],
+      "checks": [
+        {
+          "rule": "Information is accurate and sourced from the documentation",
+          "passed": false,
+          "explanation": "Specific documentation on the Queen's Gambit was not found."
+        },
+        {
+          "rule": "User's request is clearly understood",
+          "passed": true,
+          "explanation": "The request about the Queen's Gambit was comprehended."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"Queen's Gambit in chess\"}"
+      },
+      {
+        "name": "search",
+        "args": "{\"query\":\"chess openings\"}"
+      },
+      {
+        "name": "search",
+        "args": "{\"query\":\"Queen's Gambit\"}"
+      }
+    ],
+    "cost": 0.0006533999999999999
+  },
+  {
+    "input": {
+      "question": "What caused the Cuban Missile Crisis?",
+      "group": "Unrelated",
+      "type": "history"
+    },
+    "rag_response": {
+      "answer": "I could not find any relevant documentation regarding the causes of the Cuban Missile Crisis in the current knowledge base. This topic is not covered within the available materials.",
+      "references": [],
+      "found_answer": false,
+      "confidence": 0.0,
+      "confidence_explanation": "No relevant documents were retrieved that provide information on this historical topic.",
+      "answer_type": "reference",
+      "followup_questions": [
+        "What were the effects of the Cuban Missile Crisis?",
+        "How did the Cuban Missile Crisis end?"
+      ],
+      "checks": [
+        {
+          "rule": "Relevant information must be found in the documentation",
+          "passed": false,
+          "explanation": "No relevant documentation was found regarding the causes."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"Cuban Missile Crisis causes\"}"
+      },
+      {
+        "name": "search",
+        "args": "{\"query\":\"Cuban Missile Crisis history\"}"
+      },
+      {
+        "name": "search",
+        "args": "{\"query\":\"Cuban Missile Crisis background\"}"
+      }
+    ],
+    "cost": 0.00055965
+  },
+  {
+    "input": {
+      "question": "How do I train a random forest model?",
+      "group": "Related but not in docs",
+      "type": "ML training"
+    },
+    "rag_response": {
+      "answer": "To train a random forest model, follow these general steps:  \n\n### Step 1: Data Preparation  \n- Ensure your dataset is structured with features and a target label. You may use data generated through a generator such as in the example below:\n```python\nimport pandas as pd\nimport numpy as np\n\n# Example data\nnp.random.seed(42)\ndata = {\n    \"Age\": np.random.randint(18, 60, size=30),\n    \"Salary\": np.random.randint(30000, 120000, size=30),\n    \"Department\": np.random.choice([\"HR\", \"IT\", \"Finance\", \"Marketing\", \"Operations\"], size=30),\n    \"YearsExperience\": np.random.randint(1, 15, size=30),\n    \"EducationLevel\": np.random.choice([\"High School\", \"Bachelor\", \"Master\", \"PhD\"], size=30)  \n}\ndummy_df = pd.DataFrame(data)\n```\n\n### Step 2: Import Required Libraries  \nYou will need the following imports to utilize the random forest model and evaluation metrics:\n```python\nfrom sklearn.ensemble import RandomForestClassifier  \nfrom sklearn.metrics import accuracy_score, classification_report  \n```  \n\n### Step 3: Train the Model  \n1. Split your dataframe into training and testing datasets.  \n```python  \nfrom sklearn.model_selection import train_test_split  \nX = dummy_df.drop(columns=['Department'])  \ny = dummy_df['Department']  \nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)  \n```\n\n2. Create and train the model:\n```python  \nmodel = RandomForestClassifier(n_estimators=100, random_state=42)  \nmodel.fit(X_train, y_train)  \n```\n\n### Step 4: Predict and Evaluate  \nUse the model to predict the test data and then evaluate its performance:\n```python  \ny_pred = model.predict(X_test)  \nprint(accuracy_score(y_test, y_pred))  \nprint(classification_report(y_test, y_pred))  \n```\n\n### Additional Notes  \n- Ensure to handle any necessary preprocessing (like encoding categorical variables) before feeding data into the model.  \n- The steps include evaluating the model's metrics such as accuracy, precision, recall, etc. to understand its performance.  \n\nFor a thorough evaluation of the model and its metrics, you can also utilize the `ClassificationPreset` which can automate several evaluations and visualizations for classification tasks.",
+      "references": [
+        {
+          "file_path": "docs/library/metric_generator.mdx",
+          "explanation": "Provided guidance on data generation and preparation for classification tasks."
+        },
+        {
+          "file_path": "metrics/preset_classification.mdx",
+          "explanation": "Described the use of presets for evaluating classification models and included relevant code examples."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.9,
+      "confidence_explanation": "The synthesis is based on multiple relevant documents detailing the preparation, training, and evaluation of random forest models in a classification context.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific libraries are recommended for training a random forest model?",
+        "How do I evaluate the performance of my random forest model in more detail?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer includes actionable steps based on documentation.",
+          "passed": true,
+          "explanation": "The answer provides a structured step-by-step guide to training a random forest model."
+        },
+        {
+          "rule": "Answer references appropriate documentation and code examples.",
+          "passed": true,
+          "explanation": "The references include specific documentation with code examples relevant to the training process."
+        },
+        {
+          "rule": "Answer is concise and relevant to the user's query.",
+          "passed": true,
+          "explanation": "The response directly addresses how to train a random forest model."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"train random forest model\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/metric_generator.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_classification.mdx\"}"
+      }
+    ],
+    "cost": 0.0012399
+  },
+  {
+    "input": {
+      "question": "How do I fix class imbalance in my dataset?",
+      "group": "Related but not in docs",
+      "type": "Data prep"
+    },
+    "rag_response": {
+      "answer": "To address class imbalance in your dataset, consider the following techniques based on the documentation:\n\n1. **Re-sampling Techniques**:\n   - **Under-sampling**: Reduce the number of instances in the majority class to balance the class distribution.\n   - **Over-sampling**: Increase the number of instances in the minority class, for instance, by duplicating instances or using synthetic data generation methods like SMOTE (Synthetic Minority Over-sampling Technique).\n\n2. **Class Weighting**: Modify the algorithm to pay more attention to the minority class by assigning higher weights to it during training. This can help the model perform better on under-represented classes without changing the dataset distribution.\n\n3. **Use Specialized Algorithms**: Some algorithms are specifically designed to handle imbalanced datasets more effectively. These include tree-based algorithms that can adapt to class distribution naturally.\n\n4. **Anomaly Detection Techniques**: If your minority class can be treated as anomalies, employ anomaly detection methods that can focus on identifying minority instances effectively.\n\n5. **Evaluation Metrics**: Use appropriate metrics to assess model performance when dealing with imbalanced datasets. Metrics such as Precision, Recall, F1-Score, and ROC AUC provide better insights than accuracy alone, as they focus on the performance of the minority class.\n\nBy applying these methods effectively, you can enhance the quality of model predictions even with imbalanced classes in your dataset.",
+      "references": [
+        {
+          "file_path": "metrics/explainer_classification.mdx",
+          "explanation": "Discusses classification metrics and methods to evaluate models dealing with class imbalance."
+        },
+        {
+          "file_path": "metrics/all_metrics.mdx",
+          "explanation": "Serves as a reference for various metrics and methods related to different evaluation strategies including handling class imbalance."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on documented methods for handling class imbalance, supported by references from the official documents regarding metrics and techniques.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific algorithms are recommended for imbalanced datasets?",
+        "Can you provide sample code for implementing these techniques?"
+      ],
+      "checks": [
+        {
+          "rule": "Cite relevant sources from the documentation",
+          "passed": true,
+          "explanation": "Referenced official documentation that covers the specifics of class imbalance handling."
+        },
+        {
+          "rule": "Use clear and concise language appropriate for the user’s level",
+          "passed": true,
+          "explanation": "The response is comprehensive yet clear, ensuring understanding for a range of users."
+        },
+        {
+          "rule": "Ensure that the answer directly addresses the user's question",
+          "passed": true,
+          "explanation": "The response provides actionable techniques to fix class imbalance in datasets."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"fix class imbalance in dataset\"}"
+      },
+      {
+        "name": "search",
+        "args": "{\"query\":\"class imbalance techniques\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/all_metrics.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_classification.mdx\"}"
+      }
+    ],
+    "cost": 0.004697099999999999
+  },
+  {
+    "input": {
+      "question": "How do I set up a Grafana dashboard for model monitoring?",
+      "group": "Related but not in docs",
+      "type": "Monitoring tool"
+    },
+    "rag_response": {
+      "answer": "To set up a Grafana dashboard for model monitoring, follow these steps:\n\n### 1. **Access Your Dashboard**\n   Ensure you have access to your Grafana instance, either through **Evidently OSS**, **Evidently Cloud**, or **Evidently Enterprise**.\n\n### 2. **Create a New Dashboard**\n   - Your dashboard will be empty initially. You need to start by running an evaluation and saving at least one report to your project.\n\n### 3. **Adding Panels**\n   You can add panels to visualize different metrics. Here's how:\n   - **Via User Interface**:\n     - Enter \"Edit\" mode on the Dashboard.\n     - Click on the \"Add Panel\" button.\n     - Select metrics from your reports to plot. You can filter metrics and set things like aggregation levels and visualization types (e.g., line charts, bar charts, counters).\n   - **Via Python API**:\n     - Use the `project.dashboard.add_panel()` function to define the panel attributes programmatically. Specify details like title, size, and metrics to display in the panel.\n     ```python\n     project.dashboard.add_panel(\n         DashboardPanelPlot(\n             title=\"Model Accuracy\",\n             size=\"half\",\n             values=[PanelMetric(legend=\"Accuracy\", metric=\"ModelAccuracy\")],\n             plot_params={\"plot_type\": \"line\"},\n         ),\n         tab=\"Model Metrics\",\n     )\n     ```\n\n### 4. **Organizing Panels with Tabs**\n   - You can organize multiple panels by creating tabs. In the edit mode, click to add a new tab as needed, which allows better organization of your visualizations.\n\n### 5. **Using Reports as Data Sources**\n   - Make sure your panels are configured to pull data from the reports saved in your project. The metrics should match the data collected in your evaluations. You can set tags to filter which reports the panels should pull data from when needed.\n\n### 6. **Saving Your Dashboard**\n   - After configuring the desired panels and ensuring they reflect the necessary metrics, save your dashboard settings.\n\n### 7. **Reviewing and Modifying**\n   - Enter edit mode anytime to modify existing panels or add new ones based on your monitoring needs. \n   - To delete a panel or tab, hover over it in edit mode and select the appropriate action.\n\n### 8. **Visualization Types**\n   Ensure to use various visualization types (line, bar, pie charts, counters) according to the metrics being monitored for more intuitive insights.\n\nBy following these steps, you can effectively set up a Grafana dashboard for model monitoring, visualizing critical metrics over time and allowing for deeper insights into your model's performance.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_overview.mdx",
+          "explanation": "This document explains the introduction to dashboards, including the purpose and creation process for monitoring."
+        },
+        {
+          "file_path": "docs/platform/dashboard_add_panels.mdx",
+          "explanation": "Detailed instructions on how to add panels to the dashboard, including various metrics and visualization types."
+        },
+        {
+          "file_path": "docs/platform/dashboard_add_panels_ui.mdx",
+          "explanation": "This document outlines how to design your Dashboard with panels through the user interface."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is derived from detailed documentation on setting up dashboards and adding monitoring panels, with multiple sources confirming the process.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What types of metrics should I monitor?",
+        "How do I customize panel types?"
+      ],
+      "checks": [
+        {
+          "rule": "Response should only include information from the documentation.",
+          "passed": true,
+          "explanation": "All content provided is sourced from the documentation."
+        },
+        {
+          "rule": "Answer should be concise and organized.",
+          "passed": true,
+          "explanation": "The answer is structured in clear steps to follow."
+        },
+        {
+          "rule": "Include relevant references to documentation for user guidance.",
+          "passed": true,
+          "explanation": "References to relevant documents are provided."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"Grafana dashboard model monitoring setup\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_overview.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels_ui.mdx\"}"
+      }
+    ],
+    "cost": 0.0016979999999999999
+  }
+]

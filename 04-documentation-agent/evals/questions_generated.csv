@@ -1,0 +1,858 @@
+question,reference_answer,line_number_start,line_number_end,question_type,filename
+I need to know how to create a Dataset object correctly. Can you help?,"To create a Dataset object, use `Dataset.from_pandas` with `data_definition`:",23,29,frustrated_beginner,docs/library/data_definition.mdx
+What’s the easiest way to handle column mapping?,"To map columns automatically, pass an empty `DataDefinition()`. Evidently will map columns: By type (numerical, categorical) and by matching column names to roles.",32,36,hurried_developer,docs/library/data_definition.mdx
+"So, I just use Dataset.from_pandas to create the Dataset, right? And what about data definition?","You need to create a `DataDefinition`, which maps column types (e.g., categorical, numerical, text) and roles (e.g., id, prediction, target).",1,6,context_assumer,docs/library/data_definition.mdx
+How can I manually set up data definitions?,"To set the data definition manually, you can define the mapping using the Python API or assign columns visually when uploading data to the Evidently platform.",40,41,direct_inquirer,docs/library/data_definition.mdx
+What if my data has mixed column types?,"Your data can have a flexible structure with any mix of categorical, numerical or text columns. Check the Reference table for data requirements in specific evaluations.",19,21,frustrated_beginner,docs/library/data_definition.mdx
+Need to know the defaults for column mapping if nothing is passed. What are they?,"If you do not pass explicit mapping, the following defaults apply: For numerical_columns, all columns with numeric types; for datetime_columns, all columns with DateTime format; for categorical_columns, all non-numeric/non-datetime columns; for text_columns, no automated mapping.",104,111,hurried_developer,docs/library/data_definition.mdx
+Do I need to set up a Dataset object if I'm just running a quick check?,"You can sometimes pass a `pandas.DataFrame` directly to `report.run()` without creating the Dataset object. However, it's best to always create a `Dataset` object explicitly for clarity and control.",47,47,context_assumer,docs/library/data_definition.mdx
+What’s the difference between timestamp and datetime_columns?,"Timestamp is a role that often represents the time when a data input was recorded, while DateTime is a column type that can have many DateTime columns in the dataset.",130,133,direct_inquirer,docs/library/data_definition.mdx
+How do I specify column roles when creating a DataDefinition?,"You can specify the ID column and timestamp in the `DataDefinition`, like this: `id_column='Id', timestamp='Date'`.",118,121,frustrated_beginner,docs/library/data_definition.mdx
+Can I map multiple regression columns in one Dataset?,"You can have several regression results in the dataset, for example in case of multiple regression. (Pass the mappings in a list).",156,156,hurried_developer,docs/library/data_definition.mdx
+"If I want to classify data, how do I set that up?","To run classification checks, you must map the columns with target: true label and prediction: predicted labels/probabilities. There are separate mappings for binary and multi-class classification.",175,180,direct_inquirer,docs/library/data_definition.mdx
+"I want to evaluate some text data, but I'm confused about what Descriptors are and how to use them.","To evaluate text data, like LLM inputs and outputs, you create **Descriptors**. This is a universal interface for all evals - from text statistics to LLM judges.",1,1,frustrated_beginner,docs/library/descriptors.mdx
+What’s the easiest way to add descriptors to my dataset?,You can add descriptors via the Dataset object in two ways: 1) Simultaneously create the Dataset object and add descriptors to the selected columns. 2) Add descriptors to the existing Dataset using add_descriptors.,56,76,hurried_developer,docs/library/descriptors.mdx
+Can I create custom descriptors?,You can use built-in descriptors or create custom ones using LLM prompts or Python.,3,3,context_assumer,docs/library/descriptors.mdx
+How do I export results after evaluating text data?,You can preview the DataFrame with results using: eval_dataset.as_dataframe(),97,101,direct_inquirer,docs/library/descriptors.mdx
+What should I do if a Descriptor requires NLTK libraries?,"Some Descriptors (like OOVWordsPercentage() may require nltk dictionaries: nltk.download('words'), nltk.download('wordnet'), nltk.download('omw-1.4'), and nltk.download('vader_lexicon').",47,54,frustrated_beginner,docs/library/descriptors.mdx
+How do I check if the sentiment of my responses is positive?,"When creating a descriptor (like Sentiment), use the tests argument to set conditions. For sentiment, you can add tests like gte(0, alias=""Sentiment is non-negative"").",186,196,hurried_developer,docs/library/descriptors.mdx
+Is there a way to customize the tests for descriptors?,You can combine multiple tests into a single summary result per row when adding tests to a descriptor using the tests argument. Each test adds a new column with a True/False result.,172,178,context_assumer,docs/library/descriptors.mdx
+What if I want to summarize multiple tests at once?,"You can use TestSummary to combine multiple tests into one or more summary columns. For example, it returns True if all tests pass.",206,220,direct_inquirer,docs/library/descriptors.mdx
+Can I create a summary report for my metrics? How?,"You've already seen how to generate a report using the TextEvals preset. However, you can also create custom reports using different metric combinations for more control.",258,260,frustrated_beginner,docs/library/descriptors.mdx
+How do I check if no responses have a sentiment less than 0?,"You can attach Tests to your Metrics to get pass/fail results at the dataset Report level. For example, use MinValue(column=""Sentiment"", tests=[gte(0)]).",310,318,hurried_developer,docs/library/descriptors.mdx
+Why should I add an alias to each descriptor?,It is best to add an alias to each Descriptor to make it easier to reference. This name shows up in visualizations and column headers.,130,130,context_assumer,docs/library/descriptors.mdx
+What’s the code to generate a report with specific descriptors?,"You can apply TextEvals to specific descriptors in your dataset like this: report = Report([ TextEvals(columns=[""Sentiment"", ""Length"", ""Test result""]) ])",271,276,direct_inquirer,docs/library/descriptors.mdx
+"I'm trying to log my evaluation results, but I'm confused about how to connect to Evidently Cloud or set up a local workspace. Can you help?","To log the evaluation results to the Evidently Platform, first connect to [Evidently Cloud](/docs/setup/cloud) or your [local workspace](/docs/setup/self-hosting) and [create a Project](/docs/platform/projects_manage). It's optional: you can also run evals locally in Python.",4,4,frustrated_beginner,docs/library/evaluations_overview.mdx
+"Need to create a Dataset object. Do I need to define every column role and type, or can it auto-detect?",Create a Dataset object with `DataDefinition()` that specifies column role and types. You can also use default type detection. [How to set Data Definition](/docs/library/data_definition).,12,12,direct_inquirer,docs/library/evaluations_overview.mdx
+"So, I want to add metadata to my evaluation runs. Where do I find that info?","Add `tags` or `metadata` to identify specific evaluation runs or datasets, or override the default `timestamp `. [How to add metadata](/docs/library/tags_metadata).",51,51,context_assumer,docs/library/evaluations_overview.mdx
+"I'm trying to check for missing values in my dataset, is there a metric for that?",**RowsWithMissingValuesCount()**  (Coming soon) | <ul><li> Dataset-level.</li><li>Counts rows with missing values.</li><li>Metric result: `value`.</li></ul>,17,19,frustrated_beginner,docs/library/leftover_content.mdx
+"Need to count new categories in a column, does this metric exist?","**NewCategoriesCount()** (Coming soon) | <ul><li>Column-level.</li><li>Counts new categories compared to reference (reference required).</li><li>Metric result: `count`, `share`.</li></ul>",19,19,frustrated_beginner,docs/library/leftover_content.mdx
+How do I find drift between datasets?,**MultivariateDrift()** (Coming soon) | <ul><li>Dataset-level.</li><li> Requires reference.</li><li>Computes a single dataset drift score.</li><li>Default method: share of drifted columns.</li><li>Metric result: `value`.</li></ul>,28,28,direct_inquirer,docs/library/leftover_content.mdx
+What checks are there for column correlations?,**CorrelationChanges()** (Coming soon)  | <ul><li>Dataset-level.</li><li>Reference required.</li><li>Checks the number of correlation violations (significant changes in correlation strength between columns) across all or set columns.</li></ul>,34,34,direct_inquirer,docs/library/leftover_content.mdx
+Are there any tips for monitoring dataset quality? Like if a column is nearly empty?,**AlmostEmptyColumnCount()**  (Coming soon) | <ul><li> Dataset-level.</li><li>Counts almost empty columns (95% empty).</li><li>Metric result: `value`.</li></ul>,18,18,frustrated_beginner,docs/library/leftover_content.mdx
+"I need to visualize class distribution, which metric can help?",**LabelCount()** (Coming soon) | <ul><li>Distribution of predicted classes.</li><li>Can visualize class balance and/or probability distribution.</li></ul>,41,41,frustrated_beginner,docs/library/leftover_content.mdx
+"I'm confused about how to set parameters for metrics, any example?","**Required**: <ul><li>Set at least one visualization: `class_balance`, `prob_distribution`.</li></ul>  **Optional**: <ul><li>[Test conditions](/docs/library/tests)</li></ul>",41,41,context_assumer,docs/library/leftover_content.mdx
+Can you explain how to calculate diversity in recommendations?,"**Evidently Metric**: `Diversity` | **Recommendation diversity**: this metric measures the average intra-list diversity at K. It reflects the variety of items within the same user's recommendation list, averaged by all users.",70,73,direct_inquirer,docs/library/leftover_content.mdx
+What does the diversity metric rely on?,"**Requirements**: You must pass the `item_features` list to point to numerical columns or embeddings that describe the recommended items. For example, these could be encoded genres that represent each movie.",91,91,direct_inquirer,docs/library/leftover_content.mdx
+How is novelty measured in recommendations?,"**Evidently Metric**: `Novelty` | **Recommendation novelty**: this metric measures the average novelty of recommendations at K. It reflects how unusual top-K items are shown to each user, averaged by all users.",99,101,direct_inquirer,docs/library/leftover_content.mdx
+What happens if an item isn’t in the training set for novelty?,* It is not possible to define the novelty of an item absent in the training set. The evaluation only considers items that are present in training.,121,121,frustrated_beginner,docs/library/leftover_content.mdx
+Is there a clear method for calculating personalization?,**Evidently Metric**: `Personalization` | Personalization of recommendations: this metric measures the average uniqueness of each user's recommendations in top-K.,165,167,direct_inquirer,docs/library/leftover_content.mdx
+"When using average recommendation popularity, how is it computed?",* Compute the item popularity as the number of times each item was seen in training. * Compute the average popularity for each user’s list as a sum of all items’ popularity divided by the number of recommended items. * Compute the average popularity for all users by averaging the results across all users.,192,195,direct_inquirer,docs/library/leftover_content.mdx
+What can I do if I need to measure coverage in recommendations?,**Evidently Metric**: `Coverage` | Coverage reflects the item coverage as a proportion of items that has been recommended by the system.,214,216,frustrated_beginner,docs/library/leftover_content.mdx
+Can you tell me how to calculate the Gini Index for recommendations?,"**Evidently Metric**: `GiniIndex` | Gini index: reflects the inequality in the distribution of recommended items shown to different users, as compared to a perfectly equal distribution.",228,230,direct_inquirer,docs/library/leftover_content.mdx
+What's the test for diversity in recommendations? Like how do I ensure it's varied?,**Required**: <ul><li>`k`</li><li>`item_features`</li></ul> **Optional**: <ul><li>[Test conditions](/docs/library/tests)</li></ul>,57,57,context_assumer,docs/library/leftover_content.mdx
+How can I ensure serendipity in my recommendations?,"**Evidently Metric**: `Serendipity` | Recommendation serendipity: this metric measures how unusual the relevant recommendations are in K, averaged for all users.",127,129,frustrated_beginner,docs/library/leftover_content.mdx
+What if I want to see the overlap in recommendations between users?,"* For every two users, compute the **overlap between top-K recommended items**. (The number of common items in top-K between two lists, divided by K).",170,170,direct_inquirer,docs/library/leftover_content.mdx
+Does the recommendation system consider historical preferences? How?,"**Implemented method**. * Measure the **unexpectedness** of relevant recommendations. The “unexpectedness” is measured using Cosine distance. For every relevant recommendation in top-K, we compute the distance between this item and the previous user interactions in the training set.",133,135,direct_inquirer,docs/library/leftover_content.mdx
+How can I measure serendipity using cosine distance?,"$$	ext{serendipity}_i = 	ext{unexpectedness}_i	imes	ext{relevance}_i$$ Where *relevance(i)* is equal to 1 if the item is relevant, and is 0 otherwise.",136,138,hurried_developer,docs/library/leftover_content.mdx
+How do I check for correlation violations?,**CorrelationChanges()** (Coming soon)  | <ul><li>Dataset-level.</li><li>Reference required.</li><li>Checks the number of correlation violations (significant changes in correlation strength between columns) across all or set columns.</li></ul>,34,34,frustrated_beginner,docs/library/leftover_content.mdx
+"I want to monitor data drift, how to get started?",**EmbeddingDrift()** (Coming soon) | <ul><li>Column-level.</li><li> Requires reference.</li><li>Calculates data drift for embeddings.</li><li>Requires embedding columns set in data definition.</li><li>Metric result: `value`.</li></ul>,27,27,frustrated_beginner,docs/library/leftover_content.mdx
+How often should I check dataset quality metrics?,"Use for exploratory data analysis, drift monitoring (correlation changes) or to check alignment between scores (e.g. LLM-based descriptors against human labels).",7,7,hurried_developer,docs/library/leftover_content.mdx
+Can newbies get confused with dataset structures?,</Info> <Info>   [Data definition](/docs/library/data_definition). You may need to map column types.,11,11,frustrated_beginner,docs/library/leftover_content.mdx
+I'm trying to generate multiple tests for my data but got stuck using helpers. How does this work?,"Sometimes you need to generate multiple column-level Tests or Metrics. To simplify this, you can use metric generator helper functions.",1,1,frustrated_beginner,docs/library/metric_generator.mdx
+How do I apply metrics only to specific columns?,**Example 2**. Apply the selected metric (`ValueDrift`) to the listed columns in the dataset. Use `metric_kwargs` to pass any applicable metric parameters.,62,62,direct_inquirer,docs/library/metric_generator.mdx
+How can I share my report with someone if I can't see visuals in my notebook?,"You can also save this interactive visual Report as an HTML file to open in a browser:
+
+```python
+my_report.save_html(“file.html”)
+```
+
+This option is useful for sharing Reports with others or if you're working in a Python environment that doesn’t display interactive visuals.",33,40,frustrated_beginner,docs/library/output_formats.mdx
+"I just want to test the quality of my AI system outputs, but I'm not sure where to start. What can I do?","Evidently’s core capability is running evaluations on AI system inputs and outputs. It includes 100+ built-in metrics and checks, and also useful configurable templates for custom evaluations. You can get raw either metrics or pass/fail test results.",15,18,frustrated_beginner,docs/library/overview.mdx
+Need quick way to get evaluation results formats?,"You can get evaluation results in multiple formats: - **Export scores** as JSON or Python dictionary. - **As a DataFrame**, either as a raw metrics table or by attaching scores to existing data rows. - **Generate visual reports** in Jupyter, Colab, or export as HTML - **Upload to Evidently Platform** to track evaluations over time",31,38,hurried_developer,docs/library/overview.mdx
+"I see metrics, but can this also check quality for LLM outputs?","We support metrics that make sense both for predictive ML tasks and generative LLM system outputs. Example built-in checks: **📝 LLM output quality** - Semantic similarity, relevance, RAG faithfulness, custom LLM judges, etc.",19,24,context_assumer,docs/library/overview.mdx
+What types of checks does Evidently provide for classification quality?,"**🎯 Classification** - Accuracy, precision, recall, ROC AUC, confusion matrix, bias, etc.",27,28,direct_inquirer,docs/library/overview.mdx
+Can I create a custom evaluation using my own data?,"You can use this evaluation library on its own, or as part of the Monitoring Platform (self-hosted or Evidently Cloud). It includes useful configurable templates for custom evaluations.",1,1,frustrated_beginner,docs/library/overview.mdx
+What outputs can I expect from the evaluation results?,You can get raw either metrics or pass/fail test results.,17,17,hurried_developer,docs/library/overview.mdx
+"I don't know how to prepare my data for evaluation, what should I do?","To run an evaluation, you first need to prepare the data. For example, generate and trace outputs from your ML or LLM system. 1. **Prepare your data as a pandas DataFrame**. The table can include any combination of numerical, categorical, text, metadata (including timestamps or IDs), and embedding columns.",100,104,frustrated_beginner,docs/library/overview.mdx
+Can Evidently help with synthetic data generation?,"Primarily designed for LLM use cases, Evidently also helps you generate synthetic test datasets - such as RAG-style question-answer pairs from a knowledge base or synthetic inputs to cold-start your AI app testing.",57,57,direct_inquirer,docs/library/overview.mdx
+How do I set up conditions to validate my metrics with tests?,"**Tests** let you validate your results against specific expectations. You create a Test by adding a **condition** parameter to a Metric. Each Test will calculate a given value, check it against the rule, and report a pass/fail result.",291,291,direct_inquirer,docs/library/overview.mdx
+Can I visualize my evaluation results?,"The Evidently library also includes a lightweight self-hostable UI for storing, comparing, and visualizing evaluation results over time.",81,81,frustrated_beginner,docs/library/overview.mdx
+What formats can I export my evaluation results into?,"- **Export scores** as JSON or Python dictionary. - **As a DataFrame**, either as a raw metrics table or by attaching scores to existing data rows. - **Generate visual reports** in Jupyter, Colab, or export as HTML - **Upload to Evidently Platform** to track evaluations over time",31,38,hurried_developer,docs/library/overview.mdx
+Are there any built-in metrics for regression evaluation?,"**📈 Regression** - MAE, ME, RMSE, error distribution, error normality, error bias, etc.",28,28,context_assumer,docs/library/overview.mdx
+What's the easiest way to start evaluating with Evidently?,The easiest way to start is by using **Presets**. Presets are pre-configured evaluation templates. They help compute multiple related Metrics using a single line of code.,235,240,frustrated_beginner,docs/library/overview.mdx
+Can I automatically generate LLM judge prompts using Evidently?,This feature also helps automatically generate LLM judge prompts to streamline the creation of custom evaluations.,70,70,direct_inquirer,docs/library/overview.mdx
+What configurations do I need for synthetic data generation?,We have a nice config for structured synthetic data generation using LLMs.,54,54,direct_inquirer,docs/library/overview.mdx
+Does Evidently work with both ML and LLM models?,"Evidently’s core capability is running evaluations on AI system inputs and outputs. It includes 100+ built-in metrics and checks, and also useful configurable templates for custom evaluations. We support metrics that make sense both for predictive ML tasks and generative LLM system outputs.",15,20,context_assumer,docs/library/overview.mdx
+Can I track changes in evaluation results over time?,The UI allows you to store multiple evaluations and track changes over time.,83,83,direct_inquirer,docs/library/overview.mdx
+How do I prepare my data as a Dataset object?,"Once you have the data, you must create an Evidently `Dataset` object. This allows attaching extra meta-information so that your data is processed correctly. This is needed because some evaluations may require specific columns or data types present.",166,168,frustrated_beginner,docs/library/overview.mdx
+Can I run tests on both dataset and column levels?,You can create Tests on the dataset or column level.,294,294,direct_inquirer,docs/library/overview.mdx
+I’m trying to generate a report but I’m confused about how to run it. Can I just use defaults or do I need to change something?,"To generate a template Report, simply pass the selected Preset to the Report and run it over your data. If nothing else is specified, the Report will run with the default parameters for all columns in the dataset.",33,33,frustrated_beginner,docs/library/report.mdx
+run reports with presets?,"You can use Metric Presets, which are pre-built Reports that work out of the box, or create a custom Report selecting Metrics one by one.",25,25,hurried_developer,docs/library/report.mdx
+How do I generate a Data Drift report with two datasets?,"To generate reports like Data Drift that needs two datasets, pass the second one as a reference when you `run` it: my_eval = report.run(eval_data_1, eval_data_2) In this case the first eval_data_1 is the current data you evaluate, the second eval_data_2 is the reference dataset you consider as a baseline for drift detection.",53,66,context_assumer,docs/library/report.mdx
+What do I need to do to create a custom report with specific metrics?,"To create a custom Report, simply list the Metics one by one. You can combine both dataset-level and column-level Metrics, and combine Presets and Metrics in one Report. When you use a column-level Metric, you must specify the column it refers to.",102,102,direct_inquirer,docs/library/report.mdx
+I don’t get how to add a timestamp when logging Reports. Can you help?,"Each Report run has a single timestamp. By default, Evidently assigns `datetime.now()` as the run time based on the user's time zone. You can also specify a custom timestamp by passing it to the `run()` method:",5,8,frustrated_beginner,docs/library/tags_metadata.mdx
+How do I pass custom tags when creating a Report?,"You can add tags to the Report. Pass any custom Tags as a list: ```python report = Report([ ClassificationPreset() ], tags=[""classification"", ""production""]) ```",30,36,direct_inquirer,docs/library/tags_metadata.mdx
+"I want to validate my data using Tests, but I’m just not getting how to do that. Can someone help?",Tests let you validate specific conditions and get Pass/Fail results on the dataset level. Tests are an add-on to the Report and appear in a separate tab.,1,1,frustrated_beginner,docs/library/tests.mdx
+Tests Presets - how do I enable it?,Enable it by setting `include_tests=True` on the Report level. (Default: False).,38,38,hurried_developer,docs/library/tests.mdx
+I’m trying to compare my current data to a reference dataset. How should I run that?,"When you provide a reference dataset, Tests compare the new data against it: 
+```Python
+my_eval = report.run(eval_data_1, eval_data_2) # eval_data_2 is reference
+```",53,57,direct_inquirer,docs/library/tests.mdx
+"Okay, but what if I only want to check specific Tests instead of all?","You can pick the Tests while still using default conditions. 
+**Select Tests**. List the individual Metrics, and choose the the `include_Tests` option: 
+```Python
+report = Report([
+    MissingValueCount(column=""Age""),
+    MinValue(column=""Age""),
+], 
+include_tests=True) 
+```",79,91,frustrated_beginner,docs/library/tests.mdx
+How can I set specific failure conditions for Tests?,"You can define specific pass/fail conditions for each Test. 
+For each Metric you want to validate, define a list of `tests` and set expected behavior using parameters like `gt` (greater than), `lt` (less than), `eq` (equal).",109,111,direct_inquirer,docs/library/tests.mdx
+Tests with no heuristics - how to run that?,"Without reference, Tests use predefined rules:
+```Python
+my_eval = report.run(eval_data_1, None) # no reference data
+```",65,69,hurried_developer,docs/library/tests.mdx
+I don’t understand how to use multiple conditions when testing. Can you explain?,"You can add multiple checks to the same Metric at once:
+```python
+report = Report([
+    MinValue(column=""Age"", tests=[gte(17), lte(19)]),
+])
+```",169,173,frustrated_beginner,docs/library/tests.mdx
+What should I do to override default conditions with custom ones?,You can use both default and custom conditions across the Report by setting `include_tests=True` and adding custom conditions where needed.,157,157,context_assumer,docs/library/tests.mdx
+How do I set criticality for my Tests?,"By default, failed Tests return Fail. To get a Warning instead, set `is_critical=False`: 
+```python
+report = Report([
+    MissingValueCount(column=""Age"", share_tests=[eq(0, is_critical=False)]),
+])
+```",222,228,direct_inquirer,docs/library/tests.mdx
+"I want to set up alerts, but I don’t understand what I need to do first. Can someone help?","To enable alerts, open the Project and navigate to the ""Alerts"" in the left menu. You must set:
+
+* A notification channel.
+* An alert condition.",7,12,frustrated_beginner,docs/platform/alerts.mdx
+I’m trying to add a tab to my dashboard but I don’t know how to do it with Python. Can you help?,"To add a new Tab:
+
+```python
+project.dashboard.add_tab(""Another Tab"")
+```",13,17,frustrated_beginner,docs/platform/dashboard_add_panels.mdx
+How do you delete a panel?,"To delete a specific Panel:
+
+```python
+project.dashboard.delete_panel(""Dashboard title"", ""My new tab"")
+```",27,31,hurried_developer,docs/platform/dashboard_add_panels.mdx
+What happens when I clear the dashboard? Will my reports be deleted too?,Note: This does **not** delete the underlying Reports or dataset; it only clears the Panels.,41,41,context_assumer,docs/platform/dashboard_add_panels.mdx
+Can I add multiple panels at once? How?,You can add multiple Panels at once: they will appear in the listed order.,52,52,direct_inquirer,docs/platform/dashboard_add_panels.mdx
+I want to add a counter panel but I’m not sure how it works. What should I do?,"To add panels for the `RowCount` metric with different aggregations:
+
+```python
+# Sum
+project.dashboard.add_panel(
+    DashboardPanelPlot(
+        title=""Row count"",
+        subtitle=""Total number of evaluations over time."",
+        size=""half"",
+        values=[PanelMetric(legend=""Row count"", metric=""RowCount"")],
+        plot_params={""plot_type"": ""counter"", ""aggregation"": ""sum""},
+    ),
+    tab=""My tab"",
+)
+
+# Average
+...",85,98,frustrated_beginner,docs/platform/dashboard_add_panels.mdx
+"Deleting a tab, does it also delete the panels inside?","To delete a Tab:
+
+```python
+project.dashboard.delete_tab(""Another Tab"")
+```",21,25,hurried_developer,docs/platform/dashboard_add_panels.mdx
+I'm confused about how to reference metrics when adding a panel. Can you clarify that?,"To define which value the Panel displays, you must reference the name of the corresponding Evidently Metric. This metric must be present in the Reports logged to your Project. If the metric isn't present, the Panel will appear empty.",229,229,direct_inquirer,docs/platform/dashboard_add_panels.mdx
+Can I create a new tab when I'm adding a panel if it doesn't already exist?,"If the destination Tab doesn't exist, it will be created. If it does, the Panel will be added below existing ones in that Tab.",19,19,context_assumer,docs/platform/dashboard_add_panels.mdx
+How do I clear a dashboard? Is it easy?,"To delete all Tabs and Panels on the Dashboard:
+
+```python
+project.dashboard.clear_dashboard()
+```",35,39,frustrated_beginner,docs/platform/dashboard_add_panels.mdx
+Is there a way to specify values for my panels?,List of `PanelMetric` objects to display.,220,220,hurried_developer,docs/platform/dashboard_add_panels.mdx
+How do I plot multiple values in a single panel?,"A single Panel can show multiple values. For example, this will add multiple lines on a Line chart:
+
+```python
+project.dashboard.add_panel(
+    DashboardPanelPlot(
+        title=""Text Length"",
+        subtitle=""Text length stats (symbols)."",
+        size=""full"",
+        values=[
+            PanelMetric(legend=""max"", metric=""MaxValue"", metric_labels={""column"": ""length""}),
+            PanelMetric(legend=""mean"", metric=""MeanValue"", metric_labels={""column"": ""length""}),
+            PanelMetric(legend=""min"", metric=""MinValue"", metric_labels={""column"": ""length""}),
+        ]
+    )
+)
+```",194,208,direct_inquirer,docs/platform/dashboard_add_panels.mdx
+Do I need to create a tab before adding a panel?,"If you do not set a tab, it defaults to the first tab or creates a new ""General"" tab.",221,221,context_assumer,docs/platform/dashboard_add_panels.mdx
+I can't find the option to add a Tab. How do I do that?,"To add a Tab: - Enter ""Edit"" mode on the Dashboard (top right corner). - Click the plus sign with ""add Tab"" on the left. - To create a custom Tab, select ""empty"" and enter a name.",11,15,frustrated_beginner,docs/platform/dashboard_add_panels_ui.mdx
+add Tab - steps??,"To add a Tab: - Enter ""Edit"" mode on the Dashboard (top right corner). - Click the plus sign with ""add Tab"" on the left. - To create a custom Tab, select ""empty"" and enter a name.",11,15,hurried_developer,docs/platform/dashboard_add_panels_ui.mdx
+"So, do I need to add Reports to use Pre-built Tabs?","**Pre-built Tabs** rely on having related Metrics (or Presets that include the specific Metrics) within the Project. If the necessary data is not available, the Panels will appear empty until you add Reports that contain those Metrics.",21,21,context_assumer,docs/platform/dashboard_add_panels_ui.mdx
+What types of Panels can I add to my Dashboard?,"You can add any number of Panels to your Dashboard, including text panels, counters, pie charts, line plots, and bar plots (grouped and stacked). When you create a Panel, you pull the corresponding value from multiple Reports and show it over time or using the specified aggregation (sum, average, last).",33,34,direct_inquirer,docs/platform/dashboard_add_panels_ui.mdx
+I just started using this tool and I'm confused about what a Dashboard is supposed to do. Can someone explain it simply?,A Dashboard provides a clear view of your AI application performance. You can use it: - to track evaluation results across multiple experiments; - to track live production quality over time.,7,11,frustrated_beginner,docs/platform/dashboard_overview.mdx
+How do I make the Dashboard show my Reports?,"Dashboards rely on having **Reports** in the Project as a data source. When adding a Panel, you select a **Metric**, and Evidently pulls the corresponding value(s) from all Reports in the Project to plot them.",49,51,direct_inquirer,docs/platform/dashboard_overview.mdx
+I'm trying to create a dashboard but I don't understand what a monitoring Panel is. Can someone explain?,"A monitoring Panel is an individual plot or counter on the Monitoring Dashboard. You can add multiple Panels and organize them by Tabs. You can customize Panel type, values shown, titles and legends.",5,7,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+What panel types are there for dashboards?,There are 3 main panel types: 1. Metric panels plot individual values from inside Reports. 2. Test panels show pass/fail Test outcomes in time. 3. Distribution panels plot distributions over time.,17,23,hurried_developer,docs/platform/dashboard_panel_types.mdx
+"Wait, how do I even add a Panel to my dashboard?","You can add Panels in the user interface or using Python API. Enter the ""Edit"" mode by clicking on the top right corner of the Dashboard and click on the ""Add panel"" button. Follow the flow to configure dashboard name, type, etc.",161,175,context_assumer,docs/platform/dashboard_panel_types.mdx
+What’s the difference between a Metric panel and a Test panel?,"Metric Panels show individual values from inside the Reports over time, while Test Panels visualize pass/fail outcomes or result counts from Tests.",67,71,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+I just want to filter the data in my panel. How do I use Tags?,"You can use Tags to filter data from specific Reports. For example, you can plot the accuracy of Model A and Model B next to each other. To achieve this, add relevant Tags to the Report.",11,11,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+Which class do I use for showing individual values over time?,"For showing individual values over time, you use the class `DashboardPanelPlot`.",47,47,hurried_developer,docs/platform/dashboard_panel_types.mdx
+Is there a way to show Test results over time on my dashboard?,"Yes, you can use the `DashboardPanelTestSuite` class to show Test results over time.",574,574,context_assumer,docs/platform/dashboard_panel_types.mdx
+Can I change the size of a panel on the dashboard? How do I do that?,"You can set the Panel size to half-width or full-sized using the `size` parameter. For example, use `size=WidgetSize.HALF` or `size=WidgetSize.FULL`.",293,293,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+What if I want to show a counter on my dashboard?,You can use the `DashboardPanelCounter` class to show a value count or work as a text-only Panel.,297,299,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+I see there’s an option for Test plotting. What exactly does it show?,"Test Panels show the Test results. As you run Tests repeatedly, you can visualize the pass/fail outcomes or result counts. You choose which Test results to include.",69,71,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+Could someone clarify what a Distribution Panel does?,"A Distribution Panel shows a distribution of values over time. For example, you can plot how the frequency of categories changes based on data captured.",101,105,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+How can I see how my test outcomes change over time?,You can visualize the pass/fail outcomes or result counts using Test Panels as you run the same Tests repeatedly.,71,71,context_assumer,docs/platform/dashboard_panel_types.mdx
+What's the general process for adding a new Panel to the Project?,"To add a new Panel, connect to your Project, use the `add_panel` method, pick the Panel type, set parameters, specify the title and size, and then save the configuration.",210,266,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+"I need to add multiple Tabs in my dashboard, but how?","You can add multiple Tabs by entering the ""Edit"" mode on the Dashboard and clicking the plus sign with ""add Tab"". You can then create a custom Tab and give it a name.",146,148,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+"When setting up a panel, how do I choose the type?","When you add a new Panel, you can choose the Panel type: Counter, Plot, Distribution, Test Counter, or Test Plot.",224,224,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+What if I want to delete a Panel from my dashboard?,"To delete all monitoring Panels, use `project.dashboard.panels = []` and then call `project.save()` to apply changes. Note, this does not delete the Reports or data; it only deletes the Panel configuration.",271,281,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+Can someone explain how to create a Panel that sums values over time?,"To create a Panel that sums up the number of rows over time, use the `DashboardPanelCounter` class with `agg=CounterAgg.SUM`.",324,332,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+How do I specify values to be displayed in a Plot type Panel?,You must point to a named Metric and a specific result inside it using the `values` parameter when adding a Plot type Panel.,458,458,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+What can I do to show results for a specific Test using a counter?,"You can display results of the latest Test Suite using `DashboardPanelTestSuiteCounter`, filtering by LAST for the latest result.",513,519,context_assumer,docs/platform/dashboard_panel_types.mdx
+Can I compare results from different Reports on a panel?,"Yes, you can compare results by using Tags to filter data from specific Reports, allowing you to plot different models or comparisons side by side.",11,11,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+What’s the purpose of the `field_path` in a Metric Panel?,"The `field_path` helps point to a specific result inside the Metric. This can take the following values: `value`, `share`/`count`, or `values`.",662,662,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+"When configuring a Distribution Panel, what parameter is key for plotting?","The `value` parameter is key; you must point to a named Metric that contains a distribution histogram and set `field_path=""counts""`.",498,498,direct_inquirer,docs/platform/dashboard_panel_types.mdx
+Can I use my own custom metrics in Panels?,"Yes, you must reference a named Evidently Metric even if you used a Preset, and ensure to use the same Metric name as when creating the Report.",656,659,frustrated_beginner,docs/platform/dashboard_panel_types.mdx
+How can I see individual test results in a panel?,Use the `DashboardPanelTestSuite` class with `panel_type=TestSuitePanelType.DETAILED` to show individual Test results on your dashboard.,588,596,hurried_developer,docs/platform/dashboard_panel_types.mdx
+What's the overall structure for creating a monitoring Panel?,"The overall structure involves specifying the Panel type, parameters such as title, filter, size, and additional options like Tags, followed by saving the configuration.",264,266,context_assumer,docs/platform/dashboard_panel_types.mdx
+"I'm trying to figure out how to create a dataset, but I don't know where to start. What can I do?","You can add Datasets to the platform in multiple ways:
+- **Upload directly**. Use the UI (Evidently Cloud) to upload CSV files or push datasets via the Python API.
+- **Upload with Reports**. Attach datasets to Reports when running local evaluations. This is optional — you can also upload only summary metrics.
+- **Generate synthetic data**. Use built-in platform features to generate synthetic evaluation datasets. (Cloud only).
+- **Create from Traces**. During tracing, Evidently automatically generates tabular datasets that can be used for evaluations. (Cloud only).",13,18,frustrated_beginner,docs/platform/datasets_overview.mdx
+What options do I have for generating synthetic data in Evidently?,"You can synthesize evaluation datasets directly in Evidently Cloud:
+- **Generate from examples or description**. Describe specific test scenarios and generate matching datasets.
+- **Generate from source documents**. Generate Q&A pairs from source documents like PDF, CSV or markdown files (great for RAG evaluations).",26,30,direct_inquirer,docs/platform/datasets_overview.mdx
+I’m trying to upload my dataset but don’t know where to start. Can you help?,You must first connect to [Evidently Cloud](/docs/setup/cloud) or local workspace and [create a Project](/docs/platform/projects_manage) before uploading your Dataset.,2,2,frustrated_beginner,docs/platform/datasets_workflow.mdx
+What’s the code to load a dataset?,"Use the `load_dataset` method:
+
+```python
+eval_dataset = ws.load_dataset(dataset_id = ""YOUR_DATASET_ID"") 
+
+#to create as pandas dataframe
+df = eval_dataset.as_dataframe()
+```",38,45,direct_inquirer,docs/platform/datasets_workflow.mdx
+I'm trying to figure out how to start using the Evidently Cloud. What do I need to do first?,You must first connect to [Evidently Cloud](/docs/setup/cloud) and [create a Project](/docs/platform/projects_manage).,8,8,frustrated_beginner,docs/platform/evals_api.mdx
+What does `include_data=True` do when uploading a report?,Use`include_data` (default `False`) to specify whether to include the data.,65,65,direct_inquirer,docs/platform/evals_api.mdx
+"I'm trying to find my evaluation results, but I can't figure out how to access them. What do I do?","To access the results of your evaluations, enter your Project and navigate to the ""Reports"" section in the left menu. Here, you can view all your evaluation artifacts and browse them by Tags, time, or metadata. You can also download them as HTML or JSON.",3,3,frustrated_beginner,docs/platform/evals_explore.mdx
+"I'm trying to figure out how to upload my data for evaluation, but I'm not sure where to start. What do I do?","Before you start, create a Project and prepare the Dataset to evaluate. There are two options: - **Upload a CSV**. Enter the ""Dataset"" menu, click on ""Create new dataset from CSV"". Drag and drop your Dataset. You must also specify the data definition when you upload it. - **Use an existing Dataset**. Select a Dataset you previously uploaded to the platform or one collected through [Tracing](tracing_overview).",5,9,frustrated_beginner,docs/platform/evals_no_code.mdx
+Add descriptors? How?,"While you are viewing the Dataset, you can click on ""Add descriptors"" on the right.",20,20,hurried_developer,docs/platform/evals_no_code.mdx
+I assume there's some setup needed for Descriptor evaluations? What are the basic requirements?,"Each evaluation result is called a **Descriptor**. No matter the method, you’ll get a label or score for every evaluated text. Some, like “Sentiment,” work instantly, while others may need setup.",39,39,context_assumer,docs/platform/evals_no_code.mdx
+What types of methods can I choose when configuring an evaluation?,"You must choose which column to evaluate and how. You can choose from the following methods: - **Model-based**: use built-in machine learning models, like sentiment analysis. - **Regular expressions**: check for specific words or patterns. - **Text stats**: measure stats like the number of symbols or sentences. - **LLM-based**: use external LLMs to evaluate your text data.",28,34,direct_inquirer,docs/platform/evals_no_code.mdx
+"I'm trying to evaluate my AI outputs, but I don't know how to do it. What options do I have?","You may need evaluations at different stages of your AI product development:
+
+* **Ad hoc analysis.** Spot-check the quality of your data or AI outputs.
+* **Experiments**. Test different parameters, models, or prompts and compare outcomes.
+* **Safety and adversarial testing.** Evaluate how your system handles edge cases and adversarial inputs, including on synthetic data.
+* **Regression testing.** Ensure the performance does not degrade after updates or fixes.
+* **Monitoring**. Track the response quality for production systems.
+
+Evidently supports all these workflows. You can run evals locally or directly on the platform.",1,13,frustrated_beginner,docs/platform/evals_overview.mdx
+Can I run evaluations without coding?,"This option lets you run evaluations directly in the user interface. This is great for non-technical users or when you prefer to run evaluations on Evidently infrastructure.
+
+No-code workflows create the same Reports or Test Suites you'd generate using Python. The rest of the workflow is the same. After you run your evals with any method, you can access the results in the Explore view for further analysis.",41,51,direct_inquirer,docs/platform/evals_overview.mdx
+"I’m trying to figure out how to get stats for just one batch in my project, but I’m lost. What do I need to do?","To get the dataset stats for a single batch and upload to the workspace:
+
+```python
+
+eval_data = Dataset.from_pandas(
+    pd.DataFrame(source_df),
+    data_definition=DataDefinition()
+)
+
+report = Report([
+    DatasetStats()
+])
+
+my_eval = report.run(eval_data, None)
+ws.add_run(project.id, my_eval, include_data=False)
+```",13,27,frustrated_beginner,docs/platform/monitoring_local_batch.mdx
+What are the steps to run evaluations in my pipeline?,"The complete workflow looks as the following.
+
+1. Configure the metrics: Define an [Evidently Report](/docs/library/report) with optional [Test](/docs/library/tests) conditions to define the evals.
+2. Run the evals: You must independently execute Reports on a chosen cadence. Consider tools like Airflow. You can send Reports from different steps in your pipeline.
+3. Upload to the platform: Choose to store raw inferences or only upload the metric summaries. [How to upload / delete results](/docs/platform/evals_api).
+4. Configure the Dashboard: Set up a Dashboard to track results over time: using pre-built Tabs or configure your own choice of monitoring Panels. Check the [Dashboard guide](/docs/platform/dashboard_overview).
+5. Configure alerts: Set up alerts on Metric values or Test failures. Check the section on [Alerts](/docs/platform/alerts).",29,53,direct_inquirer,docs/platform/monitoring_local_batch.mdx
+"I'm trying to understand how to set up monitoring for my AI application effectively, but I feel lost. Can someone explain the general steps?","**How it works**:
+
+* **Build your evaluation pipeline**. Create a pipeline in your infrastructure to run monitoring jobs. This can be a Python script, cron job, or orchestrated with a tool like Airflow. Run it at regular intervals (e.g., hourly, daily) or trigger it when new data or labels arrive.
+
+* **Run metric calculations**. Implement the evaluation step in the pipeline using the Evidently Python library. Select the evals, and compute the `Reports` that will summarize data, metrics, and test results.
+
+* **Store and visualize the results**. Store the Report runs in Evidently Cloud or in a designated self-hosted workspace, and monitor results on a Dashboard.",15,21,frustrated_beginner,docs/platform/monitoring_overview.mdx
+"Batch monitoring jobs, what do I need to get started?","**Best for**: batch ML pipelines, regression testing, and near real-time ML systems that don’t need instant quality evaluations.
+
+* **Build your evaluation pipeline**. Create a pipeline in your infrastructure to run monitoring jobs. This can be a Python script, cron job, or orchestrated with a tool like Airflow. Run it at regular intervals (e.g., hourly, daily) or trigger it when new data or labels arrive.",11,18,hurried_developer,docs/platform/monitoring_overview.mdx
+"So, when I set up tracing with scheduled evals, I just need the Tracely library, right? What else should I know?","**How it works:**
+
+* **Instrument your app**. Use the `Tracely` library to capture all relevant data from your application, including inputs, outputs and intermediate steps. ([Tracing](/docs/platform/tracing_setup)).
+
+* **Store raw data**. Evidently Platform stores all raw data, providing a complete record of activity.
+
+* **Schedule evaluations**. Set up evaluations to run automatically at scheduled times. This will generate Reports or run Tests directly on the Evidently Platform. You can also manually run evaluations anytime to assess individual outputs.",43,49,direct_inquirer,docs/platform/monitoring_overview.mdx
+I'm trying to manage my datasets but getting stuck. How do I organize and store them on the platform?,Manage and organize testing and production datasets. Store them on the platform paired with relevant evaluations. Collaborate to curate test cases.,18,19,frustrated_beginner,docs/platform/overview.mdx
+What’s the deal with real-time tracking? Can I see results live?,Run evaluations for live systems in batch or real-time. Track results on a dashboard and connect back to raw data as needed. Set alerts for violations.,33,34,hurried_developer,docs/platform/overview.mdx
+I’m trying to create a project but don’t know where to start. Do I need to set up something first?,You must first connect to [Evidently Cloud](/docs/setup/cloud) (or your [local workspace](/docs/setup/self-hosting)).,2,3,frustrated_beginner,docs/platform/projects_manage.mdx
+Can I just call `ws.create_project` without the org ID?,"In self-hosted open-source installation, you do not need to pass the Org ID. To create a Project:",17,17,hurried_developer,docs/platform/projects_manage.mdx
+What if I forget my project ID? How can I find it?,You can see the Project ID above the monitoring Dashboard inside your Project.,36,36,context_assumer,docs/platform/projects_manage.mdx
+How do I delete a project using Python?,"To delete the Project:
+
+```python
+# ws.delete_project(""PROJECT ID"")
+```",78,81,direct_inquirer,docs/platform/projects_manage.mdx
+I keep getting confused about how to set up my Projects. What should I actually include in one?,"You can structure projects to suit your workflow. Here are some ideas: By Application or Model. Create individual Projects for each LLM app or ML model. By App Component. For complex systems like AI agents, set up Projects for specific components, such as testing intent classification independently of other features. By Test Scenario. Use separate Projects for distinct test scenarios, like isolating safety or adversarial datasets from other evaluations. By Phase. Manage different development stages of the same app with separate Projects for experimentation/testing and production monitoring. By Use Case. Group data and evaluations for multiple ML models in one Project, organizing them with tags (e.g., ""version,"" ""location"").",19,25,frustrated_beginner,docs/platform/projects_overview.mdx
+"I'm totally lost trying to figure out how to use tracing. What is it, and how does it help with my AI app?","Tracing lets you instrument your AI application to collect data for evaluation and analysis. It captures detailed records of how your LLM app operates, including inputs, outputs and any intermediate steps and events (e.g., function calls). You define what to include.",9,11,frustrated_beginner,docs/platform/tracing_overview.mdx
+I just want to trace some parts of my code but I don’t know how to start. Can you help me with that?,"To start sending traces, use `init_tracing`:
+```python
+from tracely import init_tracing
+
+init_tracing(
+   address=""https://app.evidently.cloud/"",
+   api_key=""YOUR_EVIDENTLY_TOKEN"",
+   project_id=""YOUR_PROJECT_ID"",
+   export_name=""YOUR_TRACING_DATASET_NAME"",
+   )
+```",19,30,frustrated_beginner,docs/platform/tracing_setup.mdx
+Need to log function parameters in traces. How do I do that?,You can also specify which function arguments should be included in the trace.,73,73,hurried_developer,docs/platform/tracing_setup.mdx
+"So, how do I get my tracing dataset ID?","To get the `export_id` of the tracing dataset, run:
+```python
+from tracely import get_info
+
+get_info()
+```",48,54,direct_inquirer,docs/platform/tracing_setup.mdx
+"I see something about environment variables, why would I use those?",You can also set parameters using environment variables with the specified names.,32,32,context_assumer,docs/platform/tracing_setup.mdx
+Can I track multiple events in one go?,"You can trace multi-step workflows using the `@trace_event` decorator and nesting the functions. If a traced function is called inside another traced function, it will automatically appear as a nested child span, as long as it's executed in the same call context (same thread).",107,107,frustrated_beginner,docs/platform/tracing_setup.mdx
+Is it possible to add attributes to my traces?,"If you want to add a new attribute to an active event span, you can use `get_current_span()` to get access to the current span:",194,195,direct_inquirer,docs/platform/tracing_setup.mdx
+How can I set up a trace just for a bit of code without a decorator?,"To create a trace event without using a decorator (e.g., for a specific piece of code), you can use the context manager:",141,141,context_assumer,docs/platform/tracing_setup.mdx
+What do I do if I want to manage the trace ID myself?,"In this case you manage the `trace_id` yourself, so you need to make sure it’s truly unique. If you reuse the same `trace_id`, all events will be joined, even if they don’t belong together.",242,242,frustrated_beginner,docs/platform/tracing_setup.mdx
+Do I have to connect to the Cloud before I can start tracing?,You must first connect to [Evidently Cloud](/docs/setup/cloud) and [create a Project](/docs/platform/projects_manage).,16,16,direct_inquirer,docs/platform/tracing_setup.mdx
+What happens if I don’t specify a span name when tracing?,The name of the span to send in the event.                                                                                 | Function name                   |,97,97,hurried_developer,docs/platform/tracing_setup.mdx
+"I tried to sign up for Evidently Cloud, but I can't find where to create an account since you mentioned it’s not available as a SaaS product. What should I do?","If not yet, sign up for a free Evidently Cloud account.",7,7,frustrated_beginner,docs/setup/cloud.mdx
+I just installed Evidently and I’m trying to figure out how to create a workspace for my data. What do I do?,"Once you [install Evidently](/docs/setup/installation), you will need to create a `workspace`. This designates a remote or local directory where you will store the evaluation results (JSON Reports called `snapshots`), traces or datasets. The UI Service will read the data from this source.",14,14,frustrated_beginner,docs/setup/self-hosting.mdx
+What’s the command to launch the UI service?,"To launch the Evidently UI service, you must run a command in the Terminal.",107,107,hurried_developer,docs/setup/self-hosting.mdx
+Can I see my evaluation results without launching the UI service?,You can also view evaluation results in Python or export to JSON or HTML.,5,5,context_assumer,docs/setup/self-hosting.mdx
+How do I create a local Workspace in Evidently?,"To create a local Workspace and assign a name: ws = Workspace.create(""evidently_ui_workspace"")",39,43,direct_inquirer,docs/setup/self-hosting.mdx
+What storage backends does Evidently support for workspaces?,"As a storage backend, Evidently supports: a file system, any SQL-like database (such as SQLite or Postgres), any S3-compatible storage (such as Amazon S3, GCS, or MinIO – through `fsspec`).",16,20,direct_inquirer,docs/setup/self-hosting.mdx
+I wanna automatically test my LLM outputs with GitHub Actions but stuck figuring out how it even works. Can you break it down for me?,"You can use Evidently together with GitHub Actions to automatically test the outputs of your LLM agent or application - as part of every code push or pull request. To set it up, you define a test dataset of inputs (e.g. test prompts with or without reference answers). You can store it as a file, or save the dataset at Evidently Cloud callable by Dataset ID. Then, run your LLM system or agent against those inputs inside CI. Evidently automatically evaluates the outputs using the user-specified config (which defines the Evidently descriptors, tests and Report composition)...",1,11,frustrated_beginner,examples/GitHub_actions.mdx
+"I'm trying to figure out how to evaluate LLMs, but I can't find the details on the methods. What are the different evaluation methods I can use?","Tutorial with an overview of methods. <ul>   <li>   Part 1. Anatomy of a single evaluation. Covers basic LLM evaluation API and setup.</li>      <li>   Part 2. Reference-based evaluation: exact match, semantic similarity, BERTScore, and LLM judge.</li>      <li>   Part 3. Reference-free evaluation: text statistics, regex, ML models, LLM judges, and session-level evaluators.</li>      </ul>",5,5,frustrated_beginner,examples/LLM_evals.mdx
+"What’s in the LLM evaluation methods tutorial? Like, what parts does it cover?","Tutorial with an overview of methods. <ul>   <li>   Part 1. Anatomy of a single evaluation. Covers basic LLM evaluation API and setup.</li>      <li>   Part 2. Reference-based evaluation: exact match, semantic similarity, BERTScore, and LLM judge.</li>      <li>   Part 3. Reference-free evaluation: text statistics, regex, ML models, LLM judges, and session-level evaluators.</li>      </ul>",5,5,context_assumer,examples/LLM_evals.mdx
+"I'm trying to evaluate some responses using LLM, but I’m confused about how to compare new responses. What’s this reference-based thing?","- **Reference-based**. Compare new responses against a reference. This is useful for regression testing or whenever you have a ""ground truth"" (approved responses) to compare against.",12,12,frustrated_beginner,examples/LLM_judge.mdx
+How do I create an evaluator?,"We will focus on demonstrating **how to create and tune the LLM evaluator**, which you can then apply in different contexts, like regression testing or prompt comparison.",15,15,hurried_developer,examples/LLM_judge.mdx
+What tools do I need to run this tutorial?,"To complete the tutorial, you will need: - Basic Python knowledge. - An OpenAI API key to use for the LLM evaluator.",31,34,frustrated_beginner,examples/LLM_judge.mdx
+Can I use this in Jupyter Notebook?,We recommend running this tutorial in Jupyter Notebook or Google Colab to render rich HTML objects with summary results directly in a notebook cell.,36,36,direct_inquirer,examples/LLM_judge.mdx
+What's this toy dataset for?,Create a toy Q&A dataset with customer support question that includes: - **Questions**. The inputs sent to the LLM app. - **Target responses**. The approved responses you consider accurate. - **New responses**. Imitated new responses from the system. - **Manual labels with explanation**. Labels that say if response is correct or not.,80,85,context_assumer,examples/LLM_judge.mdx
+How can I create the dataframe for my dataset?,"**Generate the dataframe**. Here's how you can create this dataset in one go: ... ```python
+   data = [
+     [""Hi there, how do I reset my password?"", ... ]
+   ]
+   columns = [""question"", ""target_response"", ""new_response"", ""label"", ""comment""];
+   golden_dataset = pd.DataFrame(data, columns=columns)
+```",94,179,direct_inquirer,examples/LLM_judge.mdx
+How do I define the column types for my dataset?,"**Create an Evidently dataset object.** Pass the dataframe and [map the column types](/docs/library/data_definition): ```python
+definition = DataDefinition(
+text_columns=[""question"", ""target_response"", ""new_response""],
+categorical_columns=[""label""]
+)
+```",185,191,direct_inquirer,examples/LLM_judge.mdx
+Why do I need manual labels?,"Why add the labels? It's a good idea to be the judge yourself before you write a prompt. This helps: - Formulate better criteria. You discover nuances that help you write a better prompt. - Get the ""ground truth"". You can use it to evaluate the quality of the LLM judge.",87,90,frustrated_beginner,examples/LLM_judge.mdx
+How do I check if the responses are correct?,Now it's time to set up an LLM judge! We'll start with an evaluator that checks if responses are correct compared to the reference. The goal is to match the quality of our manual labels.,229,229,frustrated_beginner,examples/LLM_judge.mdx
+What if I want to sort errors where the LLM-judged label is different?,"If you want, you can also add the column that will help you easily sort and find all error where the LLM-judged label is different from the ground truth label.",280,280,direct_inquirer,examples/LLM_judge.mdx
+What’s a verbosity evaluator and how does it work?,"Next, let’s create a simpler verbosity judge. It will check whether the responses are concise and to the point. This only requires evaluating one output column: such checks are perfect for production evaluations where you don’t have a reference answer.",348,348,frustrated_beginner,examples/LLM_judge.mdx
+How can I update my billing information?,"To update your billing address, log into your account, go to 'Account Settings', select 'Billing Information', and enter your new address. Make sure to save the changes once you are done.",155,156,context_assumer,examples/LLM_judge.mdx
+Where can I find the LLM judge docs?,Check the [LLM judge docs](/metrics/customize_llm_judge#change-the-evaluator-llm) to see how you can select a different evaluator LLM.,75,75,hurried_developer,examples/LLM_judge.mdx
+How do I evaluate the LLM evaluator's quality?,This part is a bit meta: we're going to evaluate the quality of our LLM evaluator itself! We can treat it as a simple **binary classification** problem.,306,306,direct_inquirer,examples/LLM_judge.mdx
+What if I don’t have an OpenAI API key?,You will need - An OpenAI API key to use for the LLM evaluator.,34,34,frustrated_beginner,examples/LLM_judge.mdx
+Can I use this with other LLMs?,**Using other evaluator LLMs**. Check the [LLM judge docs](/metrics/customize_llm_judge#change-the-evaluator-llm) to see how you can select a different evaluator LLM.,75,75,context_assumer,examples/LLM_judge.mdx
+How can I get a report from my evaluations?,"**Get a Report.** Summarize the result by generating an Evidently Report. ```python
+report = Report([
+    TextEvals()
+])
+```",287,290,direct_inquirer,examples/LLM_judge.mdx
+How do I set up automatic transfers?,"Yes, you can set up automatic transfers by going to 'Account Settings', selecting 'Automatic Transfers', and specifying the amount and frequency. Make sure to save the settings to activate the transfers.",145,146,frustrated_beginner,examples/LLM_judge.mdx
+I'm really confused about how to set up the LLM evaluators. Can someone help me figure out how to pass the API keys?,"Pass the API keys for the LLMs you'll use as judges.
+
+```python
+import os
+os.environ[""OPENAI_API_KEY""] = ""YOUR KEY""
+os.environ[""GEMINI_API_KEY""] = ""YOUR KEY""
+os.environ[""ANTHROPIC_API_KEY""] = ""YOUR KEY""
+```",34,43,frustrated_beginner,examples/LLM_jury.mdx
+Using multiple LLMs to judge output... what's the point?,"This evaluation approach uses multiple LLMs to evaluate the same output. You can do this to obtain an aggregate evaluation result — e.g., consider an output a ""pass"" only if all or the majority of LLMs approve — or to explicitly surface disagreements.",1,1,context_assumer,examples/LLM_jury.mdx
+Need to see the LLM jury example. Where's the code?,Code example as a Jupyter notebook: https://github.com/evidentlyai/community-examples/blob/main/tutorials/LLM_as_a_jury_Example.ipynb,5,5,hurried_developer,examples/LLM_jury.mdx
+What do I do if the judges disagree?,"To explicitly flag disagreements among LLMs, let’s add a custom descriptor. It will return ""DISAGREE"" if the success rate is not 0 or 1 (i.e., not unanimously rejected or approved).",156,156,direct_inquirer,examples/LLM_jury.mdx
+How do I check if my emails are appropriate? What do I use for judging?,Use `BinaryClassificationPromptTemplate` to define what the LLM is judging.,94,94,direct_inquirer,examples/LLM_jury.mdx
+What is this optional step about the cloud workspace? Do I need it?,"**Optional**. Set up Evidently Cloud workspace:
+
+```python
+ws = CloudWorkspace(token=""YOUR_API_TOKEN"", url=""https://app.evidently.cloud"")
+```",49,53,frustrated_beginner,examples/LLM_jury.mdx
+How do I create a project for my evaluations?,"Create a project to store your evaluation results:
+
+```python
+project = ws.create_project(""LLM jury"", org_id=""YOUR ORG ID"")
+project.description = ""Evals with different LLMs""
+```",55,60,direct_inquirer,examples/LLM_jury.mdx
+Can I use self-hosted LLMs too? How does that work?,"You can use any other LLMs, including self-hosted ones. Check the [docs on LLM judges](/metrics/customize_llm_judge).",46,46,frustrated_beginner,examples/LLM_jury.mdx
+What happens after I run the evaluation report? How do I see the results?,"To explore results locally, export them to a DataFrame:
+
+```python
+llm_evals.as_dataframe()
+```",175,178,hurried_developer,examples/LLM_jury.mdx
+I'm trying to evaluate a RAG system but not sure how to assess the retrieved context quality. Can you help?,**Evaluate overall context quality.** We first assess whether the retrieved context provides sufficient information to answer the question and view results as a pandas dataframe.,96,96,frustrated_beginner,examples/LLM_rag_evals.mdx
+What’s the command to install Evidently?,!pip install evidently[llm],31,31,hurried_developer,examples/LLM_rag_evals.mdx
+"I need to evaluate generation quality without ground truth, what should I do?","If you don't have reference answers, you can use reference-free LLM judges to assess response quality. For example, here is you how can run evaluation for `Faithfulness` to detect if the response is contradictory or unfaithful to the context:",241,244,context_assumer,examples/LLM_rag_evals.mdx
+Can you show me how to generate a synthetic dataset for testing?,"**Generate a synthetic dataset**. We create a simple dataset with questions, retrieved contexts, and generated responses.",64,64,direct_inquirer,examples/LLM_rag_evals.mdx
+I want to see how multiple contexts are evaluated. How do you assess relevance?,"To aggregate the results per query, we can assess if at least one retrieved chunk contains relevant information (Hit).",159,159,frustrated_beginner,examples/LLM_rag_evals.mdx
+Need a quick way to get reports for my evaluations. How?,"Once you have defined what you are evaluating, you can group all your evals in a **Report** to summarize the results across multiple tested inputs.",272,272,hurried_developer,examples/LLM_rag_evals.mdx
+What are the available evaluators for assessing response quality?,"You can add other useful checks over your final response like: Length constraints, Refusal rate, String matching, Response tone.",258,266,direct_inquirer,examples/LLM_rag_evals.mdx
+How can I use the Evidently Cloud to track my evaluations?,"To be able to easily run and compare evals, systematically track the results, and interact with your evaluation dataset, you can use the Evidently Cloud platform.",330,330,context_assumer,examples/LLM_rag_evals.mdx
+Why is it important to evaluate retrieval quality in a RAG system?,"Assessing the quality of retrieved contexts, including per-chunk relevance.",12,12,frustrated_beginner,examples/LLM_rag_evals.mdx
+How can I upload my evaluation results to the Evidently Cloud?,"Since you already created the eval, you can simply upload it to the Evidently Cloud.",354,354,direct_inquirer,examples/LLM_rag_evals.mdx
+What happens if I don't have a ground truth dataset?,"If you don't have reference answers, you can use reference-free LLM judges to assess response quality.",241,242,context_assumer,examples/LLM_rag_evals.mdx
+I need to evaluate a chunk relevance. How do I do that?,You can also score the relevance of the chunk using a different `ContextRelevance` metric.,123,123,frustrated_beginner,examples/LLM_rag_evals.mdx
+What’s the last step after defining my evaluations?,You can also set up explicit pass/fail tests based on expected score distributions using the Tests.,311,311,hurried_developer,examples/LLM_rag_evals.mdx
+"I'm trying to check if my new responses are any different from the old ones, but I don't know how to start. What do I need to do first?","Here's what we'll do: * **Create a toy dataset**. Build a small Q&A dataset with answers and reference responses. * **Get new answers**. Imitate generating new answers to the same question. * **Create and run a Report with Tests**. Compare the answers using LLM-as-a-judge to evaluate length, correctness and style consistency.",11,19,frustrated_beginner,examples/LLM_regression_testing.mdx
+What’s the best way to compare old vs new responses?,"By re-running the same inputs with new parameters, you can spot any significant changes. This helps you push updates with confidence or identify issues to fix.",3,3,direct_inquirer,examples/LLM_regression_testing.mdx
+"Need to connect to Evidently Cloud, what's the token I'm supposed to use?","Connect to Evidently Cloud. Replace with your actual token: `ws = CloudWorkspace(token=""YOUR_API_TOKEN"", url=""https://app.evidently.cloud"")`",91,95,hurried_developer,examples/LLM_regression_testing.mdx
+Do I need to create an actual LLM app for this tutorial?,"To simplify things, we won't create an actual LLM app, but will simulate generating new outputs.",21,23,context_assumer,examples/LLM_regression_testing.mdx
+Is there a way to preview the dataset after I create it?,"Get a quick preview: ```python pd.set_option('display.max_colwidth', None) ref_data.head() ```",123,127,direct_inquirer,examples/LLM_regression_testing.mdx
+Can I use my own OpenAI API key here to test?,"Pass your OpenAI key: ```python os.environ[""OPENAI_API_KEY""] = ""YOUR KEY"" ```",82,87,hurried_developer,examples/LLM_regression_testing.mdx
+"I don't know how to check if my new answers are correct, can you guide me?","To compare new answers with old ones, we need evaluation metrics. You can use deterministic or embeddings-based metrics like Semantic Similarity. However, you often need more custom criteria. Using **LLM-as-a-judge** is useful for this, letting you define what to detect.",222,222,frustrated_beginner,examples/LLM_regression_testing.mdx
+Can you tell me what descriptors are? I keep seeing that term here.,"Descriptors are properties of your data that can be measured. In this context, they're used to evaluate responses based on criteria like length and correctness.",304,304,context_assumer,examples/LLM_regression_testing.mdx
+What are the main things I need to set up first for this tutorial?,"To complete the tutorial, you will need: * Basic Python knowledge. * An OpenAI API key to use for the LLM evaluator. * An Evidently Cloud account to track test results. If not yet, [sign up](https://www.evidentlyai.com/register) for a free account.",25,31,frustrated_beginner,examples/LLM_regression_testing.mdx
+What do I type to generate my new dataset?,"Run this code to generate a new dataset: ```python data = [ ... ] columns = [""question"", ""target_response"", ""response""] eval_data = pd.DataFrame(data, columns=columns) ```",178,209,hurried_developer,examples/LLM_regression_testing.mdx
+How do I check if my new responses are too long or too short?,All new responses must be no longer than 200 symbols.,226,226,frustrated_beginner,examples/LLM_regression_testing.mdx
+What’s the purpose of the correctness judge in this setup?,"We implement the correctness evaluator, using an Evidently template for binary classification. We ask the LLM to classify each response as ""correct"" or ""incorrect"" based on the `target_response` column and provide reasoning for its decision.",234,236,direct_inquirer,examples/LLM_regression_testing.mdx
+"I heard I should check for style too, how do I do that?","Using a similar approach, we'll create a custom judge for style match: it should look whether the style (not the contents!) of both responses remains similar.",268,270,frustrated_beginner,examples/LLM_regression_testing.mdx
+"Once I've set it up, how do I see the results of my tests?","To view the results, navigate to the Evidently Platform. Go to the [Home Page](https://app.evidently.cloud/), enter your Project, and find the Reports section in the left menu. Here, you'll see the Report you can explore.",384,386,direct_inquirer,examples/LLM_regression_testing.mdx
+"If the test fails, how do I figure out why?","To find the failed output, you can sort the column ""Length"" in order and find the longest response.",398,398,direct_inquirer,examples/LLM_regression_testing.mdx
+Can I export these results somewhere after running my tests?,This renders the Report directly in the interactive Python environment like Jupyter notebook or Colab. See other export options.,172,172,context_assumer,examples/LLM_regression_testing.mdx
+What if I need to run this multiple times? Do I need to change everything?,"Since we already defined the descriptors and Report composition with conditional checks, we only need to apply it to the new data: ```python eval_dataset_2.add_descriptors(descriptors=descriptors) my_eval_2 = report.run(eval_dataset_2, None) ```",447,451,hurried_developer,examples/LLM_regression_testing.mdx
+What's the point of having a monitoring Dashboard?,"As you run multiple Reports, you may want to track results in time to see if you are improving. You can configure a Dashboard, both in UI or programmatically.",463,465,direct_inquirer,examples/LLM_regression_testing.mdx
+How do I create a panel for my tests in the Dashboard?,Let's create a couple of Panels using Dashboards as code approach so that it's easy to reproduce. The following code will add: ... ```python project.dashboard.add_panel(...) ```,467,493,hurried_developer,examples/LLM_regression_testing.mdx
+I'm totally new here! What do I start with to evaluate LLM outputs?,"If you are new, start here. LLM quickstart: Evaluate the quality of text outputs.",7,12,frustrated_beginner,examples/introduction.mdx
+Quickstart for LLM evaluation? Need fast info!,LLM quickstart: Evaluate the quality of text outputs.,10,12,hurried_developer,examples/introduction.mdx
+"I'm assuming I need to check the LLM quickstart to evaluate outputs, right?",LLM quickstart: Evaluate the quality of text outputs.,10,12,context_assumer,examples/introduction.mdx
+What’s included in the LLM evaluation course?,We have an applied LLM evaluation course where we walk through the core evaluation workflows. Each consists of the code example and a video tutorial walkthrough.,89,90,direct_inquirer,examples/introduction.mdx
+Can you guide me on how to evaluate LLMs?,Tutorial on evaluating LLMs and a simple predictive ML baseline on a multi-class classification task.,100,100,direct_inquirer,examples/introduction.mdx
+Where’s the RAG evaluation tutorial?,"RAG evaluations: Part 1. Theory on how to evaluate RAG systems: retrieval, generation quality and synthetic data. Part 2. Tutorial on building a toy RAG application and evaluating correctness and faithfulness.",102,102,direct_inquirer,examples/introduction.mdx
+"I want to use LLMs for content generation, what should I look at?",Tutorial on how to use LLMs to write tweets and evaluate how engaging they are. Introduction to the concept of tracing.,101,101,direct_inquirer,examples/introduction.mdx
+So there's a tutorial for using LLMs to judge content?,Tutorial on creating and tuning LLM judges aligned with human preferences.,99,99,context_assumer,examples/introduction.mdx
+What’s the purpose of the Metric cookbook?,"Various data/ML metrics: Regression, Classification, Data Quality, Data Drift.",55,55,direct_inquirer,examples/introduction.mdx
+"I signed up for the LLM evaluation course, now what?",We have an applied LLM evaluation course where we walk through the core evaluation workflows.,89,89,frustrated_beginner,examples/introduction.mdx
+"Quick, what do I get in the intro to LLM evals?","Introduction to LLM evaluation: concepts, goals, and motivations behind evaluating LLM outputs.",97,97,hurried_developer,examples/introduction.mdx
+"I want to check examples with different LLM providers, where do I go?","Examples of using different external evaluator LLMs as LLM judges: OpenAI, Gemini, Google Vertex, Mistral, Ollama.",68,68,direct_inquirer,examples/introduction.mdx
+I don't get why Evidently Cloud isn't available as SaaS anymore. What should I do?,"Evidently Cloud is no longer available as a SaaS product, but you can self-host the open-source Evidently Platform or continue using the Evidently library integrated with other tools.",2,2,frustrated_beginner,faq/cloud_v2.mdx
+What version of the Evidently library do I need for Cloud v2?,**Cloud v2** requires the Evidently library version `evidently>=0.7.0`.,28,28,direct_inquirer,faq/cloud_v2.mdx
+I just upgraded to Evidently 0.6 and I'm confused about how to import the new API components. Can anyone guide me?,"To use the new API, import components from `evidently.future`. For example: `from evidently.future import Report`",13,13,frustrated_beginner,faq/migration.mdx
+"Need to know how to pin to old Evidently version, like 0.6.7? Quick steps?","If you still need the old API, pin your Evidently version to `0.6.7` or earlier.",17,17,hurried_developer,faq/migration.mdx
+What’s the deal with the new Dataset object? Do I still pass in a dataframe like before?,"Now, you also need to explicitly create an Evidently `Dataset` object instead of just passing a dataframe when running a Report. Each `Dataset` object has an associated `DataDefinition`.",26,26,context_assumer,faq/migration.mdx
+Can I use multiple targets/predictions in one table? How does that work?,"You can also now map multiple targets and predictions inside the same table: e.g., if you deal with multiple regression or have several classification results in one table.",30,30,direct_inquirer,faq/migration.mdx
+"Okay, so how do I check descriptors after computing them? Is it complicated?","Use these descriptors like any other dataset column when creating a Report. For example, here is how you summarize all descriptors and check that the text length is under 100 symbols.",59,59,frustrated_beginner,faq/migration.mdx
+What's new about the Reports API? I need a quick rundown.,"Key changes: - The Report object now defines the configuration (e.g., metrics to include). - Running a Report returns a separate result object.",91,94,hurried_developer,faq/migration.mdx
+How do the new Test Suites integrate with Reports?,"Now, the Test Suite mode is an optional extension of a Report. If you choose to enable Tests, their results appear as a separate tab in the same HTML file.",109,109,direct_inquirer,faq/migration.mdx
+"I’m trying to figure out how to use Evidently for my AI project, but I don’t want to mess with hosting it myself. What should I do?",Evidently Cloud is hosted and managed by Evidently AI.,27,27,frustrated_beginner,faq/oss_vs_cloud.mdx
+Evidently Cloud vs. Enterprise—what’s the difference?,"The commercial version of the Platform includes additional functionality related to no-code evaluation, collaboration and no-code managed workflows. It also includes security features like role-based access control and comes with a scalable backend.",66,66,direct_inquirer,faq/oss_vs_cloud.mdx
+"Can’t I just use the Evidently library for everything? Like, does it really need Cloud or Enterprise?",All the core evaluation features are open-source.,64,64,context_assumer,faq/oss_vs_cloud.mdx
+Need quick info—how's the support different for OSS and Cloud?,"The commercial platform version includes dedicated support. We offer varying tiers of support based on the selected Plan. In any scenario, you get direct access to the developers who built the Platform.",70,73,hurried_developer,faq/oss_vs_cloud.mdx
+What happens if I choose the OSS version? Do I have to handle everything myself?,"You’re responsible for deploying and managing the Platform within your environment, including backups, upgrades, and scaling.",79,79,frustrated_beginner,faq/oss_vs_cloud.mdx
+I just want to know what kind of data is being collected when I use Evidently. Can you tell me?,"We only collect telemetry when you use **Evidently Monitoring UI**. We DO NOT collect any telemetry when you use the tool as a library, for instance, run in a Jupyter notebook or in a Python script to generate Evidently Reports. We only collect **anonymous** usage data. We DO NOT collect personal data. We only collect data about **environment** and **service** use. Our telemetry is intentionally limited in scope. We DO NOT collect any sensitive information or data about the datasets you process. We DO NOT have access to the dataset schema, parameters, variable names, or anything related to the contents of the data or your code.",9,13,frustrated_beginner,faq/telemetry.mdx
+Telemetry always on? How to turn it off?,"By default, telemetry is enabled. After starting up the service, you will see the following message in the terminal: ``` Anonymous usage reporting is enabled. To disable it, set env variable {DO_NOT_TRACK_ENV} to any value ``` To disable telemetry, use the environment variable: `DO_NOT_TRACK`. Set it to any value, for instance: ``` export DO_NOT_TRACK=1 ``` After doing that and starting the service, you will see the message: ``` Anonymous usage reporting is disabled. ``` To enable telemetry back, unset the environment variable: ``` unset DO_NOT_TRACK ```",77,103,hurried_developer,faq/telemetry.mdx
+Can I disable telemetry if I really want to?,"By default, telemetry is enabled. After starting up the service, you will see the following message in the terminal: ``` Anonymous usage reporting is enabled. To disable it, set env variable {DO_NOT_TRACK_ENV} to any value ``` To disable telemetry, use the environment variable: `DO_NOT_TRACK`. Set it to any value, for instance: ``` export DO_NOT_TRACK=1 ``` After doing that and starting the service, you will see the message: ``` Anonymous usage reporting is disabled. ``` To enable telemetry back, unset the environment variable: ``` unset DO_NOT_TRACK ```",77,103,context_assumer,faq/telemetry.mdx
+What's the deal with the anonymous data you're collecting?,"We only collect **anonymous** usage data. We DO NOT collect personal data. We only collect data about **environment** and **service** use. Our telemetry is intentionally limited in scope. We DO NOT collect any sensitive information or data about the datasets you process. We DO NOT have access to the dataset schema, parameters, variable names, or anything related to the contents of the data or your code.",11,13,direct_inquirer,faq/telemetry.mdx
+What happens if I don’t keep telemetry on? Do you know?,"Being open-source, we have no visibility into the tool usage unless someone actively reaches out to us or opens a GitHub issue. We’d be grateful if you keep the telemetry on since it helps us answer questions like: * How many people are actively using the tool? * Which features are being used most? * What is the environment you run Evidently in? It helps us prioritize the development of new features and make sure we test the performance in the most popular environments.",371,384,frustrated_beginner,faq/telemetry.mdx
+When did telemetry start for Evidently? Is it automatic?,"Telemetry is collected in Evidently starting from **version 0.4.0**. By default, telemetry is enabled. After starting up the service, you will see the following message in the terminal: ``` Anonymous usage reporting is enabled. To disable it, set env variable {DO_NOT_TRACK_ENV} to any value ```",7,81,hurried_developer,faq/telemetry.mdx
+I heard telemetry is useful. Can you explain that?,"Being open-source, we have no visibility into the tool usage unless someone actively reaches out to us or opens a GitHub issue. We’d be grateful if you keep the telemetry on since it helps us answer questions like: * How many people are actively using the tool? * Which features are being used most? * What is the environment you run Evidently in? It helps us prioritize the development of new features and make sure we test the performance in the most popular environments.",371,384,context_assumer,faq/telemetry.mdx
+How do I know if telemetry is on or off? Is there a message?,"After starting up the service, you will see the following message in the terminal: ``` Anonymous usage reporting is enabled. To disable it, set env variable {DO_NOT_TRACK_ENV} to any value ``` After doing that and starting the service, you will see the message: ``` Anonymous usage reporting is disabled. ```",79,97,direct_inquirer,faq/telemetry.mdx
+What specific data gets collected under telemetry?,We collect the following types of data. **Environment data**. Basic information about the environment in which you run Evidently: * `timestamp` * `user_id` * `os_name` * `os_version` * `python_version` * `tool_name` * `tool_version` * `source_ip`. **Service usage data.** Data about the following actions performed in the service to understand features being used: * `Startup` * `Index` * `List_projects` * `Get_project_info` * `Project_dashboard` * `List_reports` * `List_test_suites` * `Get_snapshot_download` * `Add_project` * `Search_projects` * `Update_project_info` * `Get_snapshot_graph_data` * `Get_snapshot_data` * `List_project_dashboard_panels` * `Add_snapshot`,15,75,frustrated_beginner,faq/telemetry.mdx
+"I’m trying to use Evidently for my ML model, but I’m not sure if I can just start small without a big setup. Can I?","Evidently is built to adapt to your needs without lock-ins or complex setups. It’s modular and component-based, so you can start small: you don't have to deploy a service with multiple databases just to run a single eval.",13,13,frustrated_beginner,faq/why_evidently.mdx
+Evidently supports which types of tasks?,Evidently supports both ML and LLM tasks. We believe this matters even if you’re focused solely on LLMs and not training your models.,46,46,direct_inquirer,faq/why_evidently.mdx
+What's the deal with these built-in evaluations? Do I need to do extra work for metrics?,"We ship **100+ built-in evaluations** that cover many ML and LLM use cases. From ranking metrics to data drift algorithms and LLM judges, we’ve done the hard work by implementing metrics and ways to visualize them. You can also easily extend Evidently by adding custom metrics.",28,28,hurried_developer,faq/why_evidently.mdx
+"Assuming Evidently is great for collaboration, how does it help non-technical users?",We build our platform with this in mind: combine **no-code** workflows for non-technical users with an intuitive **API**. Everyone gets what they need to do their best work.,59,59,context_assumer,faq/why_evidently.mdx
+"I'm trying to get started with this Evidently thing, but how do I run my first evaluation?",Run your first evaluation in a couple of minutes.,10,10,frustrated_beginner,introduction.mdx
+What do I need to use the ExactMatch feature?,**Required:** <ul><li>`columns`</li></ul>**Optional:** <ul><li>`alias` </li></ul>,15,15,direct_inquirer,metrics/all_descriptors.mdx
+I’m trying to check if a text starts with a specific word! How do I use BeginsWith?,"<ul><li>Checks if the text starts with a given combination. </li><li>Returns True/False for every input.</li><li>Example: `BeginsWith(prefix=""How"")`</li></ul>",17,17,frustrated_beginner,metrics/all_descriptors.mdx
+"Just need to know, does the Contains check tell me if all items are present or just any?",**Optional:** <ul><li>`mode = any` or `all` </li></ul>,26,26,direct_inquirer,metrics/all_descriptors.mdx
+Is the DoesNotContain check something I can use with multiple items?,**Required:** <ul><li>`items: List[str]`</li></ul>**Optional:** <ul><li>`alias` </li><li>`mode = all` </li><li> `case_sensitive = True` or `False`</li></ul>,27,27,hurried_developer,metrics/all_descriptors.mdx
+Confused about checking if the text includes specific words. What’s the function?,"<ul><li>Checks if the text includes **any** or **all** specified words. </li><li>Considers only vocabulary words.</li><li>Returns True/False for every input.</li><li>Example: `IncludesWords(words_list=['booking', 'hotel', 'flight'])`</li></ul>",28,28,frustrated_beginner,metrics/all_descriptors.mdx
+What’s the difference between ItemMatch and ItemNoMatch?,"<ul><li>Checks if the text contains **any** or **all** specified items.</li><li> The item list is specific to each row and provided in a separate column.</li><li>Returns True/False for each row.</li><li>Example: `ItemMatch([""Answer"", ""Expected_items""])`</li></ul>",30,30,direct_inquirer,metrics/all_descriptors.mdx
+How do you check if a column has valid JSON format?,<ul><li>Checks if the column contains a valid JSON.</li><li>Returns True/False for every input.</li></ul>,42,42,direct_inquirer,metrics/all_descriptors.mdx
+What’s needed to check JSONSchemaMatch?,"**Required:** <ul><li>`expected_schema: Dict[str, type]`</li></ul> **Optional:** <ul><li> `exact_match = True` or `False` </li><li> `validate_types = True` or `False`</li></ul>",43,43,frustrated_beginner,metrics/all_descriptors.mdx
+Can I use a custom function for checking my own columns?,<ul><li>Implements a custom check as a Python function that can be applied to any column in the dataset.</li><li>Use it to run your own programmatic checks. </li><li>Returns score and/or label as specified.</li><li>Accepts and returns a single column. </li></ul>,67,67,frustrated_beginner,metrics/all_descriptors.mdx
+Just looking to check if I can validate SQL syntax. How would I do that?,<ul><li>Checks if the column contains a valid SQL query without executing the query.</li><li>Returns True/False for every input.</li></ul>,46,46,direct_inquirer,metrics/all_descriptors.mdx
+What does the FaithfulnessLLMEval do?,"<ul><li>Assesses whether the response stays faithful to the given context.Checks for hallucinations or unsupported claims.</li><li>Returns a label (FAITHFUL or UNFAITHFUL) or a score.</li><li>Run over the ""response"" column and pass the `context` column as a parameter.</li><li>Example: `FaithfulnessLLMEval(""Response"", context=""Context"")`</li></ul>",89,89,direct_inquirer,metrics/all_descriptors.mdx
+What about the CompletenessLLMEval? How does that work?,"<ul><li>Determines whether the response fully uses the information provided in the context.</li><li>Returns a label (COMPLETE or INCOMPLETE) or a score.</li><li>Run over the ""response"" column and pass the `context` column as a parameter.</li><li>Example: `CompletenessLLMEval(""Response"", context=""Context"")`</li></ul>",90,90,context_assumer,metrics/all_descriptors.mdx
+I saw something about detecting toxicity. Can you tell me more?,<ul><li>Detects toxic texts.</li><li>Returns a label (TOXICITY or OK) or a score.</li></ul>,103,103,direct_inquirer,metrics/all_descriptors.mdx
+How do I calculate semantic similarity? Do I need both columns?,"<ul><li>Calculates pairwise semantic similarity (Cosine Similarity) between two columns using a sentence embeddings model [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).</li><li>Returns a score from 0 to 1: (0: different, 0.5: unrelated, 1: identical) </li><li>Example use: `SemanticSimilarity(columns=[""Question"", ""Answer""])`.</li></ul>",111,111,frustrated_beginner,metrics/all_descriptors.mdx
+I need to know about the BERTScore function. What does it do?,"<ul><li>Calculates similarity between two text columns based on token embeddings.</li><li>Returns [BERTScore](https://arxiv.org/pdf/1904.09675) (F1 Score).</li><li>Example use: `BERTScore(columns=[""Answer"", ""Target""])`.</li></ul>",112,112,frustrated_beginner,metrics/all_descriptors.mdx
+Can HuggingFace score texts? What do I specify?,<ul><li>Scores the text using a user-selected HuggingFace model.</li><li>See [HuggingFace descriptor docs](/metrics/customize_hf_descriptor) for example models.</li></ul>,114,114,direct_inquirer,metrics/all_descriptors.mdx
+How do I use NegativeLLMEval? What can it return?,<ul><li>Detects negative texts.</li><li>Returns a label (NEGATIVE or POSITIVE) or a score.</li></ul>,101,101,direct_inquirer,metrics/all_descriptors.mdx
+Is there a function to detect PII? How do I use it?,<ul><li>Detects texts containing PII (Personally Identifiable Information).</li><li>Returns a label (PII or OK) or a score.</li></ul>,100,100,frustrated_beginner,metrics/all_descriptors.mdx
+"If I want to add my own custom checks, how do I do that?",<ul><li>Implements a custom check for specific column(s) as a Python function.</li><li>Use it to run your own programmatic checks. </li><li>Returns score and/or label as specified.</li><li>Can accept and return multiple columns. </li></ul>,66,66,context_assumer,metrics/all_descriptors.mdx
+Do the columns for semantic similarity need to be specified?,**Required:** <ul><li>`columns`</li></ul>**Optional:** <ul><li> `alias`</li></ul>,111,111,direct_inquirer,metrics/all_descriptors.mdx
+What does the IsValidPython function do?,<ul><li>Checks if the column contains valid Python code without syntax errors.</li><li>Returns True/False for every input.</li></ul>,45,45,direct_inquirer,metrics/all_descriptors.mdx
+Can I validate a specific column to check for valid SQL?,<ul><li>Checks if the column contains a valid SQL query without executing the query.</li><li>Returns True/False for every input.</li></ul>,46,46,context_assumer,metrics/all_descriptors.mdx
+What’s included in the parameters for ContextRelevance?,"**Required:** <ul><li>`input`</li><li>`contexts`</li></ul> **Optional:** <ul><li>`output_scores`: `False` or `True` </li><li>`method`: `semantic_similarity` or `llm`</li><li>`aggregation_method`: `mean` or `hit` </li><li>`aggregation_method_params={""threshold"":0.95}` (set the relevance threshold as greater or equal, 0.8 by default)</li><li>`alias`</li><li>`provider`</li><li>`model`</li><li>See [LLM judge parameters](/metrics/customize_llm_judge).</li></ul>",88,88,context_assumer,metrics/all_descriptors.mdx
+"For the TextLength function, what do I get as a result?",<ul><li>Measures the length of the text in symbols.</li><li>Returns an absolute number.</li></ul>,54,54,hurried_developer,metrics/all_descriptors.mdx
+I read about these metrics but I'm confused about what they actually do. Can someone explain what `TextEvals()` is for?,<ul><li>Large Preset.</li><li>Shows `ValueStats` for all descriptors.</li><li>You must specify descriptors ([see how](/docs/library/descriptors) and [all descriptors](/metrics/all_descriptors)).</li><li>Metric result: for all Metrics.</li><li>[Preset page](/metrics/preset_text_evals).</li></ul>,29,29,frustrated_beginner,metrics/all_metrics.mdx
+TextEval metrics - do I need to set descriptors?,<ul><li>Large Preset.</li><li>Shows `ValueStats` for all descriptors.</li><li>You must specify descriptors ([see how](/docs/library/descriptors) and [all descriptors](/metrics/all_descriptors)).</li><li>Metric result: for all Metrics.</li><li>[Preset page](/metrics/preset_text_evals).</li></ul>,29,29,hurried_developer,metrics/all_metrics.mdx
+Can you tell me about what `ClassificationPreset()` does?,<ul><li>Large Preset with many classification Metrics and visuals.</li><li>See [Preset page](/metrics/preset_classification).</li><li>Metric result: all Metrics.</li></ul>,142,144,direct_inquirer,metrics/all_metrics.mdx
+"I want to calculate precision for my model, which function should I use?","<ul><li>Calculates precision.</li><li>Visualizations available: Confusion Matrix, PR Curve, PR Table.</li><li>Metric result: `value`.</li></ul>",145,145,direct_inquirer,metrics/all_metrics.mdx
+What if my data has missing values? Does it affect the results?,"<ul><li>Counts the number and share of missing values.</li><li>Metric result: `count`, `share`.</li></ul>",64,64,context_assumer,metrics/all_metrics.mdx
+How can I check if I have duplicate rows?,<ul><li>Counts the number of duplicated rows.</li><li>Metric result: `value`.</li></ul>,103,103,direct_inquirer,metrics/all_metrics.mdx
+Can I ignore empty columns in my dataset evaluation?,<ul><li>Counts the number of empty columns.</li><li>Metric result: `value`.</li></ul>,102,102,context_assumer,metrics/all_metrics.mdx
+I need to evaluate a binary classification model; which metrics should I focus on?,Use for binary classification and aggregated results for multi-class.,138,138,context_assumer,metrics/all_metrics.mdx
+What exactly does `RegressionQuality` do?,<ul><li>Small Preset. </li><li> Summarizes key regression metrics in a single widget.</li><li>Metric result: all metrics.</li></ul>,191,191,frustrated_beginner,metrics/all_metrics.mdx
+What are Dummy metrics used for?,Use these Metics to get the quality of a dummy model created on the same data (based on heuristics). You can compare your model quality to verify that it's better than random. These Metrics serve as a baseline in automated testing.,158,158,context_assumer,metrics/all_metrics.mdx
+I saw something about calculating `MAP`. How do I use it correctly?,<ul><li>Calculates Mean Average Precision at the top K retrieved items.</li><li>Metric result: `value`.</li></ul>,231,231,direct_inquirer,metrics/all_metrics.mdx
+What's a good way to measure data drift in my columns?,<ul><li>Calculates data drift for all or set columns. </li><li>Uses the default or set method.</li><li>Returns drift score for each column.</li></ul>,123,123,frustrated_beginner,metrics/all_metrics.mdx
+Is `OutRangeValueCount` intended for only a specific column?,"<ul><li>Counts the number and share of values out of the set range.</li><li>Metric result: `count`, `share`.</li></ul>",66,66,direct_inquirer,metrics/all_metrics.mdx
+What is the purpose of `DummyPrecision()`?,<ul><li>Calculates precision for a dummy model.</li><li>Metric result: `value`.</li></ul>,163,163,frustrated_beginner,metrics/all_metrics.mdx
+Can I check data quality on a specific column? How?,Use to aggregate descriptor results or check data quality on column level.,33,33,context_assumer,metrics/all_metrics.mdx
+How do I visualize the results of `MeanError()`?,"<ul><li>Calculates the mean error.</li><li>Visualizations available: Error Plot, Error Distribution, Error Normality.</li><li>Metric result: `mean`, `std`.</li></ul>",192,192,frustrated_beginner,metrics/all_metrics.mdx
+What's the difference between `ValueStats()` and `DatasetStats()`?,"<ul><li>Small preset. </li><li> Dataset-level.</li><li>Calculates descriptive dataset stats, including columns by type, rows, missing values, empty columns, etc.</li><li>Metric result: for all Metrics.</li></ul>",86,86,frustrated_beginner,metrics/all_metrics.mdx
+Do I need a reference to use `DataDriftPreset()`?,<ul><li>Requires reference.</li></ul>,123,123,direct_inquirer,metrics/all_metrics.mdx
+What Metrics are included in `ValueStats()`? How do I use them?,"<ul><li>Computes various descriptive stats. Included Metrics: `UniqueValueCount`, `MissingValueCount`, `MinValue`, `MaxValue`, `MeanValue`, `StdValue`, `QuantileValue` (0.25, 0.5, 0.75).</li><li>Returns different stats based on the column type.</li></ul>",45,45,context_assumer,metrics/all_metrics.mdx
+I need to summarize classification quality metrics quickly. What should I do?,<ul><li>Small Preset summarizing quality Metrics in a single widget.</li><li>Metric result: all Metrics.</li></ul>,143,143,frustrated_beginner,metrics/all_metrics.mdx
+In what scenarios would I use `MinValue()`?,<ul><li>Column-level.</li><li>Returns min value for a given numerical column.</li><li>Metric result: `value`.</li></ul>,46,46,direct_inquirer,metrics/all_metrics.mdx
+Does the `Dummy model quality` include metrics for regression analysis?,<ul><li>Small Preset summarizing quality of a dummy model.</li><li>Metric result: all Metrics</li></ul>,206,206,context_assumer,metrics/all_metrics.mdx
+Can `RegressionPreset` provide insights for multiple regression metrics?,<ul><li>Large Preset. </li><li> Includes a wide range of regression metrics with rich visuals.</li><li>Metric result: all metrics.</li></ul>,190,190,frustrated_beginner,metrics/all_metrics.mdx
+"If my results show FNR is above 20%, is that a concern?",<ul><li>Calculates False Negative Rate (FNR).</li><li>Metric result: `value`.</li></ul>,151,151,direct_inquirer,metrics/all_metrics.mdx
+What kind of insights can I gain from `DummyMeanError()`?,"<ul><li>Calculates Mean Error for a dummy model.</li><li>Metric result: `mean_error`, `error std`.</li></ul>",207,207,frustrated_beginner,metrics/all_metrics.mdx
+How can I ensure I’m not measuring the same thing twice with these metrics?,Use these Metics to get the baseline quality for regression: they use optimal constants (varies by the Metric). These Metrics serve as a baseline in automated testing.,201,201,context_assumer,metrics/all_metrics.mdx
+Can I get statistics on columns with empty data? How?,<ul><li>Counts columns with missing values.</li><li>Metric result: `value`.</li></ul>,107,107,direct_inquirer,metrics/all_metrics.mdx
+How do I know if my dataset has unique values?,"<ul><li>Counts the number and share of unique values.</li><li>Metric result: `values` (dict with `count, share`).</li></ul>",69,69,context_assumer,metrics/all_metrics.mdx
+I want to know how often a category appears in my dataset. Which metric should I use?,"<ul><li>Counts occurrences of the specified category or categories.</li><li>To check the joint share of several categories, pass the list `categories=[",50,50,frustrated_beginner,metrics/all_metrics.mdx
+What exactly are these templates for? I just want to know what they do without needing to set anything up.,These are pre-built evaluation templates that are easy to run without setup. They are great for a start: you can create a custom setup later.,1,1,frustrated_beginner,metrics/all_presets.mdx
+I'm trying to detect data drift but I'm not sure how to set the method and thresholds for the dataset. Can you help?,"You can override the defaults by passing a custom parameter to the chosen Metric or Preset. You can modify the drift detection method (choose from 20+ available), thresholds, or both.",3,5,frustrated_beginner,metrics/customize_data_drift.mdx
+"Data drift, preset methods?","You can also specify the drift detection methods used on the column level. For example, to use PSI (Population Stability Index) for all columns in the dataset:",31,31,hurried_developer,metrics/customize_data_drift.mdx
+What’s the default threshold for dataset drift?,**Dataset drift share**. You can set the share of drifting columns that signals **dataset drift** (default: 0.5) in the relevant Metrics or Presets.,21,21,direct_inquirer,metrics/customize_data_drift.mdx
+How can I customize the drift detection methods?,You can also implement fully custom drift detection methods.,5,5,frustrated_beginner,metrics/customize_data_drift.mdx
+Can I change drift detection methods for individual columns?,"For column-level metrics, you can set the drift method/threshold directly for each column:",57,57,context_assumer,metrics/customize_data_drift.mdx
+What happens if I want to set a custom method?,"If you do not find a suitable drift detection method, you can implement a custom function:",121,121,direct_inquirer,metrics/customize_data_drift.mdx
+"Thresholds for drift detection, how do they work?","Sets the drift threshold in a given column or all columns. The threshold meaning varies based on the drift detection method, e.g., it can be the value of a distance metric or a p-value of a statistical test.",72,72,direct_inquirer,metrics/customize_data_drift.mdx
+How do I set thresholds for different column types?,"You can set thresholds for each method. For example, use PSI with a threshold of 0.3 for categorical columns.",45,53,frustrated_beginner,metrics/customize_data_drift.mdx
+Can I check drift for text data as well?,"Text drift detection applies to columns with **raw text data**, as specified in data definition.",106,108,frustrated_beginner,metrics/customize_data_drift.mdx
+All available drift methods?,See all available methods in the table below.,42,42,hurried_developer,metrics/customize_data_drift.mdx
+What do I need to set dataset drift share?,You know how to create [Reports](/docs/library/report) and run [Tests](/docs/library/tests).,11,11,context_assumer,metrics/customize_data_drift.mdx
+Which drift detection methods apply to tabular data?,"The following methods apply to **tabular** data: numerical or categorical columns in data definition. Pass them using the `stattest` (or `num_stattest`, etc.) parameter.",81,83,direct_inquirer,metrics/customize_data_drift.mdx
+How to detect drift in categorical columns?,Sets the drift method and/or threshold for all categorical columns.,74,74,direct_inquirer,metrics/customize_data_drift.mdx
+Is there a way to use custom libraries for drift detection?,You need to implement a custom function and register it with the StatTest class.,121,121,frustrated_beginner,metrics/customize_data_drift.mdx
+What’s the default method for categorical data?,"default method for categorical with > 2 labels, if ≤ 1000 objects",88,88,direct_inquirer,metrics/customize_data_drift.mdx
+I don't get the difference between dataset level and column level methods.,You can also specify the drift detection methods used on the column level.,31,31,frustrated_beginner,metrics/customize_data_drift.mdx
+How do I use the PSI method for my dataset?,to use PSI (Population Stability Index) for all columns in the dataset:,31,31,direct_inquirer,metrics/customize_data_drift.mdx
+I want to create my own evaluator but I'm totally lost on how to start. How do I even write a custom function in Python?,"To run a check not available in Evidently, you can implement it as a custom function. Use this for building your own programmatic evaluators.",1,1,frustrated_beginner,metrics/customize_descriptor.mdx
+Need a quick way to check if a column is empty. Custom function?,"Implement it as a Python function that takes a Pandas Series as input and return a transformed Series. For example, to check if the column is empty:",49,49,hurried_developer,metrics/customize_descriptor.mdx
+Can I run multiple evaluations at once with CustomDescriptor?,You can also use `CustomDescriptor` to run evals for multiple columns and return multiple scores.,102,102,direct_inquirer,metrics/customize_descriptor.mdx
+I'm trying to figure out how to detect embeddings drift for my model but I'm not sure what the default method is.,The default embedding drift method is a **classifier**. Evidently trains a binary classification model to discriminate between data from reference and current distributions.,10,10,frustrated_beginner,metrics/customize_embedding_drift.mdx
+What are the thresholds for drift detection based on the size of my data?,* The default for **small data with <= 1000 observations** detects drift if the ROC AUC of the drift detection classifier > possible ROC AUC of the random classifier at a 95th percentile. * The default for **larger data with > 1000 observations** detects drift if the ROC AUC > 0.55.,12,14,direct_inquirer,metrics/customize_embedding_drift.mdx
+Is it possible to choose other methods for detecting drift?,"**You can choose other embedding drift detection methods**. You can specify custom thresholds and parameters such as dimensionality reduction and choose from other methods, including Euclidean distance, Cosine Similarity, Maximum Mean Discrepancy, and share of drifted embeddings. You must specify this as a parameter.",16,16,direct_inquirer,metrics/customize_embedding_drift.mdx
+I have no clue about creating reports or test suites with default parameters. What should I do?,* You know how to generate Reports or Test Suites with default parameters. * You know how to pass custom parameters for Reports or Test Suites.,20,24,frustrated_beginner,metrics/customize_embedding_drift.mdx
+"Trying to detect drift, what’s this bootstrap thing about?","`bootstrap` (optional)  Boolean parameter (True/False) to determine whether to apply statistical hypothesis testing. <br />If applied, the ROC AUC of the classifier is compared to the ROC AUC of the random classifier at a set percentile. The calculation is repeated 1000 times with randomly assigned target class probabilities. This produces a distribution of random roc_auc scores with a mean of 0,5. We then take the 95th percentile (default) of this distribution and compare it to the ROC-AUC score of the classifier. If the classifier score is higher, data drift is detected.<br /><br />**Default: True if less than or eq 1000 objects, False if > 1000 objects.**",122,122,hurried_developer,metrics/customize_embedding_drift.mdx
+How do I specify which columns to include for embeddings?,"To specify which sets of columns to include (with the default drift detection method):<br /><br>```python<br>embeddings = [‘set1’, ‘set2’]<br>```",78,80,direct_inquirer,metrics/customize_embedding_drift.mdx
+Can I really just exclude some columns when detecting drift? This seems confusing!,To exclude columns with embeddings:<br /><br>```python<br>embeddings = []<br>```,70,74,frustrated_beginner,metrics/customize_embedding_drift.mdx
+What drift detection method should I use?,Currently 4 embeddings drift detection methods are available.,91,91,context_assumer,metrics/customize_embedding_drift.mdx
+When should I use `drift_method=ratio`? What does it do?,`drift_method=ratio` computes the distribution drift between individual embedding components using any of the tabular numerical drift detection methods available in Evidently.,96,96,direct_inquirer,metrics/customize_embedding_drift.mdx
+I'm passing custom parameters but nothing seems to happen. What's wrong?,"If you specify an embedding drift detection method but do not pass additional parameters, defaults will apply.",100,100,frustrated_beginner,metrics/customize_embedding_drift.mdx
+I need help with the MMD method. What should I know?,`drift_method=mmd` computes the Maximum Mean Discrepancy (MMD) and returns the **MMD value** as a `drift_score`. Drift is detected when `drift_score` > `threshold` or when `drift_score` >  obtained MMD values in reference at a set `quantile_probability`.,98,98,direct_inquirer,metrics/customize_embedding_drift.mdx
+How do I set the PCA components for drift detection?,"The number of PCA components. If specified, dimensionality reduction will be applied to project data to n-dimensional space based on the number of `pca_components`.<br /><br />**Default: None.**",124,124,direct_inquirer,metrics/customize_embedding_drift.mdx
+What happens if I don’t set a threshold for detection?,Sets the threshold for drift detection (ROC AUC). Drift is detected when `drift_score` > `threshold`. <br />Applies when `bootstrap` not equal True.<br /><br />**Default: 0.55**.,121,121,direct_inquirer,metrics/customize_embedding_drift.mdx
+How do I check the share of drifted embedding components?,Drift is detected when `drift_score` > `component_stattest_threshold` in case of distance/divergence metrics where the threshold is the metric value or `drift_score` < `component_stattest_threshold` in case of statistical tests where the threshold is the p-value.<br /><br />**Default: 0.1** (relevant for Wasserstein).,166,166,direct_inquirer,metrics/customize_embedding_drift.mdx
+Is there a default method for distance-based drift detection? What is it?,Sets the distance metric for drift detection. <br /><br />**Default: Euclidean distance**,189,189,direct_inquirer,metrics/customize_embedding_drift.mdx
+How can I apply statistical testing in my model?,"If applied, the distance between reference and current is tested against possible distance values in reference. We randomly split the reference data into two parts and compute the distance between them. The calculation is repeated 100 times. This produces a distribution of distance values obtained for a reference dataset. We then take the 95th percentile (default) of this distribution and compare it to the distance between reference and current datasets. If the distance between the reference and current is higher than the 95th percentile of the distance obtained for the reference dataset, the drift is detected.",191,191,direct_inquirer,metrics/customize_embedding_drift.mdx
+What do I do if my embeddings drift method isn’t working?,"If you specify an embedding drift detection method but do not pass additional parameters, defaults will apply.",100,100,frustrated_beginner,metrics/customize_embedding_drift.mdx
+What is the default threshold for drift detected by the model?,**Default: 0.55**,121,121,context_assumer,metrics/customize_embedding_drift.mdx
+I'm trying to use the HuggingFace models but I don't know how to score my text. Can you help?,"You can score your text by downloading and using ML models from HuggingFace. This lets you apply any criteria from the source model, e.g. classify texts by emotion. There are:",1,1,frustrated_beginner,metrics/customize_hf_descriptor.mdx
+Which models can I use with HuggingFace?,Here are some models you can call using the `HuggingFace()` descriptor.,101,103,direct_inquirer,metrics/customize_hf_descriptor.mdx
+"Using HuggingFace, how can I evaluate texts for sadness? Do I just change the label?",**Available labels**:<ul><li>admiration</li><li>amusement</li><li>anger</li><li>annoyance</li><li>approval</li><li>caring</li><li>confusion</li><li>curiosity</li><li>desire</li><li>disappointment</li><li>disapproval</li><li>disgust</li><li>embarrassment</li><li>excitement</li><li>fear</li><li>gratitude</li><li>grief</li><li>joy</li><li>love</li><li>nervousness</li><li>optimism</li><li>pride</li><li>realization</li><li>relief</li><li>remorse</li><li>sadness</li><li>surprise</li><li>neutral</li></ul>,107,107,context_assumer,metrics/customize_hf_descriptor.mdx
+What if I need to add custom evaluations in HuggingFace?,You can also add any custom checks [directly as a Python function](/metrics/customize_descriptor).,74,74,hurried_developer,metrics/customize_hf_descriptor.mdx
+How do I use the `HuggingFaceToxicity` descriptor in a Python function?,You can call them like any other descriptor:,63,63,direct_inquirer,metrics/customize_hf_descriptor.mdx
+It says I need pandas to create a Dataset object. How do I import it?,"```python
+import pandas as pd
+```",21,21,frustrated_beginner,metrics/customize_hf_descriptor.mdx
+Can I evaluate texts with multiple topics using HuggingFace?,Use it for zero-shot classification by user-provided topics.,108,108,context_assumer,metrics/customize_hf_descriptor.mdx
+What does the score mean in the `HuggingFace` model results?,The model you use must return a numerical score or a category for each text in a column.,77,77,direct_inquirer,metrics/customize_hf_descriptor.mdx
+This is overwhelming! How to start using these models?,You know how to use [descriptors](/docs/library/descriptors) to evaluate text data.,9,9,frustrated_beginner,metrics/customize_hf_descriptor.mdx
+I don’t get how to use LLM descriptors for evaluation. Can someone explain?,"LLM-based descriptors use an external LLM for evaluation. You can: - Use built-in evaluators (with pre-written prompts), or - Configure custom criteria using templates.",1,4,frustrated_beginner,metrics/customize_llm_judge.mdx
+What imports do I need for LLM evaluation?,"```python
+from evidently.llm.templates import BinaryClassificationPromptTemplate, MulticlassClassificationPromptTemplate 
+from evidently.descriptors import LLMEval, ToxicityLLMEval, ContextQualityLLMEval, DeclineLLMEval
+```",12,15,hurried_developer,metrics/customize_llm_judge.mdx
+How can I generate toy data?,"To generate toy data and create a Dataset object:  ```python
+import pandas as pd
+from evidently import DataDefinition
+
+data = [
+    [""Why is the sky blue?"", 
+     ""The sky is blue because molecules in the air scatter blue light from the sun more than they scatter red light."", 
+     ""because air scatters blue light more""],
+    [""How do airplanes stay in the air?"", 
+     ""Airplanes stay in the air because their wings create lift by forcing air to move faster over the top of the wing than underneath, which creates lower pressure on top."", 
+     ""because wings create lift""],
+    [""Why do we have seasons?"", 
+     ""We have seasons because the Earth is tilted on its axis, which causes different parts of the Earth to receive more or less sunlight throughout the year."", 
+     ""because Earth is tilted""],
+    [""How do magnets work?"", 
+     ""Magnets work because they have a magnetic field that can attract or repel certain metals, like iron, due to the alignment of their atomic particles.\",18,53,context_assumer,metrics/customize_llm_judge.mdx
+"After running an evaluation, where can I see the results?","View the results as usual: ```python
+eval_df.as_dataframe()
+```",82,85,direct_inquirer,metrics/customize_llm_judge.mdx
+What are built-in LLM judges for?,"There are built-in evaluators for popular criteria, like detecting toxicity or if the text contains a refusal. These built-in descriptors: - Default to binary classifiers. - Default to using `gpt-4o-mini` model from OpenAI. - Return a label, the reasoning for the decision, and an optional score.",61,66,frustrated_beginner,metrics/customize_llm_judge.mdx
+How do I change the LLM model when using descriptors?,"Specify a different model from OpenAI: ```python
+eval_df.add_descriptors(descriptors=[
+    DeclineLLMEval(""response"", alias=""Decline by Turbo"", provider=""openai"", model=""gpt-3.5-turbo"")
+])
+```",126,132,hurried_developer,metrics/customize_llm_judge.mdx
+Can I customize the criteria for the evaluation?,You can also create a custom LLM evaluator using the provided **templates**: - Choose a template (binary or multi-class classification). - Specify the evaluation criteria (grading logic and names of categories),176,183,context_assumer,metrics/customize_llm_judge.mdx
+Why do I need to specify the `provider` parameter?,"To use a different LLM, first import the corresponding API key as an environment variable and pass the name of the `provider` and `model`. For example: ```python
+eval_df.add_descriptors(descriptors=[
+    DeclineLLMEval(""response"", alias=""Decline by Claude"", provider=""anthropic"", model=""claude-3-5-sonnet-20240620"")
+])
+```",134,146,direct_inquirer,metrics/customize_llm_judge.mdx
+"I tried running an evaluation, but it’s not clear how to handle multiple columns. Help!","A custom evaluator can also use multiple columns. To implement this, mention the second `{column_placeholder}` inside your evaluation `criteria.`",268,268,frustrated_beginner,metrics/customize_llm_judge.mdx
+What does `include_reasoning` parameter control in evaluators?,Specifies whether to include the LLM-generated explanation of the result. Options are `True` (Default) or `False`.,457,457,direct_inquirer,metrics/customize_llm_judge.mdx
+"I want to classify text based on relevancy, how do I do that?","To evaluate the relevance of an answer to the question, classify into 'relevant', 'irrelevant' and 'partially relevant'. Define the evaluation template with the question placeholder in your template.",388,388,frustrated_beginner,metrics/customize_llm_judge.mdx
+Can I see an example of using multiple columns in evaluation?,"To implement this, mention the additional `{column_placeholder}` inside your evaluation `criteria.` Here is how to apply the descriptor: ```python
+eval_df.add_descriptors(descriptors=[
+    LLMEval(""response"", 
+            template=relevance, 
+            additional_columns={""question"": ""question""},
+            provider = ""openai"", 
+            model = ""gpt-4o-mini"", 
+            alias=""Relevance"")],
+)
+```",388,426,direct_inquirer,metrics/customize_llm_judge.mdx
+How can I pass different parameters when using `LLMEval`?,You can pass model and provider parameters to the built-in LLM-based descriptor or to your custom `LLMEval`.,124,124,hurried_developer,metrics/customize_llm_judge.mdx
+What parameters should I use for `BinaryClassificationPromptTemplate`?,"| Parameter | Description | Options |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `criteria`            | Free-form text defining evaluation criteria. | Custom string (required) |
+| `target_category`     | Name of the target category you want to detect. | Custom category (required) |
+| `non_target_category` | Name of the non-target category. | Custom category (required) |",449,456,direct_inquirer,metrics/customize_llm_judge.mdx
+I need a binary classifier. What can I do?,"You can as the LLM judge to classify texts into two categories you define. For example: To evaluate if the text is ""concise"" or ""verbose"": ```python
+conciseness = BinaryClassificationPromptTemplate(
+        criteria = """"
+        ...
+        )
+```",185,207,frustrated_beginner,metrics/customize_llm_judge.mdx
+Is there a way to control the scoring output from LLM evaluations?,"You can switch the output format from `category` to `score` (0 to 1) or exclude the reasoning to get only the label: ```python
+eval_df.add_descriptors(descriptors=[
+    DeclineLLMEval(""response"", alias=""refusal"", include_reasoning=False),
+])
+```",104,112,context_assumer,metrics/customize_llm_judge.mdx
+What if I want to validate the output from the LLM?,"A list of possible values that the LLM can return helps validate the output from the LLM and ensure it matches the expected categories. If the validation does not pass, you will get `None` as a response label.",543,546,direct_inquirer,metrics/customize_llm_judge.mdx
+How do I include additional columns in my descriptor?,"Use a dictionary of additional columns present in your dataset to include in the evaluation prompt. Use it to map the column name to the placeholder name you reference in the `criteria`. For example: `({""mycol"": ""question""}`.  ",447,447,frustrated_beginner,metrics/customize_llm_judge.mdx
+Can you give me an example of custom evaluation prompt?,"Define a prompt. This is a simplified example: ```python
+pii_prompt = """"""
+Please identify whether the below text contains personally identifiable information, such as name, address, date of birth, or other.
+Text: REPLACE 
+Use the following categories for PII identification:
+1 if text contains PII
+0 if text does not contain PII
+0 if the provided data is not sufficient to make a clear determination
+Return only one category.
+""""""
+```",484,494,direct_inquirer,metrics/customize_llm_judge.mdx
+"I am lost, how do I start using the LLM models?",Add the token as the environment variable: [see docs](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety).,67,67,frustrated_beginner,metrics/customize_llm_judge.mdx
+"I want to create my own metrics, but this all sounds super complicated. What do I need to do step by step?","Creating a custom Metric involves:
+* (Required). Implementing the Metric **calculation method**.
+* (Optional). Defining the **default Test conditions** that apply when you run Tests for this Metric (with or without Reference) without passing a custom condition.
+* (Optional). Creating a **custom visualization** for this Metric using Plotly. If you skip this, the Metric will appear as a simple counter in the Report.
+Once you implement the Metric, you can use it as usual: include in Reports, view in the Evidently Cloud (or a self-hosted UI), and visualize over time on the Dashboard.",13,21,frustrated_beginner,metrics/customize_metric.mdx
+Need to add a metric. What’s the quickest way to implement it?,"You can build fully custom Metrics/Tests to handle any column- or dataset-level evaluations. This lets you implement business metrics, weighted scores, etc. Once you implement the Metric, you can use it as usual: include in Reports, view in the Evidently Cloud (or a self-hosted UI), and visualize over time on the Dashboard.",1,21,hurried_developer,metrics/customize_metric.mdx
+"So, if I'm using Plotly, does that mean I have to create a visualization for my metric?","(Optional). Creating a **custom visualization** for this Metric using Plotly. If you skip this, the Metric will appear as a simple counter in the Report.",19,19,context_assumer,metrics/customize_metric.mdx
+What happens if I don’t define any default test conditions for my custom metric?,The default Test will checks if the max value is 0 (or within ±10% of the reference value). This applies if you invoke the Tests without setting a custom threshold.,80,80,direct_inquirer,metrics/customize_metric.mdx
+What metrics does Evidently calculate for model quality?,"Evidently calculates a few standard model quality metrics: Accuracy, Precision, Recall, F1-score, ROC AUC, and LogLoss.",3,3,direct_inquirer,metrics/explainer_classification.mdx
+I want to know how to improve my model based on its mistakes. What can Evidently offer?,"To support the model performance analysis, Evidently also generates interactive visualizations. They help analyze where the model makes mistakes and come up with improvement ideas.",5,5,frustrated_beginner,metrics/explainer_classification.mdx
+What does the Confusion Matrix show?,Visualizes the classification errors and their type.,15,15,direct_inquirer,metrics/explainer_classification.mdx
+How do I see the model metrics for each class?,"Shows the model quality metrics for the individual classes. In the case of multi-class problems, it will also include ROC AUC.",21,21,hurried_developer,metrics/explainer_classification.mdx
+Can I analyze class separation quality with Evidently? Like how?,A scatter plot of the predicted probabilities shows correct and incorrect predictions for each class. It serves as a representation of both model accuracy and the quality of its calibration. It also helps visually choose the best probability threshold for each class.,27,29,context_assumer,metrics/explainer_classification.mdx
+Why do I need a ROC curve? What does it tell me?,ROC Curve (**receiver operating characteristic curve**) shows the share of true positives and true negatives at different classification thresholds.,41,41,direct_inquirer,metrics/explainer_classification.mdx
+How do the precision-recall metrics work?,The **precision**-**recall curve** shows the trade-off between **precision** and **recall** for different classification thresholds.,47,47,direct_inquirer,metrics/explainer_classification.mdx
+What kind of information does the Precision-Recall Table provide?,"The table shows possible **outcomes for different classification thresholds** and **prediction coverage**. If you have two datasets, the table is generated for both.",53,53,frustrated_beginner,metrics/explainer_classification.mdx
+"I'm trying to figure out what this summary widget can actually help me with, but I'm lost. What does it show?","The table gives an overview of the dataset, including missing or empty features and other general information. It also shows the share of almost empty and almost constant features. This applies to cases when 95% or more features are missing or constant.",3,3,frustrated_beginner,metrics/explainer_data_stats.mdx
+What exactly does the features widget do?,"For each feature, this widget generates a set of visualizations. They vary depending on the feature type. There are 3 components:",9,9,direct_inquirer,metrics/explainer_data_stats.mdx
+Can this features widget give me details over time?,"If you click on ""details"", each feature would include additional visualization to show feature behavior in time.",33,33,context_assumer,metrics/explainer_data_stats.mdx
+How do I see the statistical summaries of my features?,The table shows relevant statistical summaries for each feature based on its type and a visualization of feature distribution.,13,13,direct_inquirer,metrics/explainer_data_stats.mdx
+"Um, how can I tell if a feature is almost empty or constant? What does that even mean?",It also shows the share of almost empty and almost constant features. This applies to cases when 95% or more features are missing or constant.,3,3,frustrated_beginner,metrics/explainer_data_stats.mdx
+Where can I find the correlations between features?,This widget shows the correlations between different features.,61,61,hurried_developer,metrics/explainer_data_stats.mdx
+I want to see interactions between a feature and a target. How can I do that?,Categorical and numerical features include an additional visualization that plots the interaction between a given feature and the target.,49,49,direct_inquirer,metrics/explainer_data_stats.mdx
+"I'm trying to figure out this Data Drift thing, but I don't really understand how to use the datasets for testing. Can you help?",You always need to pass two datasets: current (dataset evaluated for drift) and reference (dataset that serves as a benchmark).,25,25,frustrated_beginner,metrics/explainer_drift.mdx
+Data Drift metrics — need to know how to set parameters quickly.,"For example, you can declare dataset drift if 50% of all features (columns) drifted. In this case, each column in the Dataset is tested for drift individually using a default method for the column type. You can specify a custom threshold as a parameter.",39,39,hurried_developer,metrics/explainer_drift.mdx
+I assume I should be using the default Data Drift Detection algorithm? How does it actually work?,"Evidently compares the distributions of the values in a given column (or columns) of the two datasets. You should pass these datasets as reference and current. Evidently applies several statistical tests and drift detection methods to detect if the distribution has changed significantly. It returns a ""drift detected"" or ""not detected"" result.",11,11,context_assumer,metrics/explainer_drift.mdx
+Can I modify the drift detection logic for my specific needs?,"You can modify this drift detection logic. You can select any method available in the library (PSI, K-L divergence, Jensen-Shannon distance, Wasserstein distance, etc.), specify thresholds, or pass a custom test. Read more about data drift parameters and available methods.",69,69,direct_inquirer,metrics/explainer_drift.mdx
+What happens if my columns for testing are empty? Will it break anything?,"To evaluate data or prediction drift in the dataset, you need to ensure that the columns you test for drift are not empty. If these columns are empty in either reference or current data, Evidently will not calculate distribution drift and will raise an error.",27,27,frustrated_beginner,metrics/explainer_drift.mdx
+Is there a specific threshold for drift detection in larger datasets?,All metrics use a threshold = 0.1 by default. Drift score is distance/divergence. (>= 0.1 means drift).,66,66,hurried_developer,metrics/explainer_drift.mdx
+How does Evidently handle empty or infinite values in the dataset?,"If some columns contain empty or infinite values (+-np.inf), these values will be filtered out when calculating distribution drift in the corresponding column.",29,29,direct_inquirer,metrics/explainer_drift.mdx
+I read something about detecting dataset-level drift with a percentage. Can you clarify that?,"You can declare dataset drift if 50% of all features (columns) drifted. In this case, each column in the Dataset is tested for drift individually using a default method for the column type.",39,39,context_assumer,metrics/explainer_drift.mdx
+"I’m trying to understand recall at K, but it’s confusing. What exactly does it measure?",Recall at K reflects the ability of the recommender or ranking system to retrieve all relevant items within the top K results.,9,9,frustrated_beginner,metrics/explainer_recsys.mdx
+RecallTopK formula? Just need the math part.,$$\text{Recall at } K = \frac{\text{Number of relevant items in } K}{\text{Total number of relevant items}}$$,14,14,hurried_developer,metrics/explainer_recsys.mdx
+So recall is about retrieving relevant items. But how do I calculate it for each user?,"Compute the recall at K for each individual user (or query), by measuring the share of all relevant items in the dataset that appear in the top K results.",12,12,context_assumer,metrics/explainer_recsys.mdx
+Can you explain how F Beta works? I need to know its significance.,"The F Beta score at K combines precision and recall into a single value, providing a balanced measure of a recommendation or ranking system's performance.",45,45,direct_inquirer,metrics/explainer_recsys.mdx
+Hit rate? What is it used for in recommendations?,Hit Rate at K calculates the share of users or queries for which at least one relevant item is included in the K.,138,138,frustrated_beginner,metrics/explainer_recsys.mdx
+"MAP vs Precision at K, what's the difference really?","Compared to precision at K, MAP at K is rank-aware. It penalizes the system for placing relevant items lower in the list, even if the total number of relevant items at K is the same.",63,63,direct_inquirer,metrics/explainer_recsys.mdx
+How do I average recall across users? Can you break it down?,Compute and average the recall at each relevant position within the top K for every user (or query).,93,93,context_assumer,metrics/explainer_recsys.mdx
+"Like, what’s the point of using NDCG? Why is it important?","NDCG (Normalized Discounted Cumulative Gain) at K reflects the ranking quality, comparing it to an ideal order where all relevant items for each user (or query) are placed at the top of the list.",115,115,frustrated_beginner,metrics/explainer_recsys.mdx
+What’s the math for Mean Reciprocal Rank?,$$\text{MRR} = \frac{1}{U} \sum_{u=1}^{U}\frac{1}{rank_i}$$,162,162,hurried_developer,metrics/explainer_recsys.mdx
+Why do I need to assign relevance scores for NDCG? What’s the reasoning?,You can assign a relevance score for each item in each top-K list for user or query.,118,118,direct_inquirer,metrics/explainer_recsys.mdx
+"I’m trying to figure out how to evaluate my model’s performance, but I’m confused about these mean error metrics. What are they?","Evidently calculates a few standard model quality metrics: Mean Error (ME), Mean Absolute Error (MAE), Mean Absolute Percentage Error (MAPE).",3,3,frustrated_beginner,metrics/explainer_regression.mdx
+Need quick way to see model performance metrics!,"For each quality metric, Evidently also shows one standard deviation of its value (in brackets) to estimate the stability of the performance.",7,7,hurried_developer,metrics/explainer_regression.mdx
+"So, what does the scatter plot show for predicted vs actual?",Predicted versus actual values in a scatter plot.,13,13,context_assumer,metrics/explainer_regression.mdx
+How does Evidently handle time for predicted vs actual values?,"Predicted and Actual values over time or by index, if no datetime is provided.",19,19,direct_inquirer,metrics/explainer_regression.mdx
+What’s the error distribution thing? How is it useful?,Distribution of the model error values.,37,37,frustrated_beginner,metrics/explainer_regression.mdx
+Error normality? What does that even mean?,Quantile-quantile plot (Q-Q plot) to estimate value normality.,43,43,frustrated_beginner,metrics/explainer_regression.mdx
+Give me the formula for calculating the range percentage! Need it for my report!,Range=100∗∣(Vover−Vunder)/(Vmax−Vmin)∣,83,83,direct_inquirer,metrics/explainer_regression.mdx
+Is there a way to visualize how errors relate to features?,"For each feature, Evidently shows a histogram to visualize the distribution of its values in the segments with extreme errors and in the rest of the data.",89,89,context_assumer,metrics/explainer_regression.mdx
+What if my prediction errors are sensitive to certain features?,"If you observe a large difference between the groups, it means that the model error is sensitive to the values of a given feature.",77,77,frustrated_beginner,metrics/explainer_regression.mdx
+"I'm trying to run a report, but I don't understand what datasets I need. Can you help?",* **One or two datasets**. Pass two for a side-by-side comparison or to auto-generate tests.,69,69,frustrated_beginner,metrics/preset_classification.mdx
+How do I include tests in my report?,"To add pass/fail classification quality Tests, auto-generated from the `ref` dataset: 
+
+```python
+report = Report([
+    ClassificationPreset(),
+],
+include_tests=True)
+```",15,21,hurried_developer,metrics/preset_classification.mdx
+Can I customize the metrics or conditions for my report?,"* **Change Test conditions**. To modify the auto-generated conditions, you can set yours: either a different condition relative to the reference or any custom conditions.
+* **Modify Report composition**. You can add additional metrics, such as column Correlations, Missing Values, or Data Drift.",83,85,direct_inquirer,metrics/preset_classification.mdx
+I'm just trying to figure out how to run a report using my current and reference data but I'm stuck. Can anyone tell me how I should set this up?,"To run a Preset on your data, comparing `current` data to `ref` data:
+
+```python
+report = Report([
+    DataDriftPreset(),
+])
+
+my_eval = report.run(current, ref)
+```",5,13,frustrated_beginner,metrics/preset_data_drift.mdx
+Running tests on columns? How to add tests to my report?,"To add Tests with explicit pass/fail for each column:
+
+```python
+report = Report([
+    DataDriftPreset(),
+],
+include_tests=True)
+
+my_eval = report.run(current, ref)
+```",15,23,hurried_developer,metrics/preset_data_drift.mdx
+I need to understand the drift methods better. Can you explain how the DataDriftPreset detects drift?,"The`DataDriftPreset` lets you evaluate shift in data distribution between the two datasets to detect if there are significant changes.
+
+* **Column drift.** Checks for shifts in each column. The [drift detection method](/metrics/explainer_drift) is chosen automatically based on the column type and number of observations.
+
+* **Target / Prediction Drift**. If you dataset includes Prediction or Target value, it will be evaluated together with other columns.
+
+* **Overall dataset drift.** Returns the share of drifting columns in the Dataset. By default, Dataset Drift is detected if at least 50% of columns drift.",28,36,context_assumer,metrics/preset_data_drift.mdx
+What do I need to provide to run a data drift detection? Do I need two datasets?,You must always pass both: the current one will be compared to the reference.,70,70,direct_inquirer,metrics/preset_data_drift.mdx
+"Can I customize how drift detection works? Like, what options do I have for that?","You have multiple customization options.
+
+* **Select columns**. You can apply Drift Detection only to some columns in the Dataset, for example, only to the important features. Use the `columns` parameter.
+
+* **Change drift parameters.** You can modify how drift detection works:
+
+* **Change methods**. Evidently has a large number of drift detection methods, including PSI, K-L divergence, Jensen-Shannon distance, Wasserstein distance, etc. You can also pick tests by column.
+
+* **Change thresholds**. You can specify different drift detection conditions on the dataset or column level.
+
+* **Implement a custom method**. You can implement a custom drift method as Python function.",78,90,frustrated_beginner,metrics/preset_data_drift.mdx
+"I'm trying to understand how to visually compare two datasets using this Report thing, but I'm confused. Can someone explain how to do that?","If you pass two datasets, you'll get a side-by-side comparison.",28,28,frustrated_beginner,metrics/preset_data_summary.mdx
+"Need to run tests with ref dataset, right? How do you set that up?","To add pass/fail data quality Tests, auto-generated from `ref` dataset:",15,15,hurried_developer,metrics/preset_data_summary.mdx
+What happens if I don’t provide a reference dataset for the Tests?,"If there is no reference, some Tests will run with heuristics (like expect no missing values).",44,44,context_assumer,metrics/preset_data_summary.mdx
+I’m trying to make a report for my recommendations but can’t find how to set the k value correctly. Can you help?,`RecsysPreset` evaluates the quality of the recommender system by generating multiple metrics to assess the quality of ranking and diversity of recommendations. You must provide the `k` parameter to evaluate the Top-K recommendations.,28,28,frustrated_beginner,metrics/preset_recsys.mdx
+What if I want to see test results along with the report?,"If you enable Tests, this will automatically run checks to assess if the model performance metrics are within bounds. Tests are auto-generated **based on reference dataset**. If the reference dataset is provided, conditions like expected ranking accuracy will be derived from it.",38,42,hurried_developer,metrics/preset_recsys.mdx
+How do I include additional metrics to evaluate prediction drift in my report?,"You can customize the Report in several ways: * **Modify Report composition**. You can add additional metrics, such as compute Data Drift for user or item feature distributions, or to evaluate prediction drift.",82,82,direct_inquirer,metrics/preset_recsys.mdx
+"I’m trying to compare two datasets for regression, but I don't get how to run it correctly. Can someone help?","To run a Preset on your data for a single current dataset:
+```python
+report = Report([
+    RegressionPreset(),
+])
+
+my_eval = report.run(current, None)
+```
+To add pass/fail regression quality Tests, auto-generated from the `ref` dataset:
+```python
+report = Report([
+    RegressionPreset(),
+],
+include_tests=True)
+
+my_eval = report.run(current, ref)
+```",5,24,frustrated_beginner,metrics/preset_regression.mdx
+How do I add tests in the report?,"If you enable Tests, this will automatically run checks to assess if the model performance metrics are within bounds. If the reference dataset is provided, conditions like expected prediction accuracy will be derived from it.",38,46,hurried_developer,metrics/preset_regression.mdx
+What kind of data do I need to use the RegressionPreset?,"Required to calculate performance:
+* **Target and prediction columns**. 
+* **One or two datasets**. Pass two for a side-by-side comparison or to auto-generate tests.
+* (Optional) **Input features**. Include if you want to explore underperforming segments.
+* (Optional) **Timestamp**. If available, pass it to appear on some plots.",64,70,direct_inquirer,metrics/preset_regression.mdx
+I'm trying to run a Report but I don't know what `descriptors` are or how to compute them. Can you help me?,"To run this Report, first compute `descriptors` and add them to your Dataset. Check [how](/docs/library/descriptors).",1,1,frustrated_beginner,metrics/preset_text_evals.mdx
+Need to know how to add tests. Just want pass/fail data from the reference dataset?,"To add pass/fail data quality Tests, auto-generated from `ref` dataset: report = Report([ TextEvals(), ], include_tests=True) my_eval = report.run(current, ref)",13,21,hurried_developer,metrics/preset_text_evals.mdx
+How can I compare results from two datasets using TextEvals?,"If you pass two datasets, you'll get a side-by-side comparison.",28,28,direct_inquirer,metrics/preset_text_evals.mdx
+I just want to start using Evidently but I'm stuck. How do I even install the Python library?,"Install the Evidently Python library:
+
+```python
+!pip install evidently
+```",16,20,frustrated_beginner,quickstart_llm.mdx
+Need to run some evaluations but confused about the descriptors. What descriptors do I use for sentiment and text length?,"You'll use:
+
+```python
+descriptors=[
+    Sentiment(""answer"", alias=""Sentiment""),
+    TextLength(""answer"", alias=""Length""),
+    DeclineLLMEval(""answer"", alias=""Denials"")]) 
+```",98,100,direct_inquirer,quickstart_llm.mdx
+"Quickly, how do I create a report with my eval results?","Create and run a Report. It will summarize the evaluation results.
+
+```python
+report = Report([
+    TextEvals()
+])
+
+my_eval = report.run(eval_dataset, None)
+```",119,127,hurried_developer,quickstart_llm.mdx
+Is there a way to check if my sentiment score is non-negative?,"You can add conditions to your evaluations. For example, you may expect that:
+
+- **Sentiment** is non-negative (greater or equal to 0)",149,151,context_assumer,quickstart_llm.mdx
+Can I prepare my own dataset in a different structure than the example? What do I need to do?,"You can provide data with any structure. Some common setups:
+
+- Inputs and outputs from your LLM
+- Inputs, outputs, and reference outputs (for comparison)
+- Inputs, context, and outputs (for RAG evaluation)",58,64,frustrated_beginner,quickstart_llm.mdx
+What if I don't have an OpenAI key? Can I still do something?,"If you don't have an OpenAI key, you can use a keyword-based check `IncludesWords` instead.",88,88,direct_inquirer,quickstart_llm.mdx
+"I want to add custom LLM judges, can you guide me how?",You can implement custom criteria using built-in LLM judge templates.,198,200,context_assumer,quickstart_llm.mdx
+How do I limit the summary report to only show specific descriptors?,"You can limit the summary report to include only specific descriptor(s).
+
+```python
+report = Report([
+    TextEvals(columns=[""All_tests_passed""])
+])
+```",180,185,direct_inquirer,quickstart_llm.mdx
+I'm trying to evaluate my ML model's data quality but not sure where to start. Can Evidently help?,"Evidently helps you run tests and evaluations for your production ML systems. This includes evaluating prediction quality (e.g. classification or regression accuracy), input data quality (e.g. missing values, out-of-range features), and data and prediction drift.",8,12,frustrated_beginner,quickstart_ml.mdx
+"Need to install Evidently library, any quick command?",Install the Evidently Python library: ```python !pip install evidently ```,20,24,hurried_developer,quickstart_ml.mdx
+What if OpenML data doesn't download? How can I get the dataset?,"If OpenML is not available, you can download the same dataset from here: ```python url = ""https://github.com/evidentlyai/evidently/blob/main/test_data/adults.parquet?raw=true"" adult = pd.read_parquet(url, engine='pyarrow') ```",48,53,context_assumer,quickstart_ml.mdx
+How do I create a report to check for data drift in my dataset?,"Let's generate a Data Drift preset that will check for statistical distribution changes between all columns in the dataset. ```python report = Report([ DataDriftPreset() ]) my_eval = report.run(eval_data_1, eval_data_2) ```",92,100,direct_inquirer,quickstart_ml.mdx
+I’m not sure how to set my OpenAI key as an environment variable... can someone help?,Set up the OpenAI key ([Token page](https://platform.openai.com/api-keys)) as an environment variable. [See Open AI docs](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety).,67,67,frustrated_beginner,quickstart_tracing.mdx
+"Quick, how do I install Evidently and Tracely?","Install the necessary libraries:
+
+```python
+! pip install evidently
+! pip install tracely 
+! pip install openai
+```",21,27,hurried_developer,quickstart_tracing.mdx
+This thing about setting up the project ID... how do I get that?,"`Project_id` is the ID of the Evidently Project you just created. Go to the [Home page](https://app.evidently.cloud/), enter the Project and copy its ID from above the dashboard.",89,89,context_assumer,quickstart_tracing.mdx
+Can I see my evaluation results in the Cloud?,You can run evaluations on this dataset both in the Cloud and locally.,155,155,direct_inquirer,quickstart_tracing.mdx
+Is there a way to preview the dataset after loading it?,"# to create and preview as pandas dataframe
+# df = traced_data.as_dataframe()
+# df.head()",160,162,frustrated_beginner,quickstart_tracing.mdx
+What libraries do I need to import for viewing evaluations?,"Import the required modules:
+
+```python
+import os
+import openai
+import time
+import uuid
+from tracely import init_tracing
+from tracely import trace_event
+from tracely import create_trace_event
+from evidently.ui.workspace import CloudWorkspace
+```",29,39,hurried_developer,quickstart_tracing.mdx
+I'm trying to create an adversarial test but I have no idea where to start. What do I need to do first?,"In the Evidently UI, start a new Project or open an existing one. Navigate to “Datasets” in the left menu. Click “Generate” and select the “Adversarial testing” option.",15,18,frustrated_beginner,synthetic-data/adversarial_data.mdx
+What categories can I select for adversarial scenarios?,"You can choose the following categories: Harmful content (e.g., profanity, toxicity, illegal advice). Forbidden topics (e.g., financial, legal, medical queries). Brand image (eliciting negative feedback on a company or product). Competition (comparisons with competitor products). Offers and promises (attempting to get AI to make commitments). Hijacking (out-of-scope questions unrelated to the intended purpose). Prompt leakage (extracting system instructions or hidden prompts).",28,36,direct_inquirer,synthetic-data/adversarial_data.mdx
+I’m trying to create some smart questions for my project but I’m stuck at the part where you describe what you need. Can you help?,"Define what kind of inputs you need by providing a brief description of the task and choose how many inputs to generate. For example, if you’re building a travel assistant, you could enter:",22,23,frustrated_beginner,synthetic-data/input_data.mdx
+"I’m trying to test my AI system, but how do I generate synthetic data with Evidently Cloud?","Evidently Cloud lets you generate synthetic test inputs (and outputs) to evaluate your AI system. You can use it for: * Experiments. Create test data to see how your LLM app handles it. * Regression testing. Validate changes before deployment. * Adversarial testing. Check how your system handles tricky or unexpected inputs. Once you generate the data, you can run it through your AI system and evaluate the results using the Evidently Cloud or Evidently Python library as usual.",5,13,frustrated_beginner,synthetic-data/introduction.mdx
+I just want to create a dataset for RAG but got lost on the steps. What do I do first?,"In the Evidently UI, start a new Project or open an existing one. Navigate to “Datasets” in the left menu. Click “Generate” and select the “RAG” option.",11,14,frustrated_beginner,synthetic-data/rag_data.mdx
+"I'm trying to test my AI system, but I don't have real data. What should I do?",Synthetic data helps here. It’s especially useful when you are: You're starting from scratch and don’t have real data.,16,18,frustrated_beginner,synthetic-data/why_synthetic.mdx
+How can I use synthetic data for my AI testing?,With synthetic data you can: Quickly generate hundreds structured test cases. Fill gaps by adding missing scenarios and tricky inputs. Create controlled variations to evaluate specific weaknesses.,25,30,direct_inquirer,synthetic-data/why_synthetic.mdx

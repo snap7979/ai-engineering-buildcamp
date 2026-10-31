@@ -21,6 +21,7 @@ dependencies = [
     "questionary>=2.1.1",
     "streamlit>=1.66.0",
     "toyaikit>=0.0.11",
+    "tqdm>=4.70.1",
 ]
 
 [project.scripts]

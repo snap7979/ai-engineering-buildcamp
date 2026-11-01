@@ -1,0 +1,22 @@
+question,category,type
+How do I make spaghetti carbonara?,specific-recipe,direct
+What can I cook with chicken and coconut milk?,ingredient-search,ingredient-based
+I want something easy and healthy for dinner,preference,vague
+How do I make sushi?,missing-recipe,not-in-collection
+What temperature should I set my oven to for the lava cake?,recipe-detail,specific
+Can I substitute almond milk in the pancakes?,substitution,unsupported-advice
+I want pasta. What can you suggest?,preference,vague
+What Italian dishes do you have?,cuisine-search,direct
+Can I use bacon instead of guanciale in carbonara?,substitution,unsupported-advice
+Is the Caesar salad vegetarian?,dietary,ingredient-check
+How many calories are in the Margherita pizza?,nutrition,missing-information
+What's the best restaurant in town?,out-of-scope,unrelated
+Can I make falafel with canned chickpeas?,edge-case,recipe-constraint
+What ingredients do I need for Margherita pizza?,recipe-detail,ingredients
+How long does it take to prepare Margherita pizza?,recipe-detail,timing
+Can you suggest an easy Italian recipe?,preference,difficulty
+What recipes contain tomatoes?,ingredient-search,ingredient-based
+How do I fix my dishwasher?,out-of-scope,unrelated
+Can I make the pancakes without eggs?,substitution,unsupported-advice
+What is the serving size of Margherita pizza?,recipe-detail,servings
+How do I make ramen?,missing-recipe,not-in-collection

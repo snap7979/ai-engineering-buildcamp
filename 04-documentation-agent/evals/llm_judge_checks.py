@@ -17,7 +17,7 @@ from pydantic_ai import Agent
 # Allow imports from project root
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from doc_agent import DEFAULT_INSTRUCTIONS
+from doc_agent import SIMPLE_INSTRUCTIONS
 
 
 # ---------------------------------------------------------------------------
@@ -179,7 +179,7 @@ def format_instruction_prompt(entry: Dict[str, Any]) -> str:
 
     return INSTRUCTION_FOLLOWING_PROMPT.format(
         tools=tools_str,
-        instructions=DEFAULT_INSTRUCTIONS,
+        instructions=SIMPLE_INSTRUCTIONS,
         question=entry["input"]["question"],
         agent_answer=entry["rag_response"]["answer"],
         self_checks=checks_str or "(none)",

@@ -1,0 +1,1267 @@
+[
+  {
+    "input": {
+      "question": "Need to see the LLM jury example. Where's the code?",
+      "reference_answer": "Code example as a Jupyter notebook: https://github.com/evidentlyai/community-examples/blob/main/tutorials/LLM_as_a_jury_Example.ipynb",
+      "line_number_start": 5,
+      "line_number_end": 5,
+      "question_type": "hurried_developer",
+      "filename": "examples/LLM_jury.mdx"
+    },
+    "rag_response": {
+      "answer": "### LLM Jury Example Code\n\nThe LLM jury example demonstrates how to use multiple LLMs to evaluate generated outputs for appropriateness. Below is the code to implement this example, available as a Jupyter Notebook:\n\n[View the Jupyter Notebook Example](https://github.com/evidentlyai/community-examples/blob/main/tutorials/LLM_as_a_jury_Example.ipynb)\n\n#### Installation\nTo start, you need to install the Evidently library:\n```python\npip install evidently litellm \n```\n\n#### Step 1: Set Up Evaluator LLMs\nPass the API keys for the LLMs you'll use as judges:\n```python\nimport os\nos.environ[\"OPENAI_API_KEY\"] = \"YOUR KEY\"\nos.environ[\"GEMINI_API_KEY\"] = \"YOUR KEY\"\nos.environ[\"ANTHROPIC_API_KEY\"] = \"YOUR KEY\"\n```\n\n#### Step 2: Create Toy Data\nDefine a dataset of user intents and generated emails:\n```python\nimport pandas as pd\n\ndata = [\n    [\"don’t want to attend, say no\", \"Hey,\\nGonna skip the meeting tomorrow...\"]\n    # Add more entries\n]\ncolumns = [\"user input\", \"generated email\"]\neval_df = pd.DataFrame(data, columns=columns)\n```\n\n#### Step 3: Define the Evaluation Prompt\nUse the `BinaryClassificationPromptTemplate` to define the judging criteria:\n```python\nfrom evidently.llm.templates import BinaryClassificationPromptTemplate\n\nus_corp_email_appropriateness = BinaryClassificationPromptTemplate(\n    pre_messages=[(\"system\", \"You are an expert in U.S. corporate and workplace communication...\")],\n    criteria=\"An APPROPRIATE email text...\",\n    target_category=\"APPROPRIATE\",\n    non_target_category=\"INAPPROPRIATE\",\n    include_reasoning=True,\n)\n```\n\n#### Step 4: Create a Panel of LLM Judges\nCreate evaluators from multiple LLM providers:\n```python\nllm_evals = Dataset.from_pandas(\n    eval_df,\n    data_definition=DataDefinition(),\n    descriptors=[\n        LLMEval(...),  # Add LLM configurations\n    ]\n)\n```\n\n#### Step 5: Run and View the Report\nTo explore results locally:\n```python\nreport = Report([\n    TextEvals()\n])\nmy_eval = report.run(llm_evals, None)\n```\n\nTo upload results to Evidently Cloud:\n```python\nws.add_run(project.id, my_eval, include_data=True)\n```\n\n### Additional Resources:\n- For detailed steps and further configurations, check the full code tutorial [here](https://github.com/evidentlyai/community-examples/blob/main/tutorials/LLM_as_a_jury_Example.ipynb).\n- Blog explaining the concept: [LLM Judges](https://www.evidentlyai.com/blog/llm-judges-jury).",
+      "references": [
+        {
+          "file_path": "examples/LLM_jury.mdx",
+          "explanation": "This file contains the main example of using LLMs as judges and provides the necessary code snippets."
+        },
+        {
+          "file_path": "examples/LLM_judge.mdx",
+          "explanation": "This file includes additional context on using LLM as judges and further insights related to the topic."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based directly on specific excerpts from the documentation detailing the LLM jury implementation.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "Can I see another example of LLM usage?",
+        "What are the best practices for using LLM judges?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer directly references and summarizes relevant documentation sections.",
+          "passed": true,
+          "explanation": "The response includes specific code snippets and descriptions extracted from the provided documentation."
+        },
+        {
+          "rule": "The answer is structured in a clear and informative way.",
+          "passed": true,
+          "explanation": "The response is formatted into sections, making it easy to follow."
+        },
+        {
+          "rule": "The code segments are correctly formatted and executable.",
+          "passed": true,
+          "explanation": "All code segments are provided in proper syntax for Python."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"LLM jury example code\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_jury.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_judge.mdx\"}"
+      }
+    ],
+    "cost": 0.00210345
+  },
+  {
+    "input": {
+      "question": "How do I create a report to check for data drift in my dataset?",
+      "reference_answer": "Let's generate a Data Drift preset that will check for statistical distribution changes between all columns in the dataset. ```python report = Report([ DataDriftPreset() ]) my_eval = report.run(eval_data_1, eval_data_2) ```",
+      "line_number_start": 92,
+      "line_number_end": 100,
+      "question_type": "direct_inquirer",
+      "filename": "quickstart_ml.mdx"
+    },
+    "rag_response": {
+      "answer": "To create a report for checking data drift in your dataset, you can follow these steps using Evidently's `Report` functionality:\n\n### Pre-requisites\n1. **Installation**: Ensure that Evidently is installed.\n2. **Dataset Preparation**: Create a Dataset with the [Data Definition](https://docs.evidentlyai.com/library/data_definition) to define your data structure.\n\n### Step-by-Step Guide\n1. **Import Necessary Modules**:\n   ```python\n   from evidently import Report\n   from evidently.presets import DataDriftPreset\n   ```  \n\n2. **Create the Report**:\n   To evaluate drift between two datasets (current data and reference data), use the `DataDriftPreset`:\n   ```python\n   report = Report([\n       DataDriftPreset(),\n   ])\n   ```\n\n3. **Run the Report**:\n   Execute the report using your current dataset and the reference dataset:\n   ```python\n   my_eval = report.run(current_data=eval_data_1, reference_data=eval_data_2)\n   ```\n   - Optionally, include tests with explicit pass/fail indicators by setting `include_tests=True` in the report creation step.\n\n4. **Access Results**:\n   Once the report has been run, the evaluation results are stored in `my_eval`, which contains computed metrics, metadata, and visualizations. You can export this result in formats like HTML or JSON, or render it directly in Python.\n\n### Customization Options\n- **Select Columns**: You can limit the analysis to specific columns by passing them to the `columns` parameter when creating the `DataDriftPreset`.\n- **Change Drift Detection Methods**: Modify how drift is detected by customizing methods like PSI or K-L divergence.\n- **Combine Metrics**: You can also combine `DataDriftPreset` with other metrics or presets, such as `DataSummaryPreset`, to get additional insights into your data.\n\n### Example Code Snippet\nHere's a complete example to get you started:\n```python\nfrom evidently import Report\nfrom evidently.presets import DataDriftPreset\n\n# Prepare your datasets eval_data_1 (current) and eval_data_2 (reference)\nreport = Report([\n    DataDriftPreset(),\n])\n\nmy_eval = report.run(eval_data_1, eval_data_2)\n```\n\n### Use Cases\nEvaluate data drift to monitor ML model performance, debug quality decay, and decide on model retraining when data changes are detected.\n\nFor further reading and detailed customization options, refer to the corresponding documentation sections on [Data Drift](https://docs.evidentlyai.com/metrics/explainer_drift) and [Report Generation](https://docs.evidentlyai.com/docs/library/report).",
+      "references": [
+        {
+          "file_path": "docs/library/report.mdx",
+          "explanation": "Provides details on how to create and run reports, including data drift reports."
+        },
+        {
+          "file_path": "metrics/preset_data_drift.mdx",
+          "explanation": "Details on Data Drift report, including example usage and customization options."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on retrieved documents that provide detailed instructions and examples on creating a data drift report.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the common methods for data drift detection?",
+        "How can I customize my reports further?"
+      ],
+      "checks": [
+        {
+          "rule": "Include step-by-step instructions where applicable",
+          "passed": true,
+          "explanation": "The answer includes clear, numbered steps for creating a report."
+        },
+        {
+          "rule": "Use factual information based on the documentation",
+          "passed": true,
+          "explanation": "All stated information comes directly from the retrieved documents."
+        },
+        {
+          "rule": "Provide additional resources or links if relevant",
+          "passed": true,
+          "explanation": "Links to further documentation are included."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"create report data drift\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/report.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_data_drift.mdx\"}"
+      }
+    ],
+    "cost": 0.00136005
+  },
+  {
+    "input": {
+      "question": "How do I specify column roles when creating a DataDefinition?",
+      "reference_answer": "You can specify the ID column and timestamp in the `DataDefinition`, like this: `id_column='Id', timestamp='Date'`.",
+      "line_number_start": 118,
+      "line_number_end": 121,
+      "question_type": "frustrated_beginner",
+      "filename": "docs/library/data_definition.mdx"
+    },
+    "rag_response": {
+      "answer": "To specify column roles when creating a `DataDefinition`, follow these steps:\n\n### 1. Import Required Modules\nFirst, you need to import the necessary modules:\n```python\nfrom evidently import Dataset\nfrom evidently import DataDefinition\n```\n\n### 2. Prepare Your Data\nEnsure your data is in a pandas DataFrame format.\n\n### 3. Define the DataDefinition\nYou can create a `DataDefinition` object with explicit mappings for column roles. Here’s how to do it:\n\n#### Example of Explicit Mapping:\nYou can define roles for various columns like numerical, categorical, text, and even specify the ID and timestamp columns:\n```python\ndefinition = DataDefinition(\n    id_column=\"Id\",\n    timestamp=\"Date\",\n    numerical_columns=[\"Age\", \"Salary\"],\n    categorical_columns=[\"Department\"],\n    text_columns=[\"Latest_Review\"]\n)\n\n# Create the Dataset object\neval_data = Dataset.from_pandas(\n    source_df,\n    data_definition=definition\n)\n```\n\n### 4. Using Automated Mapping\nYou can also use an empty `DataDefinition()` and let Evidently handle the column mapping based on the type:\n```python\n# Using automatic mapping\neval_data = Dataset.from_pandas(\n    source_df,\n    data_definition=DataDefinition()\n)\n```\n\n### 5. Special Cases\n- If you need to handle specific evaluation cases like regression or classification, you would define those mappings explicitly within the `DataDefinition`. \n```python\n# Mapping for regression\ndefinition = DataDefinition(\n    regression=[Regression(target=\"y_true\", prediction=\"y_pred\")]\n)\n```\n\n- Similarly for classification:\n```python\ndefinition = DataDefinition(\n    classification=[MulticlassClassification(\n        target=\"target\",\n        prediction_labels=\"prediction\"\n    )]\n)\n```\n\n### Conclusion\nDefining column roles accurately is crucial for the proper functioning of evaluations in Evidently. You can specify roles like ID, timestamp, and type-specific mappings to ensure the data is processed correctly.",
+      "references": [
+        {
+          "file_path": "docs/library/data_definition.mdx",
+          "explanation": "This document provides detailed information on how to create a DataDefinition and map various column roles."
+        },
+        {
+          "file_path": "metrics/customize_metric.mdx",
+          "explanation": "This document offers insights into creating custom metrics, which also involves specifying column roles."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on detailed documentation regarding DataDefinition and its usage.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the default column roles in DataDefinition?",
+        "How can I automate column role mapping?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer includes relevant documentation and specific code examples.",
+          "passed": true,
+          "explanation": "The answer provides thorough steps and code snippets to define column roles."
+        },
+        {
+          "rule": "Information is accurate and based on supported functionality within the documentation.",
+          "passed": true,
+          "explanation": "All information is derived from the verified documentation regarding DataDefinition."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"specify column roles DataDefinition\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/data_definition.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_metric.mdx\"}"
+      }
+    ],
+    "cost": 0.0014182499999999998
+  },
+  {
+    "input": {
+      "question": "If the test fails, how do I figure out why?",
+      "reference_answer": "To find the failed output, you can sort the column \"Length\" in order and find the longest response.",
+      "line_number_start": 398,
+      "line_number_end": 398,
+      "question_type": "direct_inquirer",
+      "filename": "examples/LLM_regression_testing.mdx"
+    },
+    "rag_response": {
+      "answer": "To investigate why a test has failed in Evidently, you can follow these steps:\n\n1. **Define a Test Dataset**: Set up a comprehensive test dataset with input examples. This could include prompts or scenarios under which you anticipate your model will produce outputs.\n\n2. **CI/CD Integration**: Use GitHub Actions or a similar CI/CD tool to run the model against your defined test dataset when code changes occur. The outputs will be automatically evaluated based on metrics and tests you have specified.\n\n3. **Examine the Test Report**: If a test fails, the CI/CD job will report it. You'll receive a detailed test report that indicates which specific tests failed and why, including performance metrics like accuracy, precision, and other relevant statistics.\n\n4. **Debugging Failures**: After an evaluation, utilize the Dataset page to identify and debug specific failures. This allows you to sort text outputs by added scores and see where the model deviated from expected results.\n\n5. **Metrics and Tests**: Explore the various metrics available (like LLM judges for tone, accuracy, etc.) that help in evaluating the outputs. Pay attention to any metrics that indicate specific areas of performance decline compared to previous runs or dummy models.\n\nBy using synthetic data, defining clear test parameters, and iterating based on CI/CD testing results, you can pinpoint issues leading to test failures effectively.",
+      "references": [
+        {
+          "file_path": "examples/GitHub_actions.mdx",
+          "explanation": "Describes how to integrate testing in the CI/CD process to evaluate model outputs."
+        },
+        {
+          "file_path": "docs/platform/datasets_overview.mdx",
+          "explanation": "Explains how to create, upload, and utilize datasets for evaluations and debugging."
+        },
+        {
+          "file_path": "metrics/all_metrics.mdx",
+          "explanation": "Provides a comprehensive overview of all metrics used to evaluate models and debug failures."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is derived from relevant documentation that details the testing process, debugging, and evaluation techniques available in Evidently.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "How can I create synthetic datasets?",
+        "What are the best practices for debugging evaluation results?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer includes specific steps or guidelines.",
+          "passed": true,
+          "explanation": "Yes, the answer provides a clear sequence of actions."
+        },
+        {
+          "rule": "The answer references relevant documentation.",
+          "passed": true,
+          "explanation": "References to relevant documents are provided."
+        },
+        {
+          "rule": "The answer is concise and directly addresses the question.",
+          "passed": true,
+          "explanation": "Yes, the answer addresses the user's question directly and succinctly."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"test fails debug troubleshoot\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/GitHub_actions.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/all_metrics.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/datasets_overview.mdx\"}"
+      }
+    ],
+    "cost": 0.0025250999999999997
+  },
+  {
+    "input": {
+      "question": "What kind of insights can I gain from `DummyMeanError()`?",
+      "reference_answer": "<ul><li>Calculates Mean Error for a dummy model.</li><li>Metric result: `mean_error`, `error std`.</li></ul>",
+      "line_number_start": 207,
+      "line_number_end": 207,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/all_metrics.mdx"
+    },
+    "rag_response": {
+      "answer": "`DummyMeanError()` provides insights into the mean error associated with a dummy model, which is typically based on naive predictions (like predicting the mean of the target variable). Here are the key insights you can gain from it:\n\n1. **Baseline Performance**: It establishes a baseline to compare other model performances against. If your model underperforms compared to the dummy model, this indicates that the model isn't learning the patterns in the data.\n\n2. **Error Estimation**: It calculates the mean error (`mean_error`) and the standard deviation of this error (`error std`). This helps in understanding how much error is expected when using simple prediction methods, giving context for evaluating more sophisticated models.\n\n3. **Comparison with Other Metrics**: By comparing the results from `DummyMeanError()` with actual model performance metrics, you can assess whether your algorithm is effectively capturing the underlying data relationships or not.\n\nThese insights help in identifying whether your machine learning models are performing better than simple heuristics, guiding further improvements in model training and evaluation processes.",
+      "references": [
+        {
+          "file_path": "metrics/all_metrics.mdx",
+          "explanation": "This document contains details about various metrics including DummyMeanError."
+        },
+        {
+          "file_path": "metrics/explainer_data_stats.mdx",
+          "explanation": "Offers context and examples regarding data statistics and metrics."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 1.0,
+      "confidence_explanation": "The answer is based on specific documented insights regarding the DummyMeanError metric, which clearly describes its purpose and utility.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are the specific outputs of DummyMeanError?",
+        "How does DummyMeanError compare to other evaluation metrics?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer should use only factual information from the documentation.",
+          "passed": true,
+          "explanation": "The answer is entirely based on the information retrieved about DummyMeanError."
+        },
+        {
+          "rule": "The answer should provide clear, actionable insights.",
+          "passed": true,
+          "explanation": "The insights provided are relevant and actionable for understanding DummyMeanError."
+        },
+        {
+          "rule": "The answer should be concise and to the point.",
+          "passed": true,
+          "explanation": "The answer clearly and concisely explains the insights gained from DummyMeanError."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"DummyMeanError insights\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/all_metrics.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_data_stats.mdx\"}"
+      }
+    ],
+    "cost": 0.00264675
+  },
+  {
+    "input": {
+      "question": "What does the diversity metric rely on?",
+      "reference_answer": "**Requirements**: You must pass the `item_features` list to point to numerical columns or embeddings that describe the recommended items. For example, these could be encoded genres that represent each movie.",
+      "line_number_start": 91,
+      "line_number_end": 91,
+      "question_type": "direct_inquirer",
+      "filename": "docs/library/leftover_content.mdx"
+    },
+    "rag_response": {
+      "answer": "The diversity metric relies on evaluating the quality of recommendations from a recommender system. It is assessed alongside other metrics like NDCG (Normalized Discounted Cumulative Gain) and MAP (Mean Average Precision) to measure how varied the recommendations are. The calculation of the diversity metric often requires additional datasets or item/user features for accurate evaluation. \n\nIn summary, the diversity metric depends on:\n1. **Ranking Quality**: The effectiveness of the recommendation ranks.\n2. **Item/User Features**: Specific attributes related to the items being recommended or the users making those requests.\n3. **Additional Data**: Sometimes, training data or a reference dataset is needed for comprehensive assessments of diversity in recommendations.",
+      "references": [
+        {
+          "file_path": "metrics/preset_recsys.mdx",
+          "explanation": "Details the use of various metrics including diversity to assess recommendations."
+        },
+        {
+          "file_path": "metrics/customize_metric.mdx",
+          "explanation": "Provides insights on creating metrics and their calculations."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer synthesizes information from relevant documents regarding the diversity metric and its components.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are the other metrics related to diversity?",
+        "How is the diversity metric calculated?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in the documentation knowledge base.",
+          "passed": true,
+          "explanation": "The answer is based on direct information from the retrieved documents."
+        },
+        {
+          "rule": "Do not introduce outside knowledge or assumptions.",
+          "passed": true,
+          "explanation": "The response strictly adheres to information extracted from the documentation."
+        },
+        {
+          "rule": "Be clear and concise in the final answer.",
+          "passed": true,
+          "explanation": "The answer is formulated clearly, summarizing key points about the diversity metric."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"diversity metric\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_recsys.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_metric.mdx\"}"
+      }
+    ],
+    "cost": 0.000975
+  },
+  {
+    "input": {
+      "question": "What happens if my columns for testing are empty? Will it break anything?",
+      "reference_answer": "To evaluate data or prediction drift in the dataset, you need to ensure that the columns you test for drift are not empty. If these columns are empty in either reference or current data, Evidently will not calculate distribution drift and will raise an error.",
+      "line_number_start": 27,
+      "line_number_end": 27,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/explainer_drift.mdx"
+    },
+    "rag_response": {
+      "answer": "If your columns for testing are empty, it can lead to failures in evaluations or tests that require specific column definitions, as the framework relies on these mappings to function correctly. For instance, evaluations may demand particular column roles such as targets or predictions; if they're missing, the tests might break or not execute as intended.\n\nWhile some functionality might still work with an empty dataset (such as basic data summaries), the best practice is to ensure that you have the necessary columns defined to avoid any disruptions in your testing process.",
+      "references": [
+        {
+          "file_path": "docs/library/data_definition.mdx",
+          "explanation": "This document outlines the importance of mapping columns in evaluations and the possible failures that can occur without the required columns."
+        },
+        {
+          "file_path": "examples/GitHub_actions.mdx",
+          "explanation": "This document discusses testing outputs and highlights the necessity of a well-defined test dataset."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on explicit details from the documentation regarding required column definitions and their impact on testing and evaluations.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What specific columns are required for testing?",
+        "How can I handle empty columns in my dataset?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer is based solely on the documentation.",
+          "passed": true,
+          "explanation": "The response is derived from the retrieved documents."
+        },
+        {
+          "rule": "Answer provides a complete and accurate explanation based on the user's question.",
+          "passed": true,
+          "explanation": "The answer addresses the potential consequences of having empty columns in testing."
+        },
+        {
+          "rule": "Relevant references from the documentation are cited.",
+          "passed": true,
+          "explanation": "References were included from the documents that discuss column definitions and testing."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"empty columns testing\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/data_definition.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/GitHub_actions.mdx\"}"
+      }
+    ],
+    "cost": 0.00111915
+  },
+  {
+    "input": {
+      "question": "What do I do if the judges disagree?",
+      "reference_answer": "To explicitly flag disagreements among LLMs, let’s add a custom descriptor. It will return \"DISAGREE\" if the success rate is not 0 or 1 (i.e., not unanimously rejected or approved).",
+      "line_number_start": 156,
+      "line_number_end": 156,
+      "question_type": "direct_inquirer",
+      "filename": "examples/LLM_jury.mdx"
+    },
+    "rag_response": {
+      "answer": "If the judges disagree in your evaluations, you can consider the following approaches to resolve discrepancies:\n\n1. **Aggregation of Results**: Use an aggregation method to combine the judges' outputs, such as taking a majority vote or utilizing a scoring system to weigh their inputs. You can implement a multi-class classification template to evaluate different categories of disagreement.\n\n2. **Consultation or Additional Evaluation**: Bring in an additional judge or evaluator to provide a neutral perspective on the disagreement. This third party can help assess the conflicting evaluations and steer towards a consensus.\n\n3. **Refinement of Evaluation Criteria**: Revisit the evaluation criteria used to see if they were clear and well-defined enough. Ambiguities in the question or response context might lead to different interpretations by the judges.\n\n4. **Custom LLM Evaluation**: If you are using LLM-based judges, consider creating a custom evaluation descriptor that defines more explicit criteria. For example, templates for binary or multi-class classification could help clarify expected outcomes and reduce disagreements.\n\n5. **Re-Evaluation**: Depending on the context and importance of the evaluations, you might also consider having the judges re-evaluate the specific cases of disagreement after discussing their viewpoints.\n\nBy employing these strategies, you can better manage and resolve disagreements among judges in your evaluations.",
+      "references": [
+        {
+          "file_path": "metrics/customize_llm_judge.mdx",
+          "explanation": "This document discusses how to create custom LLM judges and integrates multiple columns for thorough evaluations, which may assist in understanding and resolving disagreements."
+        },
+        {
+          "file_path": "docs/library/prompt_optimization.mdx",
+          "explanation": "This document provides information on optimizing prompts for LLM judges, which can help clarify evaluations and reduce discrepancies."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer synthesizes relevant strategies from the documentation effectively addressing the user's concern about disputes among judges.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific disputes are common among judges?",
+        "How can I improve the clarity of my evaluation criteria?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer must only include documented information.",
+          "passed": true,
+          "explanation": "All suggestions are based on strategies found in the documentation."
+        },
+        {
+          "rule": "The response must provide actionable steps or insights.",
+          "passed": true,
+          "explanation": "The answer offers clear methods to manage judge disagreements."
+        },
+        {
+          "rule": "All references must be accurately cited from the documentation.",
+          "passed": true,
+          "explanation": "The referenced documents are relevant and directly support the provided strategies."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"judges disagree\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_llm_judge.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"LLM_jury.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/prompt_optimization.mdx\"}"
+      }
+    ],
+    "cost": 0.0025683
+  },
+  {
+    "input": {
+      "question": "Can I customize how drift detection works? Like, what options do I have for that?",
+      "reference_answer": "You have multiple customization options.\n\n* **Select columns**. You can apply Drift Detection only to some columns in the Dataset, for example, only to the important features. Use the `columns` parameter.\n\n* **Change drift parameters.** You can modify how drift detection works:\n\n* **Change methods**. Evidently has a large number of drift detection methods, including PSI, K-L divergence, Jensen-Shannon distance, Wasserstein distance, etc. You can also pick tests by column.\n\n* **Change thresholds**. You can specify different drift detection conditions on the dataset or column level.\n\n* **Implement a custom method**. You can implement a custom drift method as Python function.",
+      "line_number_start": 78,
+      "line_number_end": 90,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/preset_data_drift.mdx"
+    },
+    "rag_response": {
+      "answer": "You can indeed customize how drift detection works with several options available:\n\n### 1. Default Drift Detection Algorithm  \nEvidently defaults to a specific Data Drift Detection algorithm that automatically selects the method based on the column type (text, categorical, numerical) and the volume of data. You can override this default behavior to customize how detection is performed.\n\n### 2. Custom Parameters  \nYou can pass custom parameters when using Metrics or Presets:  \n- **Drift Detection Methods**: Choose from 20+ available methods. For instance, you can specify the Population Stability Index (PSI) for all columns using:\n  ```python\n  report = Report([DataDriftPreset(drift_share=0.7, method=\"psi\")])\n  ```  \n- **Thresholds**: Each method can have customizable thresholds to define what constitutes drift. For example, you can set a threshold for PSI with:\n  ```python\n  report = Report([DataDriftPreset(cat_method=\"psi\", cat_threshold=\"0.3\")])\n  ```\n\n### 3. Dataset Level Drift Share  \nYou can set a proportion of drifting columns that indicates overall dataset drift. For instance, if you want to declare dataset drift when 70% of columns drift:\n  ```python\n  report = Report([DataDriftPreset(drift_share=0.7)])\n  ```\n\n### 4. Column-Level Customization  \nSet the drift method and thresholds directly for specific columns:\n  ```python\n  report = Report([ValueDrift(column=\"Salary\", method=\"psi\")])\n  ```\n\n### 5. Custom Drift Detection Methods  \nIf none of the built-in methods suits your needs, you can implement a custom drift detection function. This requires defining a function that fits a specific signature and registering it for use. Here’s a brief example:\n  ```python\n  from evidently.legacy.calculations.stattests import register_stattest\n  ...\n  register_stattest(adt, default_impl=_addd)\n  ```  \n\nBy using these options, you can tailor the drift detection process significantly to fit your data and desired results.",
+      "references": [
+        {
+          "file_path": "metrics/customize_data_drift.mdx",
+          "explanation": "Describes how to change data drift detection methods, thresholds, and more."
+        },
+        {
+          "file_path": "metrics/explainer_drift.mdx",
+          "explanation": "Explains the default data drift detection algorithm and how it works."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on multiple relevant documents that comprehensively outline the customization options for drift detection. It includes specific code examples that illustrate how to apply these customizations effectively.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the specific drift detection methods available?",
+        "Can I monitor data drift for text data as well?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in the documentation knowledge base.",
+          "passed": true,
+          "explanation": "All details provided are directly taken from the relevant documentation."
+        },
+        {
+          "rule": "Include references to documents used to generate the answer.",
+          "passed": true,
+          "explanation": "References to specific documents in the knowledge base were included to support the answer."
+        },
+        {
+          "rule": "Provide a clear and concise answer.",
+          "passed": true,
+          "explanation": "The answer is structured and addresses the user's question directly."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"drift detection customization options\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_data_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_drift.mdx\"}"
+      }
+    ],
+    "cost": 0.00174195
+  },
+  {
+    "input": {
+      "question": "Can I export these results somewhere after running my tests?",
+      "reference_answer": "This renders the Report directly in the interactive Python environment like Jupyter notebook or Colab. See other export options.",
+      "line_number_start": 172,
+      "line_number_end": 172,
+      "question_type": "context_assumer",
+      "filename": "examples/LLM_regression_testing.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, you can export your results after running tests. Here's how:\n\n### Exporting Options\n1. **HTML**: You can save your interactive report as an HTML file, making it easy to share with others or open in a browser. Use the following code:\n   ```python\n   my_report.save_html(\"file.html\")\n   ```\n\n2. **JSON**: The results can be exported in JSON format, which is useful for storing and further processing elsewhere. Use:\n   ```python\n   my_report.save_json(\"file.json\")\n   ```\n\n3. **Python Dictionary**: You can also convert the results into a Python dictionary, which is convenient for automated workflows:\n   ```python\n   my_report.dict()\n   ```\n\n4. **Log to Workspace**: If you're using Evidently Cloud, you can log your report directly into your workspace with:\n   ```python\n   ws.add_run(project.id, my_eval, include_data=False)\n   ```\n\n### Viewing Reports\nYou can view the results in the \"Reports\" section of your project where you can also browse and download them as HTML or JSON. Select the report you want to explore to see the detailed evaluation results and compare them with others.\n\n### Conclusion\nThese export options allow you to store, share, and analyze your test results effectively.",
+      "references": [
+        {
+          "file_path": "docs/library/output_formats.mdx",
+          "explanation": "Describes different formats for exporting reports."
+        },
+        {
+          "file_path": "docs/platform/evals_explore.mdx",
+          "explanation": "Explains how to view and compare evaluation results."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on direct references from the documentation regarding exporting and viewing reports.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What formats can I export my results to?",
+        "How do I view my exported reports?"
+      ],
+      "checks": [
+        {
+          "rule": "Information provided should come from the documentation",
+          "passed": true,
+          "explanation": "All details are directly pulled from the documentation."
+        },
+        {
+          "rule": "Clarity and completeness of the answer",
+          "passed": true,
+          "explanation": "The answer comprehensively details the export methods and viewing options."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"export results after running tests\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/output_formats.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/evals_explore.mdx\"}"
+      }
+    ],
+    "cost": 0.0008741999999999999
+  },
+  {
+    "input": {
+      "question": "Can I run multiple evaluations at once with CustomDescriptor?",
+      "reference_answer": "You can also use `CustomDescriptor` to run evals for multiple columns and return multiple scores.",
+      "line_number_start": 102,
+      "line_number_end": 102,
+      "question_type": "direct_inquirer",
+      "filename": "metrics/customize_descriptor.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, you can run multiple evaluations simultaneously with `CustomDescriptor`. In the Evidently library, descriptors allow you to compute various metrics simultaneously for each row of your dataset. You can combine multiple descriptors and specify pass/fail conditions as needed. This lets you assess various aspects of your data at once, using either built-in descriptors or custom ones designed using LLM prompts or Python code.",
+      "references": [
+        {
+          "file_path": "docs/library/descriptors.mdx",
+          "explanation": "Describes how to create and customize descriptors, allowing for multiple evaluations on datasets."
+        },
+        {
+          "file_path": "metrics/introduction.mdx",
+          "explanation": "Provides an overview of evaluations and how descriptors function in the evaluation process."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.9,
+      "confidence_explanation": "Information was sourced from multiple relevant documents that explain the functionalities of descriptors and evaluations.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are some examples of descriptors you can use?",
+        "How do I create a custom descriptor for my evaluation?"
+      ],
+      "checks": [
+        {
+          "rule": "Only provide information from the knowledge base",
+          "passed": true,
+          "explanation": "The response is derived from the documentation provided."
+        },
+        {
+          "rule": "Avoid introducing outside knowledge or assumptions",
+          "passed": true,
+          "explanation": "The answer strictly references the documented facts."
+        },
+        {
+          "rule": "Respond to the user's question clearly and accurately",
+          "passed": true,
+          "explanation": "The response directly addresses the user's inquiry about running multiple evaluations."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"CustomDescriptor multiple evaluations\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/descriptors.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/introduction.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_evals.mdx\"}"
+      }
+    ],
+    "cost": 0.0018503999999999999
+  },
+  {
+    "input": {
+      "question": "I want to classify text based on relevancy, how do I do that?",
+      "reference_answer": "To evaluate the relevance of an answer to the question, classify into 'relevant', 'irrelevant' and 'partially relevant'. Define the evaluation template with the question placeholder in your template.",
+      "line_number_start": 388,
+      "line_number_end": 388,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/customize_llm_judge.mdx"
+    },
+    "rag_response": {
+      "answer": "To classify text based on relevancy, you can utilize the **Descriptors** feature available in your toolkit. Here’s a step-by-step approach:\n\n### Step 1: Generate Your Dataset\nYou will start by creating a dataset containing the text data you want to classify. This can typically include a question and an answer pair.\n\n### Step 2: Import Necessary Modules\nYou’ll need to import modules related to Dataset, DataDefinition, Report, and Descriptors:\n```python\nfrom evidently import Dataset, DataDefinition, Report\nfrom evidently.descriptors import *\n```\n\n### Step 3: Define Descriptors\nYou can define descriptors that compute various metrics on your text data. For instance:\n- **Sentiment**: To assess the sentiment of the text.\n- **TextLength**: To evaluate the length of the text.\n- **IncludesWords**: To check for specific words.\n\nExample code snippet for defining a dataset with descriptors:\n```python\n# Create your DataFrame\nimport pandas as pd\n\ndf = pd.DataFrame(data)\n\neval_dataset = Dataset.from_pandas(\n    df,\n    data_definition=DataDefinition(text_columns=[\"question\", \"answer\"]),\n    descriptors=[\n        Sentiment(\"answer\", alias=\"Sentiment\"),\n        TextLength(\"answer\", alias=\"Length\"),\n        IncludesWords(\"answer\", words_list=[\"specific\", \"terms\"], alias=\"Keywords\")\n    ]\n)\n```\n\n### Step 4: Generate the Report\nYou can use the **TextEvals** Preset to compile and visualize the results across the defined descriptors:\n```python\nreport = Report([\n    TextEvals()\n])\nmy_eval = report.run(eval_dataset)\n```\n\n### Step 5: Review Test Results (Optional)\nYou may also specify tests to ascertain whether your text meets certain criteria (like being under a certain length or having a positive sentiment). Add tests as follows:\n```python\neval_dataset.add_descriptors(descriptors=[\n    Sentiment(\"answer\", alias=\"Sentiment\", tests=[gte(0)])\n])\n```\nThis will generate pass/fail results for each row based on the defined test conditions.\n\n### Conclusion\nYou can adjust the descriptors based on your specific needs and metrics to classify text by relevancy effectively. Further customization and documentation can be explored through the various examples provided in the source material.",
+      "references": [
+        {
+          "file_path": "docs/library/descriptors.mdx",
+          "explanation": "Describes how to define and use descriptors for evaluating text data."
+        },
+        {
+          "file_path": "metrics/preset_text_evals.mdx",
+          "explanation": "Overview of the Text Evals Preset used for summarizing text evaluation results."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer synthesizes details about workflows and descriptors that are well-defined in the documentation.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What types of descriptors can I use?",
+        "How do I customize the evaluations further?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer is derived solely from the documentation knowledge base.",
+          "passed": true,
+          "explanation": "All information provided is extracted from the relevant documents."
+        },
+        {
+          "rule": "The answer is structured and clear for the user.",
+          "passed": true,
+          "explanation": "The response outlines a step-by-step process for classifying text based on relevancy."
+        },
+        {
+          "rule": "Includes relevant examples from the documentation.",
+          "passed": true,
+          "explanation": "Examples of code snippets and descriptors from the documentation were included."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"classify text relevancy\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_text_evals.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/descriptors.mdx\"}"
+      }
+    ],
+    "cost": 0.0014801999999999999
+  },
+  {
+    "input": {
+      "question": "Do the columns for semantic similarity need to be specified?",
+      "reference_answer": "**Required:** <ul><li>`columns`</li></ul>**Optional:** <ul><li> `alias`</li></ul>",
+      "line_number_start": 111,
+      "line_number_end": 111,
+      "question_type": "direct_inquirer",
+      "filename": "metrics/all_descriptors.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, when using semantic similarity in evaluations, you need to specify the columns that contain the text you want to compare. This is done by passing the relevant column names in the `columns` parameter of the `SemanticSimilarity` descriptor. For example:\n\n```python\nSemanticSimilarity(columns=[\"question\", \"answer\"], alias=\"Semantic_Match\")\n```\n\nThis setup allows the evaluation engine to understand which text columns to evaluate for semantic similarity, thereby facilitating the computation of similarity scores between them. Additionally, you can customize the alias name for easier reference in reports and visualizations.",
+      "references": [
+        {
+          "file_path": "docs/library/descriptors.mdx",
+          "explanation": "Describes how to use descriptors for various evaluations, including specifying columns for semantic similarity."
+        },
+        {
+          "file_path": "examples/LLM_regression_testing.mdx",
+          "explanation": "Provides examples of how to apply metrics and descriptors in evaluating LLM outputs, demonstrating the need for column specification."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is directly supported by clear instructions in the documentation regarding the need to specify columns for semantic similarity calculations.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are some examples of descriptors?",
+        "Can I create custom descriptors?"
+      ],
+      "checks": [
+        {
+          "rule": "The response provides information relevant to the user's question.",
+          "passed": true,
+          "explanation": "The response directly addresses the need to specify columns for semantic similarity."
+        },
+        {
+          "rule": "The response cites specific documentation as references.",
+          "passed": true,
+          "explanation": "The references to relevant documents enhance the validity of the answer."
+        },
+        {
+          "rule": "Avoids personal opinions and maintains factual accuracy.",
+          "passed": true,
+          "explanation": "The answer is based solely on the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"columns for semantic similarity\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/descriptors.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_regression_testing.mdx\"}"
+      }
+    ],
+    "cost": 0.0018595499999999997
+  },
+  {
+    "input": {
+      "question": "Can I map multiple regression columns in one Dataset?",
+      "reference_answer": "You can have several regression results in the dataset, for example in case of multiple regression. (Pass the mappings in a list).",
+      "line_number_start": 156,
+      "line_number_end": 156,
+      "question_type": "hurried_developer",
+      "filename": "docs/library/data_definition.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, you can map multiple regression columns in one dataset. To do this, you will need to create a `DataDefinition` object that specifies the `regression` parameter, allowing you to define multiple regression mappings.\n\n### How to Map Multiple Regression Columns:\n1. **Define the DataDefinition:** You can pass a list of `Regression` objects to the `regression` parameter of the `DataDefinition`. Each object should specify the target and prediction columns for each regression task.\n\n   #### Example:\n   ```python\n   from evidently import DataDefinition, Regression\n\n   definition = DataDefinition(\n       regression=[\n           Regression(target=\"y_true_1\", prediction=\"y_pred_1\"),\n           Regression(target=\"y_true_2\", prediction=\"y_pred_2\")\n       ]\n   )\n   ```\n   This allows you to evaluate multiple sets of actual and predicted values within the same dataset.\n\n2. **Create the Dataset:** After defining the `DataDefinition`, create a `Dataset` object and pass your data along with the definition.\n\n   #### Example:\n   ```python\n   from evidently import Dataset\n   eval_data = Dataset.from_pandas(source_df, data_definition=definition)\n   ```\n\n3. **Run Evaluations:** You can now run evaluations using this dataset, and the system will compute the metrics for each regression mapping defined.",
+      "references": [
+        {
+          "file_path": "docs/library/data_definition.mdx",
+          "explanation": "This document outlines how to map columns for regression analysis, highlighting multiple regression capabilities."
+        },
+        {
+          "file_path": "metrics/preset_regression.mdx",
+          "explanation": "This document explains the use of regression presets for evaluation in a dataset context."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is derived from documented guidelines on how to configure multiple regression mappings within a single dataset accurately.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the best practices for defining regression targets?",
+        "How do I evaluate the performance of multiple regression outputs?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only in-document knowledge",
+          "passed": true,
+          "explanation": "All information provided comes from the documentation."
+        },
+        {
+          "rule": "Directly answer the user's question",
+          "passed": true,
+          "explanation": "The answer directly addresses how to map multiple regression columns."
+        },
+        {
+          "rule": "Include references",
+          "passed": true,
+          "explanation": "References to relevant documents are included with explanations."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"map multiple regression columns in one Dataset\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_regression.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/data_definition.mdx\"}"
+      }
+    ],
+    "cost": 0.0012916499999999999
+  },
+  {
+    "input": {
+      "question": "I’m not sure how to set my OpenAI key as an environment variable... can someone help?",
+      "reference_answer": "Set up the OpenAI key ([Token page](https://platform.openai.com/api-keys)) as an environment variable. [See Open AI docs](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety).",
+      "line_number_start": 67,
+      "line_number_end": 67,
+      "question_type": "frustrated_beginner",
+      "filename": "quickstart_tracing.mdx"
+    },
+    "rag_response": {
+      "answer": "To set your OpenAI key as an environment variable, you can follow these steps based on the documentation provided:\n\n1. **Open your terminal or command prompt.**\n\n2. **Set the environment variable** using the following command, replacing `YOUR_OPENAI_KEY` with your actual OpenAI API key:\n   - For **Linux/Mac**:\n     ```bash\n     export OPENAI_API_KEY=YOUR_OPENAI_KEY\n     ```\n   - For **Windows** (Command Prompt):\n     ```cmd\n     set OPENAI_API_KEY=YOUR_OPENAI_KEY\n     ```\n   - For **Windows** (PowerShell):\n     ```powershell\n     $env:OPENAI_API_KEY='YOUR_OPENAI_KEY'\n     ```\n\n3. **Verify that the environment variable is set:** You can check if the variable is correctly set by running:\n   - On Linux/Mac:\n     ```bash\n     echo $OPENAI_API_KEY\n     ```\n   - On Windows:\n     ```cmd\n     echo %OPENAI_API_KEY%\n     ```\n\nFollowing these steps will allow you to use your OpenAI key in your application without hardcoding it into your scripts.",
+      "references": [
+        {
+          "file_path": "docs/setup/cloud.mdx",
+          "explanation": "Explains how to set the API key as an environment variable."
+        },
+        {
+          "file_path": "docs/platform/tracing_setup.mdx",
+          "explanation": "Provides details on setting parameters using environment variables."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on the specific instructions obtained directly from the relevant documentation regarding setting environment variables for API keys.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What if I encounter issues with setting the environment variable?",
+        "Can I set multiple environment variables at once?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer must be based on documentation facts only.",
+          "passed": true,
+          "explanation": "The answer directly refers to the information in the documentation."
+        },
+        {
+          "rule": "The answer should provide clear, step-by-step instructions.",
+          "passed": true,
+          "explanation": "The instructions are clearly laid out in steps."
+        },
+        {
+          "rule": "The answer should avoid assumptions or external knowledge.",
+          "passed": true,
+          "explanation": "The response strictly adheres to the documented methods."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"set OpenAI key environment variable\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/setup/cloud.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/tracing_setup.mdx\"}"
+      }
+    ],
+    "cost": 0.00113835
+  },
+  {
+    "input": {
+      "question": "I’m trying to generate a report but I’m confused about how to run it. Can I just use defaults or do I need to change something?",
+      "reference_answer": "To generate a template Report, simply pass the selected Preset to the Report and run it over your data. If nothing else is specified, the Report will run with the default parameters for all columns in the dataset.",
+      "line_number_start": 33,
+      "line_number_end": 33,
+      "question_type": "frustrated_beginner",
+      "filename": "docs/library/report.mdx"
+    },
+    "rag_response": {
+      "answer": "To generate a report, you can definitely use default settings, especially if you want to quickly evaluate your dataset without customizing parameters. Here are the key points:\n\n1. **Using Presets**: If you use a Metric Preset, such as `DataSummaryPreset` or `DataDriftPreset`, you can just pass it to the `Report` and run it against your dataset. The report will execute with default parameters for all applicable columns in the dataset. For example:\n   ```python\n   report = Report([DataSummaryPreset()])\n   my_eval = report.run(eval_data_1, None)\n   ```\n   In this case, `eval_data_1` will be evaluated, and defaults will apply.\n\n2. **Custom Reports**: If you want more control, you can create a custom report by specifying metrics individually. Here’s a simple example:\n   ```python\n   report = Report([ColumnCount(), ValueStats(column='target')])\n   my_eval = report.run(eval_data_1, None)\n   ```\n   This allows you to focus on specific metrics, though you will have to manually specify parameters.\n\n3. **Limiting Columns**: You can also limit which columns a preset applies to. For instance:\n   ```python\n   report = Report([DataDriftPreset(column=['target', 'prediction'])])\n   ```\n   This is useful if you're only interested in evaluating specific columns.\n\n4. **Multiple Datasets**: If you want to generate comparative reports (like Data Drift), you do need to specify both datasets. For example:\n   ```python\n   report = Report([DataDriftPreset()])\n   my_eval = report.run(eval_data_1, eval_data_2)\n   ```\n   Here, `eval_data_1` is your current dataset, while `eval_data_2` serves as a reference.\n\nIn summary, using default settings is perfectly acceptable, especially when you're starting out. However, it’s beneficial to customize your reports later as your evaluation needs become more complex.",
+      "references": [
+        {
+          "file_path": "docs/library/report.mdx",
+          "explanation": "This document provides details on how to generate reports using defaults or custom settings."
+        },
+        {
+          "file_path": "docs/library/metric_generator.mdx",
+          "explanation": "This document discusses the use of metric generators for creating tests and metrics with defaults."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 1.0,
+      "confidence_explanation": "The answer is based on detailed explanations from the documentation regarding report generation with default settings and customization options.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are some common metrics to include in a report?",
+        "How do I customize the generated report further?"
+      ],
+      "checks": [
+        {
+          "rule": "Cite only information from the provided documentation",
+          "passed": true,
+          "explanation": "The answer is entirely based on the retrieved documentation."
+        },
+        {
+          "rule": "Provide a clear and actionable response",
+          "passed": true,
+          "explanation": "The steps for generating reports are clearly outlined."
+        },
+        {
+          "rule": "Avoid introducing outside knowledge",
+          "passed": true,
+          "explanation": "The response uses only the information from the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"generate a report defaults settings\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/report.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/metric_generator.mdx\"}"
+      }
+    ],
+    "cost": 0.00115515
+  },
+  {
+    "input": {
+      "question": "Is there a specific threshold for drift detection in larger datasets?",
+      "reference_answer": "All metrics use a threshold = 0.1 by default. Drift score is distance/divergence. (>= 0.1 means drift).",
+      "line_number_start": 66,
+      "line_number_end": 66,
+      "question_type": "hurried_developer",
+      "filename": "metrics/explainer_drift.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, there are specific thresholds for drift detection in larger datasets. For datasets with more than 1000 observations, the following methods and thresholds apply:\n\n- **For numerical columns** with more than 5 unique values, the **Wasserstein Distance** is used, with a default drift detection threshold of **0.1**. Drift is detected when the distance is greater than or equal to this threshold.\n\n- **For categorical columns** and numerical columns with 5 or fewer unique values, the **Jensen-Shannon divergence** is applied, also with a default drift detection threshold of **0.1**. Similar to the previous method, drift is detected if the divergence is greater than or equal to this threshold.\n\nAdditionally, for overall dataset drift detection, you can define a threshold on the share of drifting columns (default is 50%). For example, you can set it to 70% to indicate that dataset drift is detected if more than 70% of the columns are drifting.",
+      "references": [
+        {
+          "file_path": "metrics/explainer_drift.mdx",
+          "explanation": "Provided details about how the default drift detection algorithm works, including methods used for larger datasets."
+        },
+        {
+          "file_path": "metrics/customize_data_drift.mdx",
+          "explanation": "Included information on how to customize drift detection methods and the specific thresholds for larger datasets."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on specific thresholds and methods provided in the documentation relevant to drift detection in large datasets.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are the metrics used for detecting drift?",
+        "Can I customize the drift detection settings?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer should only include information from the documentation.",
+          "passed": true,
+          "explanation": "All information is sourced directly from the provided documentation."
+        },
+        {
+          "rule": "The answer must directly address the user's question.",
+          "passed": true,
+          "explanation": "The thresholds and methods for drift detection in larger datasets are clearly outlined."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"drift detection threshold large datasets\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_data_drift.mdx\"}"
+      }
+    ],
+    "cost": 0.0015571500000000002
+  },
+  {
+    "input": {
+      "question": "I'm trying to figure out how to start using the Evidently Cloud. What do I need to do first?",
+      "reference_answer": "You must first connect to [Evidently Cloud](/docs/setup/cloud) and [create a Project](/docs/platform/projects_manage).",
+      "line_number_start": 8,
+      "line_number_end": 8,
+      "question_type": "frustrated_beginner",
+      "filename": "docs/platform/evals_api.mdx"
+    },
+    "rag_response": {
+      "answer": "To start using Evidently Cloud, you'll need to follow these steps:\n\n1. **Create an Account**:\n   - Sign up for a [free Evidently Cloud account](https://app.evidently.cloud/signup) if you haven't done so.\n   - Log in and create an **Organization**.\n\n2. **Connect from Python (optional for certain tasks)**:\n   - Get your API token by clicking the **Key** menu icon in the Cloud interface and generate a token.\n   - Ensure you have the Evidently Python library installed:  \n     ```bash\n     pip install evidently\n     ```\n   - Connect to the cloud workspace using your API token:\n     ```python\n     from evidently.ui.workspace import CloudWorkspace\n     ws = CloudWorkspace(\n         token=\"API_KEY\",\n         url=\"https://app.evidently.cloud\"\n     )\n     ```\n   - Alternatively, you can set the API key as an environment variable:  \n     ```bash\n     export EVIDENTLY_API_KEY=your_api_key\n     ```\n\n3. **Create a Project**:\n   - Once connected, create a project and run your first evaluation.\n\n### Note on Latest Changes:\n- Evidently Cloud is transitioning to **Cloud v2**. If you're a new user, you'll be enrolled in Cloud v2 automatically. Existing users can switch manually. Ensure you are using the version of the Evidently library that is compatible with your Cloud version (i.e., `evidently>=0.7.0` for Cloud v2).\n- Free users have access to **Cloud v1** until May 31, 2025, after which it will enter read-only mode. \n\nFor more help, you can refer to the documentation or reach out for support.",
+      "references": [
+        {
+          "file_path": "docs/setup/cloud.mdx",
+          "explanation": "Provided the initial steps to create an account, connect Python, and set up the workspace."
+        },
+        {
+          "file_path": "faq/cloud_v2.mdx",
+          "explanation": "Details about the cloud transition and version compatibility."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The steps are directly outlined in the documentation, with high relevance to the initial setup process.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the features of Evidently Cloud?",
+        "How do I migrate from Cloud v1 to Cloud v2?"
+      ],
+      "checks": [
+        {
+          "rule": "Only facts found in the documentation knowledge base should be included.",
+          "passed": true,
+          "explanation": "All information synthesized comes directly from the documents retrieved."
+        },
+        {
+          "rule": "Provide a clear, concise answer to the user's question.",
+          "passed": true,
+          "explanation": "The answer succinctly lays out the steps to start using Evidently Cloud."
+        },
+        {
+          "rule": "Reference relevant documents from which the information was derived.",
+          "passed": true,
+          "explanation": "The response includes references to the original documents that contain the information."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"start using Evidently Cloud\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/setup/cloud.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"faq/cloud_v2.mdx\"}"
+      }
+    ],
+    "cost": 0.00100095
+  },
+  {
+    "input": {
+      "question": "I'm trying to figure out how to detect embeddings drift for my model but I'm not sure what the default method is.",
+      "reference_answer": "The default embedding drift method is a **classifier**. Evidently trains a binary classification model to discriminate between data from reference and current distributions.",
+      "line_number_start": 10,
+      "line_number_end": 10,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/customize_embedding_drift.mdx"
+    },
+    "rag_response": {
+      "answer": "To detect embeddings drift in your model, the **default method** employed is a **binary classifier**. This classifier discriminates between embeddings in the reference and current distributions. Here are the specifics:\n\n1. **For small datasets** (≤ 1000 observations):  Drift is detected if the ROC AUC of the drift detection classifier exceeds the possible ROC AUC of a random classifier at the 95th percentile.\n2. **For larger datasets** (> 1000 observations): Drift is flagged if the ROC AUC > 0.55.\n\nYou also have the option to customize the drift detection method by specifying alternate techniques such as Euclidean distance, Cosine Similarity, Maximum Mean Discrepancy (MMD), and the share of drifted embeddings. Additionally, you can adjust various parameters like thresholds and dimensionality reduction as needed.",
+      "references": [
+        {
+          "file_path": "metrics/customize_embedding_drift.mdx",
+          "explanation": "Provided details on the default method for embeddings drift detection, specifically the use of a binary classifier and its ROC AUC thresholds."
+        },
+        {
+          "file_path": "metrics/explainer_drift.mdx",
+          "explanation": "Described the overall process of data drift detection and the use of various statistical methods."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is directly derived from the retrieved documents detailing embeddings drift detection methods and their defaults.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are the other methods available for drift detection?",
+        "How can I customize the drift detection parameters for my model?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer must be factual and based on retrieved documents.",
+          "passed": true,
+          "explanation": "The answer is synthesized from documents that specifically discuss embeddings drift and its default detection methods."
+        },
+        {
+          "rule": "The answer should not introduce outside knowledge or assumptions.",
+          "passed": true,
+          "explanation": "The answer strictly adheres to information obtained from the documentation."
+        },
+        {
+          "rule": "All references must be relevant and appropriate.",
+          "passed": true,
+          "explanation": "The references include documents directly related to embeddings drift detection methods."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"detect embeddings drift default method\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_data_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_embedding_drift.mdx\"}"
+      }
+    ],
+    "cost": 0.0024008999999999996
+  },
+  {
+    "input": {
+      "question": "How do I check if my emails are appropriate? What do I use for judging?",
+      "reference_answer": "Use `BinaryClassificationPromptTemplate` to define what the LLM is judging.",
+      "line_number_start": 94,
+      "line_number_end": 94,
+      "question_type": "direct_inquirer",
+      "filename": "examples/LLM_jury.mdx"
+    },
+    "rag_response": {
+      "answer": "To check if your emails are appropriate, you can utilize a structured evaluation process that involves using multiple language models (LLMs) as judges. Here’s how you can approach it:\n\n1. **Define Evaluation Criteria**: Establish what constitutes an \"appropriate\" email. Generally, an appropriate email is one that conforms to professional standards regarding tone, language, and content. Clearly outline these criteria before evaluation.\n\n2. **Use a Panel of LLM Judges**: Implement a panel of different LLMs to assess your emails. The consensus among these models can help you gauge the appropriateness of the email's tone and style. For example, you might use an LLM prompt that asks the AI to judge an email's suitability based on predefined criteria.\n\n3. **Aggregate Results**: You can employ methods to aggregate the evaluations from different LLMs. Count the number of approvals or rejections each email receives and consider an email appropriate if most or all judges deem it so.\n\n4. **Utilizing Tools**: Leverage the Evidently library to implement this evaluation. Specifically, you can set up LLMs with the `LLMEval` descriptor to assess generated emails against the defined criteria. This can be done programmatically using the Evidently library in Python.\n\nBy following this structured evaluation method, you can ensure that your emails maintain a professional standard and avoid any potentially inappropriate content.",
+      "references": [
+        {
+          "file_path": "examples/LLM_jury.mdx",
+          "explanation": "This document discusses the method of using multiple LLMs to evaluate email appropriateness."
+        },
+        {
+          "file_path": "metrics/preset_text_evals.mdx",
+          "explanation": "This document outlines how to use text evaluations to summarize results and assess email content."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.9,
+      "confidence_explanation": "The response is based on structured methods for evaluating email content as outlined in the retrieved documents.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific criteria should I use to judge my emails?",
+        "How can I implement LLMs for email evaluation using Python?"
+      ],
+      "checks": [
+        {
+          "rule": "Response contains relevant information from the documentation.",
+          "passed": true,
+          "explanation": "The answer summarizes the LLM jury method and Evidently library usage based on retrieved documents."
+        },
+        {
+          "rule": "Answer is clear and provides actionable steps.",
+          "passed": true,
+          "explanation": "The answer provides a clear method and action steps for evaluating email appropriateness."
+        },
+        {
+          "rule": "References are included for further reading.",
+          "passed": true,
+          "explanation": "References to relevant documents are provided."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"check if emails are appropriate guidelines\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_jury.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_text_evals.mdx\"}"
+      }
+    ],
+    "cost": 0.0012621
+  }
+]

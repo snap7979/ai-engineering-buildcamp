@@ -150,3 +150,26 @@ The evaluation ran 487 synthetic cases through three judges: Answer Correctness,
 - Hide judge scores during independent review when possible to reduce anchoring; identify AI reviewers as AI and do not present their labels as human ground truth.
 - Preserve retrieved document content or a versioned documentation snapshot and intermediate trace messages when source-grounded answer and trajectory verification is required.
 - Separate execution errors from Good/Bad judge outcomes and score only successfully evaluated cases.
+
+## Answer Correctness Judge V2 — Final Calibration
+
+The original Answer Correctness Judge and V2 were compared on the same 20 saved agent responses corresponding to entries 1–20 of the original judged file. All case identities were verified. The V2 runner's output was completion-ordered, so results were aligned by question, reference answer, and saved agent response rather than by row position.
+
+ChatGPT Work served as the delegated AI-assisted reviewer for this calibration. It classified 18 cases as Good or Bad; uncertain cases 9 and 10 were excluded from the metrics. These labels are not independently human-verified ground truth.
+
+| Metric | Original | V2 |
+|---|---:|---:|
+| Agreement | 72.2% (13/18) | 88.9% (16/18) |
+| Bad Precision | 71.4% (5/7) | 100% (6/6) |
+| Bad Recall | 62.5% (5/8) | 75.0% (6/8) |
+
+Changed scores:
+
+- **Case 7:** Good → Bad.
+- **Case 10:** Bad → Good; uncertain and excluded from metrics.
+- **Case 15:** Bad → Good.
+- **Case 18:** Bad → Good.
+
+On this calibration sample, V2 improves agreement by 16.7 percentage points. This is diagnostic alignment evidence only: the same sample was used to develop V2, so the improvement is not independent evidence of generalization. No independently human-verified labels were used; ChatGPT Work was an AI-assisted delegated reviewer.
+
+Keep the original correctness prompt as the default. V2 must remain explicitly selectable; this calibration does not justify silently changing default judge behavior. The original 487-case evaluation results remain unchanged.

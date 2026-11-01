@@ -1,5 +1,5 @@
 """
-Run three LLM judge checks on synthetic eval data.
+Run three LLM judge checks by default, or a single judge in single-judge mode.
 
 For each entry in the eval JSON, runs:
   1. Answer correctness check
@@ -29,6 +29,8 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from evals.llm_judge_checks import (
+    CORRECTNESS_INSTRUCTIONS,
+    CORRECTNESS_INSTRUCTIONS_V2,
     create_correctness_judge,
     format_correctness_prompt,
     create_instruction_judge,
@@ -164,6 +166,21 @@ async def judge_instruction_only(entry: dict, judge, cost: CostAccumulator) -> d
     return entry
 
 
+async def judge_correctness_only(entry: dict, judge, cost: CostAccumulator) -> dict:
+    """Run only the Answer Correctness check on one saved response."""
+    try:
+        correctness = await judge.run(format_correctness_prompt(entry))
+        cost.add(correctness.usage)
+        entry["judge_answer_correctness"] = correctness.output.model_dump()
+    except Exception as e:
+        entry["judge_answer_correctness"] = {
+            "status": "error",
+            "error": str(e),
+        }
+
+    return entry
+
+
 # ---------------------------------------------------------------------------
 # Report
 # ---------------------------------------------------------------------------
@@ -173,12 +190,15 @@ def report(
     cost: CostAccumulator,
     elapsed: float,
     instruction_only: bool = False,
+    correctness_only: bool = False,
 ) -> None:
     total = len(results)
 
     checks = (
         [("Instruction Following", "judge_instruction_following")]
         if instruction_only
+        else [("Answer Correctness", "judge_answer_correctness")]
+        if correctness_only
         else [
             ("Answer Correctness", "judge_answer_correctness"),
             ("Instruction Following", "judge_instruction_following"),
@@ -196,26 +216,32 @@ def report(
     print(f"  Total entries evaluated: {total}")
     print("-" * 55)
 
-    if instruction_only:
+    if instruction_only or correctness_only:
+        score_key = (
+            "judge_instruction_following"
+            if instruction_only
+            else "judge_answer_correctness"
+        )
+        label = "Instruction Following" if instruction_only else "Answer Correctness"
         results_with_score = [
             r for r in results
-            if r.get("judge_instruction_following", {}).get("score") in ("good", "bad")
+            if r.get(score_key, {}).get("score") in ("good", "bad")
         ]
         errors = sum(
-            r.get("judge_instruction_following", {}).get("status") == "error"
+            r.get(score_key, {}).get("status") == "error"
             for r in results
         )
         good = sum(
-            r.get("judge_instruction_following", {}).get("score") == "good"
+            r.get(score_key, {}).get("score") == "good"
             for r in results
         )
         bad = sum(
-            r.get("judge_instruction_following", {}).get("score") == "bad"
+            r.get(score_key, {}).get("score") == "bad"
             for r in results
         )
         pct = (good / len(results_with_score) * 100) if results_with_score else 0
         print(
-            f"  {'Instruction Following':<25s}  good: {good}  bad: {bad}  "
+            f"  {label:<25s}  good: {good}  bad: {bad}  "
             f"errors: {errors}  ({pct:.0f}% good among scored)"
         )
     else:
@@ -241,7 +267,7 @@ def report(
 
 async def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Run three LLM judge checks on synthetic eval data."
+        description="Run LLM judge checks on saved synthetic eval data."
     )
     parser.add_argument(
         "--data",
@@ -251,7 +277,10 @@ async def main() -> None:
     parser.add_argument(
         "--output",
         default=None,
-        help="Output JSON path. Defaults to <input>_judged.json.",
+        help=(
+            "Output JSON path. Defaults to <input>_judged.json in three-judge "
+            "mode; required in single-judge mode."
+        ),
     )
     parser.add_argument(
         "--limit",
@@ -270,7 +299,26 @@ async def main() -> None:
         action="store_true",
         help="Run only the Instruction Following judge.",
     )
+    parser.add_argument(
+        "--correctness-only",
+        action="store_true",
+        help="Run only the Answer Correctness judge.",
+    )
+    parser.add_argument(
+        "--correctness-prompt",
+        choices=("original", "v2"),
+        default=None,
+        help=(
+            "Prompt for --correctness-only (default: original). "
+            "Select v2 explicitly for the calibrated prompt."
+        ),
+    )
     args = parser.parse_args()
+
+    if args.instruction_only and args.correctness_only:
+        parser.error("--instruction-only and --correctness-only cannot be combined.")
+    if args.correctness_prompt is not None and not args.correctness_only:
+        parser.error("--correctness-prompt can only be used with --correctness-only.")
 
     # Resolve paths
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -286,9 +334,9 @@ async def main() -> None:
     else:
         output_path = data_path.replace(".json", "_judged.json")
 
-    if args.instruction_only:
+    if args.instruction_only or args.correctness_only:
         if not args.output:
-            parser.error("--output is required with --instruction-only.")
+            parser.error("--output is required in single-judge mode.")
         if os.path.exists(output_path):
             parser.error(f"Output file already exists: {output_path}")
 
@@ -303,7 +351,16 @@ async def main() -> None:
         print(f"  → Limiting to first {len(entries)} entries (--limit {args.limit}).")
 
     # Create judges
-    if args.instruction_only:
+    if args.correctness_only:
+        correctness_instructions = (
+            CORRECTNESS_INSTRUCTIONS_V2
+            if args.correctness_prompt == "v2"
+            else CORRECTNESS_INSTRUCTIONS
+        )
+        judges = {
+            "correctness": create_correctness_judge(correctness_instructions)
+        }
+    elif args.instruction_only:
         judges = {"instruction": create_instruction_judge()}
     else:
         judges = {
@@ -320,6 +377,10 @@ async def main() -> None:
     t0 = time.perf_counter()
 
     async def process(entry):
+        if args.correctness_only:
+            return await judge_correctness_only(
+                entry, judges["correctness"], cost
+            )
         if args.instruction_only:
             return await judge_instruction_only(entry, judges["instruction"], cost)
         return await judge_entry(entry, judges, cost)
@@ -328,11 +389,18 @@ async def main() -> None:
     elapsed = time.perf_counter() - t0
 
     # Save
-    with open(output_path, "w") as f:
+    output_mode = "x" if args.correctness_only else "w"
+    with open(output_path, output_mode) as f:
         json.dump(results, f, indent=2)
     print(f"\nResults saved to {output_path}")
 
-    report(results, cost, elapsed, instruction_only=args.instruction_only)
+    report(
+        results,
+        cost,
+        elapsed,
+        instruction_only=args.instruction_only,
+        correctness_only=args.correctness_only,
+    )
 
 
 if __name__ == "__main__":

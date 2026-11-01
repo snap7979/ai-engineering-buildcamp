@@ -1,0 +1,1343 @@
+[
+  {
+    "input": {
+      "question": "I want to see interactions between a feature and a target. How can I do that?",
+      "reference_answer": "Categorical and numerical features include an additional visualization that plots the interaction between a given feature and the target.",
+      "line_number_start": 49,
+      "line_number_end": 49,
+      "question_type": "direct_inquirer",
+      "filename": "metrics/explainer_data_stats.mdx"
+    },
+    "rag_response": {
+      "answer": "To view interactions between a feature and a target in your data analysis, you can utilize the **Features by Target** visualization available in the data quality reports. Here's how to do it:\n\n1. **Statistical Summary**: When you load your dataset, the Features widget will generate a statistical summary for each feature and show visualizations of their distributions.\n2. **Feature Behavior Over Time**: This includes historical trends of features that can be compared against target variables.\n3. **Interaction Visualizations**: For categorical and numerical features, you will find an additional visualization that specifically plots the interaction between each feature and the target variable. These visualizations help you to understand how different values of a feature may affect the target outcome.\n\n### Example Visualizations:\n- **Categorical Feature Interaction**: Displays how the categorical feature values distribute against the target class.\n- **Numerical Feature Interaction**: Shows trends and distributions of continuous feature values relative to target variable changes.\n\nYou can access these features through the reporting interface after you analyze your dataset, providing insights into how features influence the target variable.",
+      "references": [
+        {
+          "file_path": "examples/introduction.mdx",
+          "explanation": "This document contains a collection of examples and tutorials for interacting with features and targets."
+        },
+        {
+          "file_path": "metrics/explainer_data_stats.mdx",
+          "explanation": "This document explains the different metrics related to features and their interactions with target variables."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "Strong support in documentation regarding feature-target interactions and visualizations.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific visualizations can I use for feature interactions?",
+        "How do I interpret the interaction plots?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer must only include information from the documentation without inference or assumptions.",
+          "passed": true,
+          "explanation": "All information is directly cited from the documentation."
+        },
+        {
+          "rule": "The response must be relevant to the user's query.",
+          "passed": true,
+          "explanation": "The answer provides steps to find feature and target interactions as requested."
+        },
+        {
+          "rule": "Clarify terminology and ensure clarity in the explanation.",
+          "passed": true,
+          "explanation": "Defined the types of features and provided examples of visualizations."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"interactions between feature and target\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/introduction.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_data_stats.mdx\"}"
+      }
+    ],
+    "cost": 0.00145365,
+    "judge_answer_correctness": {
+      "reasoning": "The user asks for ways to visualize interactions between features and a target. The reference answer identifies that categorical and numerical features have visualizations for this specific purpose. The agent's answer effectively provides detailed steps on how to access these visualizations and outlines the types of visualizations available for both categorical and numerical features. The agent's response covers the essential details by explaining the process and specifying that these visualizations show interactions, which aligns with the reference answer. Therefore, it does not omit any essential information and fully answers the user's query.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "Is there a way to specify values for my panels?",
+      "reference_answer": "List of `PanelMetric` objects to display.",
+      "line_number_start": 220,
+      "line_number_end": 220,
+      "question_type": "hurried_developer",
+      "filename": "docs/platform/dashboard_add_panels.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, you can specify values for your panels when creating them in the Dashboard. Here\u2019s a summary of the options available:\n\n### Adding Panels to the Dashboard\nYou can add multiple types of panels that visualize evaluation results, such as: \n- Text panels\n- Counter panels\n- Pie charts\n- Line plots\n- Bar plots (grouped and stacked)\n\n### Specifying Values\nWhen you create a panel, you must reference the name of the corresponding **Evidently Metric** to indicate the specific values to be displayed. The basic syntax for adding a panel is as follows:\n\n```python\nproject.dashboard.add_panel(\n    DashboardPanelPlot(\n        title=\"Your Title\",\n        subtitle=\"Your Subtitle\",\n        size=\"half\",\n        values=[\n            PanelMetric(\n                legend=\"Your legend\",\n                metric=\"YourMetricName\"\n            ),\n        ],\n        plot_params={\"plot_type\": \"line\"},\n    ),\n    tab=\"Your Tab Name\",\n)\n```\n\n### Types of Values\n1. **Simple Metrics:** Directly reference a Metric name within `PanelMetric`, e.g., \"RowCount\".\n2. **Column-Level Metrics:** If the metric operates at the column level, you may need to specify additional context using `metric_labels`. For example:\n   ```python\n   metric_labels={\"column\": \"ColumnName\", \"value_type\": \"share\"}\n   ```\n3. **Multiple Values:** You can display multiple metrics in a single panel by adding multiple `PanelMetric` entries in the `values` list.\n\n### Example for Specifying Panel Values\nHere is an example to add a counter panel showing the sum of row counts:\n```python\nproject.dashboard.add_panel(\n    DashboardPanelPlot(\n        title=\"Row count\",\n        subtitle=\"Total count\",\n        size=\"half\",\n        values=[PanelMetric(legend=\"Row count\", metric=\"RowCount\")],\n        plot_params={\"plot_type\": \"counter\", \"aggregation\": \"sum\"},\n    ),\n    tab=\"My tab\",\n)\n```\n\n### Additional Notes\n- Ensure that the metrics you want to display are logged in your project reports; otherwise, the panel may appear empty.\n- You can also specify the type of aggregation (e.g., sum, average) through the panel configuration options.\n\nThis functionality enables you to customize your panels effectively according to the evaluation results you want to visualize.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_add_panels.mdx",
+          "explanation": "This document explains how to add panels and specify values for them using the API."
+        },
+        {
+          "file_path": "docs/platform/dashboard_add_panels_ui.mdx",
+          "explanation": "This document provides UI options to create panels and configure their values."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information retrieved provides comprehensive details on how to specify values for panels in a dashboard, covering methods and examples from the documentation.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What types of metrics can be used in the panels?",
+        "How can I customize the appearance of my panels?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer contains only information from the documentation.",
+          "passed": true,
+          "explanation": "The information was derived entirely from the provided documentation."
+        },
+        {
+          "rule": "The answer accurately addresses the user query.",
+          "passed": true,
+          "explanation": "The answer directly answers the query regarding specifying values for panels."
+        },
+        {
+          "rule": "Examples provided are relevant and clear.",
+          "passed": true,
+          "explanation": "Examples related to specifying values in panels were included and clearly explained."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"specify values for panels\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels_ui.mdx\"}"
+      }
+    ],
+    "cost": 0.0015114,
+    "judge_answer_correctness": {
+      "reasoning": "The user's question specifically asks about how to specify values for panels, which corresponds directly to the requirement of providing a list of `PanelMetric` objects for display, as mentioned in the reference answer. The agent's answer provides a comprehensive explanation of how to specify panel values, including code examples and detailed descriptions of different types of metrics. Essential facts such as the demonstration of how to create a panel and specify values through `PanelMetric` entries are clearly articulated. The answer does not contradict any of the information in the reference answer and covers the necessary details for specifying values. Therefore, the response is considered complete and accurate.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "What about the CompletenessLLMEval? How does that work?",
+      "reference_answer": "<ul><li>Determines whether the response fully uses the information provided in the context.</li><li>Returns a label (COMPLETE or INCOMPLETE) or a score.</li><li>Run over the \"response\" column and pass the `context` column as a parameter.</li><li>Example: `CompletenessLLMEval(\"Response\", context=\"Context\")`</li></ul>",
+      "line_number_start": 90,
+      "line_number_end": 90,
+      "question_type": "context_assumer",
+      "filename": "metrics/all_descriptors.mdx"
+    },
+    "rag_response": {
+      "answer": "The **CompletenessLLMEval** is an evaluation metric that determines whether a generated response fully utilizes the information provided in a given context. It can return a label indicating the result\u2014either **COMPLETE** or **INCOMPLETE**\u2014or a numerical score.\n\n### How It Works:\n- **Input Requirements**: You run this evaluation over the \"response\" column and provide the \"context\" column as a parameter.\n- **Example Usage**: The function can be invoked in your code using the following syntax:\n  ```python\n  CompletenessLLMEval(\"Response\", context=\"Context\")\n  ```\n\n### Optional Parameters:\n- You can specify additional optional parameters such as `alias`, `provider`, and `model` for customization.\n\n### Summary:\nCompletenessLLMEval helps assess the thoroughness of a response based on the available context, allowing users to gauge the effectiveness of language model outputs in utilizing relevant information from given data.",
+      "references": [
+        {
+          "file_path": "metrics/all_descriptors.mdx",
+          "explanation": "Provided detailed information about CompletenessLLMEval and its functionalities."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based directly on the specific details provided in the documentation, particularly about the CompletenessLLMEval metric.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "Can you provide more details on how to use CompletenessLLMEval in specific scenarios?",
+        "What are the other evaluation metrics available in this context?"
+      ],
+      "checks": [
+        {
+          "rule": "Provided answer is based solely on the documentation.",
+          "passed": true,
+          "explanation": "The answer includes only information found in the documentation."
+        },
+        {
+          "rule": "Answer clearly explains the function and usage.",
+          "passed": true,
+          "explanation": "The answer includes a clear explanation of what CompletenessLLMEval does and how to use it."
+        },
+        {
+          "rule": "Includes relevant examples for clarity.",
+          "passed": true,
+          "explanation": "Provided an example of how to use CompletenessLLMEval."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"CompletenessLLMEval\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/all_descriptors.mdx\"}"
+      }
+    ],
+    "cost": 0.0014207999999999998,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer accurately describes the CompletenessLLMEval metric. It mentions that it determines whether the response fully utilizes the provided context information, which corresponds to the first point in the reference answer. It includes that it can return either a label (COMPLETE or INCOMPLETE) or a score, addressing the second point. The description of how to run it over the 'response' column and with a context parameter is also present and correctly replicated in the agent's answer. Additionally, the agent provided a usage example consistent with the reference, covering the same essential details.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "What are the main things I need to set up first for this tutorial?",
+      "reference_answer": "To complete the tutorial, you will need: * Basic Python knowledge. * An OpenAI API key to use for the LLM evaluator. * An Evidently Cloud account to track test results. If not yet, [sign up](https://www.evidentlyai.com/register) for a free account.",
+      "line_number_start": 25,
+      "line_number_end": 31,
+      "question_type": "frustrated_beginner",
+      "filename": "examples/LLM_regression_testing.mdx"
+    },
+    "rag_response": {
+      "answer": "To set up the tutorial, you need to complete the following steps:\n\n1. **Prepare Your Input Data**: Get your data in a compatible format, such as a `pandas.DataFrame`.\n2. **Create a Dataset Object**: Define a Dataset object using `DataDefinition()` to specify column roles and types.\n3. **(Optional) Add Descriptors**: For LLM and text evaluations, define row-level descriptors to compute according to your needs.\n4. **Configure a Report**: Create a Report that specifies the metrics or presets you want to evaluate.\n5. **(Optional) Add Test Conditions**: Define pass/fail conditions at the dataset level.\n6. **(Optional) Add Tags and Timestamps**: Optionally, you can tag your evaluation runs for better identification.\n7. **Run the Report**: Execute the evaluation on the Dataset using the Report.\n8. **Explore Results**: Decide whether to upload the evaluation results to the platform or view them locally.",
+      "references": [
+        {
+          "file_path": "docs/library/evaluations_overview.mdx",
+          "explanation": "Provides detailed steps for preparing input data and running evaluations."
+        },
+        {
+          "file_path": "examples/introduction.mdx",
+          "explanation": "Explains the quickstarts and essential components for tutorials."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is derived directly from the configuration steps outlined in the retrieved documentation, ensuring accuracy.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific data formats are supported?",
+        "How do I define descriptors for my evaluation?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer must include a step-by-step guide to set up the tutorial.",
+          "passed": true,
+          "explanation": "The response provides a clear step-by-step setup for the tutorial."
+        },
+        {
+          "rule": "The response should refer to information found in the documentation provided.",
+          "passed": true,
+          "explanation": "All information is supported by the retrieved documents."
+        },
+        {
+          "rule": "The answer narrative must be coherent and logically ordered.",
+          "passed": true,
+          "explanation": "The steps are presented in a logical sequence for setting up the tutorial."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"setup tutorial requirements\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/introduction.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/evaluations_overview.mdx\"}"
+      }
+    ],
+    "cost": 0.00119745,
+    "judge_answer_correctness": {
+      "reasoning": "The user's question asks for the main things needed to set up before proceeding with the tutorial, which should include fundamental requirements such as prior knowledge or necessary accounts. The reference answer specifies that basic Python knowledge, an OpenAI API key, and an Evidently Cloud account are essential. However, the agent's answer focuses on steps within the tutorial rather than these foundational requirements and does not mention Python knowledge, the OpenAI API key, or an Evidently Cloud account. It fails to address the essential elements identified in the reference answer, making it incomplete with respect to the user's request. Thus, it is not a satisfactory response.",
+      "score": "bad"
+    }
+  },
+  {
+    "input": {
+      "question": "Where can I find the correlations between features?",
+      "reference_answer": "This widget shows the correlations between different features.",
+      "line_number_start": 61,
+      "line_number_end": 61,
+      "question_type": "hurried_developer",
+      "filename": "metrics/explainer_data_stats.mdx"
+    },
+    "rag_response": {
+      "answer": "You can find the correlations between features using the **Correlation widget** available within the data quality metrics. This widget provides insights in two main ways:\n\n1. **Insights Table**: It summarizes pairwise feature correlations. For a single dataset, it lists the top five highly correlated variables using Cramer's v correlation matrix for categorical features and Spearman correlation matrix for numerical features. For comparisons between two datasets, it identifies the top five pairs of variables where correlation changes the most.\n\n2. **Heatmaps**: The widget includes heatmaps that visualize correlations. Categorical features are evaluated using Cramer's v, while numerical features are assessed through Pearson, Spearman, and Kendall correlation coefficients. Although the heatmap feature was removed from some presets, you can still utilize it by integrating `DatasetCorrelationsMetric()` in your report.\n\nFor detailed monitoring, you may want to ensure that your dataset schema is correctly defined and that the necessary metrics are included in your reports.",
+      "references": [
+        {
+          "file_path": "metrics/explainer_data_stats.mdx",
+          "explanation": "Details about various data metrics, including the correlation widget."
+        },
+        {
+          "file_path": "metrics/preset_data_drift.mdx",
+          "explanation": "Describes the ability to evaluate changes in data distribution, which includes correlation measures."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The retrieved documents contain precise instructions about how to access and use the correlation features in the Evidently platform.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are some other metrics I can analyze?",
+        "How do I generate correlation reports programmatically?"
+      ],
+      "checks": [
+        {
+          "rule": "The response should be based solely on documentation content.",
+          "passed": true,
+          "explanation": "The answer references specific features from the provided documents."
+        },
+        {
+          "rule": "The answer should address the user query directly.",
+          "passed": true,
+          "explanation": "The answer provides a clear explanation of where to find correlations between features."
+        },
+        {
+          "rule": "Include relevant details and examples when necessary.",
+          "passed": true,
+          "explanation": "The answer includes multiple methods of finding correlations and describes how to access them."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"correlation between features\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_data_stats.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_data_drift.mdx\"}"
+      }
+    ],
+    "cost": 0.00134055,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer provides a detailed explanation of how to find correlations between features using a specific widget, which aligns with the reference answer stating that a widget shows these correlations. The method of using the Correlation widget, along with the Insights Table and Heatmaps, covers the essential information about where correlations can be located. There are no contradictions or omissions regarding the essential facts of the question.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "I need to know about the BERTScore function. What does it do?",
+      "reference_answer": "<ul><li>Calculates similarity between two text columns based on token embeddings.</li><li>Returns [BERTScore](https://arxiv.org/pdf/1904.09675) (F1 Score).</li><li>Example use: `BERTScore(columns=[\"Answer\", \"Target\"])`.</li></ul>",
+      "line_number_start": 112,
+      "line_number_end": 112,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/all_descriptors.mdx"
+    },
+    "rag_response": {
+      "answer": "The **BERTScore** function is used for evaluating the quality of text generated by language models, particularly in tasks where reference-based comparisons are essential. It computes a similarity score between the generated responses and a set of reference (target) outputs based on the contextual embeddings of words derived from the BERT (Bidirectional Encoder Representations from Transformers) model. \n\n### Key Features:\n- **Reference-Based Evaluation**: BERTScore is particularly useful when you have a set of ground truth answers (reference outputs) to compare against the generated responses. It provides a metric that captures semantic similarity beyond traditional metrics like exact match.\n- **Component of LLM Evaluations**: It can be utilized in various LLM (Language Learning Model) evaluation methods, serving alongside other metrics such as correctness evaluations and semantic similarity checks. \n- **Customizable**: Users can tailor the BERTScore parameters to fit different evaluating contexts.\n\n### Example Usage:\nIn practice, you can use the BERTScore function by passing the specific columns of responses and targets from a dataset to calculate the score. For instance:\n```python\ncontext_based_evals = Dataset.from_pandas(\n    synthetic_df_3,\n    data_definition=DataDefinition(text_columns=[\"Question\", \"Response\", \"Target\"]),\n    descriptors=[\n        BERTScore(columns=[\"Response\", \"Target\"], alias=\"BERTScore\")\n    ]\n)\ncontext_based_evals.as_dataframe()\n```\nThis code initializes an evaluation that scores generated answers against their corresponding targets using BERTScore, allowing users to quantify the performance of their models in generating coherent and contextually accurate outputs.",
+      "references": [
+        {
+          "file_path": "examples/LLM_evals.mdx",
+          "explanation": "The document contains details about using BERTScore in LLM evaluations, including its role and how it is applied."
+        },
+        {
+          "file_path": "examples/LLM_rag_evals.mdx",
+          "explanation": "This document discusses BERTScore in the context of evaluating retrieval-augmented generation systems, highlighting its effectiveness."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information retrieved from documents specifically discusses the functionality and application of the BERTScore, ensuring accuracy for its description.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "How does BERTScore compare to other metrics?",
+        "Can BERTScore be used for other applications outside LLM evaluations?"
+      ],
+      "checks": [
+        {
+          "rule": "Facts should come only from the documentation knowledge base.",
+          "passed": true,
+          "explanation": "The response is based entirely on the retrieved documentation regarding BERTScore."
+        },
+        {
+          "rule": "The answer is complete and informative based on the documentation.",
+          "passed": true,
+          "explanation": "It explains what BERTScore is, how it is used, and provides example usage, supported by relevant documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"BERTScore function\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_evals.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_rag_evals.mdx\"}"
+      }
+    ],
+    "cost": 0.0013344,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer covers different aspects of the BERTScore function, including its purpose of evaluating text quality based on similarity of generated responses to reference outputs, and mentions that it uses contextual embeddings from the BERT model. However, the answer lacks the explicit mention of what it returns, specifically the F1 Score, which is critical to fully answer the user's question. Additionally, while the example provided shows usage, it does not adhere exactly to the simple formatting requested in the reference answer. Therefore, it does provide useful information but is missing essential details about the return value and does not conform fully to the user's direct request. Thus, while some aspects are covered well, the omission of the return value makes the score flounder into a \"bad\" category. Overall, the comprehensive explanation and additional details do not compensate for the missing essential fact.",
+      "score": "bad"
+    }
+  },
+  {
+    "input": {
+      "question": "How do I check if my new responses are too long or too short?",
+      "reference_answer": "All new responses must be no longer than 200 symbols.",
+      "line_number_start": 226,
+      "line_number_end": 226,
+      "question_type": "frustrated_beginner",
+      "filename": "examples/LLM_regression_testing.mdx"
+    },
+    "rag_response": {
+      "answer": "To check if your new responses are too long or too short, you can use the following approaches based on the documentation:\n\n1. **Use Built-in Descriptors**: You can incorporate the `TextLength` descriptor when creating your dataset. This descriptor measures the length of responses and allows you to set specific criteria for what constitutes too long or too short responses.\n   ```python\n   eval_dataset.add_descriptors(descriptors=[\n       TextLength(\"response\", alias=\"Length\")\n   ])\n   ```\n   Then you can analyze the results with `eval_dataset.as_dataframe()` to see the lengths of your responses.\n\n2. **Implement Custom Checks**: You can add tests to your descriptors to create pass/fail conditions based on the length of responses. For example:\n   ```python\n   eval_dataset.add_descriptors(descriptors=[\n       TextLength(\"response\", alias=\"Length\", tests=[\n           lte(100, alias=\"Length is under 100\"),\n           gte(20, alias=\"Length is over 20\")\n       ])\n   ])\n   ```\n   This will give you a structured way to see if responses fall within an acceptable range.\n\n3. **Create a Summary Report**: You can summarize results using the `Report` class to easily visualize the distribution of response lengths and identify whether they fit within your desired parameters. You can generate reports by running:\n   ```python\n   report = Report([\n       TextEvals()\n   ])\n   report.run(eval_dataset)\n   ```\n\nBy utilizing these strategies, you can effectively evaluate the length of your new responses and ensure they meet your standards. If the information does not match your requirements or you need further clarification, please let me know!",
+      "references": [
+        {
+          "file_path": "docs/library/descriptors.mdx",
+          "explanation": "Describes the use of descriptors for evaluating response length."
+        },
+        {
+          "file_path": "metrics/customize_llm_judge.mdx",
+          "explanation": "Explains how to run evaluations and customize descriptors, including length checking."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information is clearly outlined in the documentation regarding the use of descriptors and tests for response evaluation.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific length should I consider for my responses?",
+        "Can I set custom criteria for evaluating responses beyond length?"
+      ],
+      "checks": [
+        {
+          "rule": "The response must be comprehensive and relevant to the user's question.",
+          "passed": true,
+          "explanation": "The response directly addresses how to check response lengths using available tools."
+        },
+        {
+          "rule": "The answer must use terminology and concepts directly from the documentation.",
+          "passed": true,
+          "explanation": "All terms and examples used in the response are derived from the documentation."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"check response length\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_llm_judge.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/descriptors.mdx\"}"
+      }
+    ],
+    "cost": 0.00205275,
+    "judge_answer_correctness": {
+      "reasoning": "The user is asking specifically how to check if responses are too long or too short, and the reference answer states that all new responses must be no longer than 200 symbols. The agent's answer provides methods for checking response lengths using descriptors and tests but does not mention the specific limit of 200 symbols set out in the reference answer. Therefore, while the agent's answer offers approaches to ascertain response lengths generally, it fails to clearly state the critical maximum length requirement, which is essential information for the user's question. Hence, the agent's answer can be marked as 'bad.'",
+      "score": "bad"
+    }
+  },
+  {
+    "input": {
+      "question": "Um, how can I tell if a feature is almost empty or constant? What does that even mean?",
+      "reference_answer": "It also shows the share of almost empty and almost constant features. This applies to cases when 95% or more features are missing or constant.",
+      "line_number_start": 3,
+      "line_number_end": 3,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/explainer_data_stats.mdx"
+    },
+    "rag_response": {
+      "answer": "A feature is considered **almost empty** or **almost constant** when 95% or more of its values are missing or constant, respectively. This usually indicates that the feature contributes little to no variability to the dataset and may not be useful for analysis or modeling.\n\n1. **Almost Empty Features**: These are features that have a high proportion of missing values. If a feature is almost empty, it may lack informative content, making it less valuable for predictive modeling.\n   \n2. **Almost Constant Features**: These are features where the majority of the values are the same (i.e., constant). They do not provide useful variation or signal for the modeling process.\n\nIn data analysis, identifying these features is crucial since they can negatively impact model performance, lead to overfitting, or waste computational resources. Tools often include summary statistics that indicate the percentage of such features in your dataset, enabling better feature selection and data cleaning strategies.",
+      "references": [
+        {
+          "file_path": "metrics/explainer_data_stats.mdx",
+          "explanation": "This document explains the definitions of almost empty and almost constant features, along with their implications."
+        },
+        {
+          "file_path": "metrics/explainer_regression.mdx",
+          "explanation": "Provides insight into statistics related to feature quality, including handling of empty and constant features."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on documented definitions and implications of almost empty and constant features, directly supported by content retrieved from the documentation.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What should I do with almost empty or constant features?",
+        "How can I identify these features in my dataset?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in the documentation",
+          "passed": true,
+          "explanation": "All information provided is directly sourced from the documentation."
+        },
+        {
+          "rule": "Do not introduce outside knowledge or assumptions",
+          "passed": true,
+          "explanation": "The answer stays entirely within the context of the provided documentation."
+        },
+        {
+          "rule": "Answer the user's question clearly and concisely",
+          "passed": true,
+          "explanation": "The answer explains both concepts clearly and uses relevant information."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"feature almost empty constant\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_data_stats.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_regression.mdx\"}"
+      }
+    ],
+    "cost": 0.00166455,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer correctly identifies that a feature is considered almost empty or almost constant when 95% or more of its values are missing or constant, respectively. It elaborates on the implications of these features for analysis and modeling, which aligns with the reference answer's emphasis on the percentage threshold of 95%. Both answers convey the same essential information about what constitutes almost empty and almost constant features. Additionally, the agent's response maintains relevance and does not contradict the reference answer.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "Can you tell me what descriptors are? I keep seeing that term here.",
+      "reference_answer": "Descriptors are properties of your data that can be measured. In this context, they're used to evaluate responses based on criteria like length and correctness.",
+      "line_number_start": 304,
+      "line_number_end": 304,
+      "question_type": "context_assumer",
+      "filename": "examples/LLM_regression_testing.mdx"
+    },
+    "rag_response": {
+      "answer": "**Descriptors** are a universal interface used to evaluate text data, such as inputs and outputs from Language Learning Models (LLMs). Each descriptor computes a score or label for every row in your dataset, making them suited for various evaluations, including statistical measurements and more nuanced assessments like sentiment analysis.\n\n### Key Points about Descriptors:\n1. **Functionality**: Descriptors can analyze aspects of the text, such as sentiment, length, specific word inclusion, and even create custom evaluations using Python or LLM prompts.\n2. **Combining Descriptors**: Users can combine multiple descriptors, applying optional pass/fail checks based on specific conditions, such as whether the sentiment is positive or the text length adheres to a specified limit.\n3. **Built-in and Custom Options**: Users can leverage built-in descriptors for common evaluations or create custom descriptors tailored to their specific needs.\n4. **Reporting**: After evaluations, results can be summarized in reports, which capture relevant statistics and distributions across descriptors.\n\n### Examples of Descriptors Include:\n- **Sentiment**: Evaluates the emotional tone of the text.\n- **TextLength**: Measures the length of the text.\n- **IncludesWords**: Checks if certain words or phrases are present in the text.\n\nDescriptors play a vital role in text evaluation workflows, providing insights necessary for data analysis and machine learning applications.",
+      "references": [
+        {
+          "file_path": "docs/library/descriptors.mdx",
+          "explanation": "Provides a comprehensive overview of how descriptors work within the evaluation framework, including their definition and use cases."
+        },
+        {
+          "file_path": "metrics/all_descriptors.mdx",
+          "explanation": "Details on the various built-in descriptors available for text evaluation."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is derived from detailed descriptions of descriptors found in the documentation, ensuring high relevance and accuracy.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are the different types of descriptors?",
+        "How can I create custom descriptors?"
+      ],
+      "checks": [
+        {
+          "rule": "The response should define descriptors based on documentation.",
+          "passed": true,
+          "explanation": "The definition and functionalities were accurately summarized from the documentation."
+        },
+        {
+          "rule": "The answer should not introduce outside knowledge.",
+          "passed": true,
+          "explanation": "The content was strictly based on documented information about descriptors."
+        },
+        {
+          "rule": "Include references to documents used.",
+          "passed": true,
+          "explanation": "References to relevant documents were included."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"descriptors\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/descriptors.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/all_descriptors.mdx\"}"
+      }
+    ],
+    "cost": 0.00204555,
+    "judge_answer_correctness": {
+      "reasoning": "The user asks for an explanation of descriptors, and the reference answer defines them as measurable properties of data used for evaluating responses based on specific criteria. The agent's answer elaborates on descriptors in the context of evaluating text data, particularly in language models, explaining their functionality, combination, customizability, and examples. While the agent focuses on text data and evaluation processes associated with it, the essential meaning of descriptors as properties of data used for measurement is preserved. The agent answer does not stray from the core concept of descriptors but expands with more specific examples and applications without contradicting the reference answer. Therefore, the answer meets the essential informational requirements of the user question and reference answer.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "What do I type to generate my new dataset?",
+      "reference_answer": "Run this code to generate a new dataset: ```python data = [ ... ] columns = [\"question\", \"target_response\", \"response\"] eval_data = pd.DataFrame(data, columns=columns) ```",
+      "line_number_start": 178,
+      "line_number_end": 209,
+      "question_type": "hurried_developer",
+      "filename": "examples/LLM_regression_testing.mdx"
+    },
+    "rag_response": {
+      "answer": "To generate a new dataset, follow these steps:\n\n### 1. Create a Project\n- In the Evidently UI, start a new project or open an existing one.\n- Navigate to the \"Datasets\" section in the left menu.\n- Click \"Generate\" and select the \"Generate from examples\" option.\n\n### 2. Describe the Scenario\n- Provide a brief description of the task and choose how many inputs to generate. For example:\n  - **Description:** \"Questions a person can ask when planning a trip\"\n  - **Example Input:** \"What can I do in Paris in a day?\"\n\n### 3. Review the Results\n- The system generates a list of input questions based on your description. You can preview, refine, and adjust this generated dataset as needed. You can:\n  - Use \u201cMore like this\u201d to generate additional variations.\n  - Drop questions that don\u2019t fit your needs.\n  - Manually edit or rephrase questions.\n\n### 4. Save and Use the Dataset\n- After finalizing your dataset, you can save it. Options include downloading as a CSV file or accessing it via the Python API using the dataset ID.\n\n### Example Code for Using the Generated Dataset:\n```python\nfrom evidently import Report\n\n# Example of running a report on your dataset\nreport = Report([\n    DataSummaryPreset()\n])\n\nmy_eval = report.run(your_generated_dataset, None)\n```\n\nThis code imports the necessary libraries, creates a report, and runs it on your generated dataset. Make sure you have set up everything as per the requirements outlined in the documentation.",
+      "references": [
+        {
+          "file_path": "synthetic-data/input_data.mdx",
+          "explanation": "This document provides a step-by-step guide on how to generate synthetic inputs, including dataset generation based on descriptions."
+        },
+        {
+          "file_path": "docs/library/report.mdx",
+          "explanation": "This document explains how to create reports that can evaluate datasets after generation."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on the detailed steps provided in the documentation, ensuring it is accurate and actionable.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific types of data can I generate?",
+        "How do I refine the generated dataset further?"
+      ],
+      "checks": [
+        {
+          "rule": "The response should summarize steps from documentation accurately.",
+          "passed": true,
+          "explanation": "The steps to generate a dataset were explicitly detailed as per the documents."
+        },
+        {
+          "rule": "Include relevant code examples when necessary.",
+          "passed": true,
+          "explanation": "Relevant code snippets were included to illustrate the generation process."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"generate new dataset\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"synthetic-data/input_data.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/report.mdx\"}"
+      }
+    ],
+    "cost": 0.00106545,
+    "judge_answer_correctness": {
+      "reasoning": "The user's question specifically asks for the exact code required to generate a new dataset. The reference answer provides a concise Python code snippet to achieve this. In contrast, the agent's answer elaborates on steps to create a project in a UI, describing a process to generate a dataset through interaction rather than providing the exact code as requested. While it includes valuable information on using a dataset afterward and generating variations, it does not answer the specific request for code to generate a new dataset, which is the essential requirement here. Thus, the essential fact (the exact code) is missing from the agent's response.",
+      "score": "bad"
+    }
+  },
+  {
+    "input": {
+      "question": "add Tab - steps??",
+      "reference_answer": "To add a Tab: - Enter \"Edit\" mode on the Dashboard (top right corner). - Click the plus sign with \"add Tab\" on the left. - To create a custom Tab, select \"empty\" and enter a name.",
+      "line_number_start": 11,
+      "line_number_end": 15,
+      "question_type": "hurried_developer",
+      "filename": "docs/platform/dashboard_add_panels_ui.mdx"
+    },
+    "rag_response": {
+      "answer": "### Steps to Add a Tab in the Dashboard\n\nTo add a new Tab for organizing your Panels in the Dashboard, follow these steps:\n\n1. **Enter Edit Mode**: \n   - Click on the \"Edit\" mode button located at the top right corner of the Dashboard.\n\n2. **Add Tab**: \n   - Click on the plus sign with \"add Tab\" on the left side of the interface.\n\n3. **Create Custom Tab (Optional)**: \n   - Select the \"empty\" option to create a custom Tab and enter your desired name.\n\n### Alternative: Add Tab via Python API\nIf you're using the Python API, you can add a Tab with the following command:\n```python\nproject.dashboard.add_tab(\"Your Tab Name\")\n```\n\n### Deleting a Tab\nTo delete a Tab:\n1. Re-enter \"Edit\" mode.\n2. Click on the \"edit Tabs\" sign next to the Tab names.\n3. Choose the Tab you want to delete and confirm.\n\nThese steps allow you to manage Tabs effectively, helping you organize your dashboard Panels better.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_add_panels_ui.mdx",
+          "explanation": "Provided detailed steps and options for adding Tabs in the Dashboard."
+        },
+        {
+          "file_path": "docs/platform/dashboard_add_panels.mdx",
+          "explanation": "Described how to add Tabs programmatically via Python API."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 1.0,
+      "confidence_explanation": "The information is sourced directly from the retrieved documentation which provides clear and specific instructions for adding Tabs.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "How can I add Panels to a Tab?",
+        "What are the different types of Panels available?"
+      ],
+      "checks": [
+        {
+          "rule": "Response should only include information from the documentation.",
+          "passed": true,
+          "explanation": "All content is derived from the provided documentation."
+        },
+        {
+          "rule": "Answer must be clear and actionable.",
+          "passed": true,
+          "explanation": "The steps are explicitly outlined for adding Tabs."
+        },
+        {
+          "rule": "Reference documents used to generate the answer.",
+          "passed": true,
+          "explanation": "Relevant documents are mentioned."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"add Tab - steps\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels_ui.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels.mdx\"}"
+      }
+    ],
+    "cost": 0.0013074,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer accurately addresses the user's question about how to add a Tab in the Dashboard by clearly outlining the three essential steps: entering Edit mode, clicking the plus sign to add a Tab, and creating a custom Tab if desired. It uses paraphrased language that conveys the same meaning as the reference answer. The inclusion of steps to delete a Tab and an alternative method via Python API, while technically relevant, does not negate the essential steps for adding a Tab, which are fully covered. Therefore, the response provides the essential information without contradictions or omissions.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "Do I need to create a tab before adding a panel?",
+      "reference_answer": "If you do not set a tab, it defaults to the first tab or creates a new \"General\" tab.",
+      "line_number_start": 221,
+      "line_number_end": 221,
+      "question_type": "context_assumer",
+      "filename": "docs/platform/dashboard_add_panels.mdx"
+    },
+    "rag_response": {
+      "answer": "No, you do not need to create a tab before adding a panel. By default, new panels will appear on a single dashboard. However, you can create multiple tabs to organize them better. When adding a panel using the user interface or Python API, you can specify the destination tab directly. If the tab does not exist, both a new tab and panel can be created at once. \n\nHere's a brief overview of how to add panels:\n- In the user interface, click on \"Add panel\" and configure it. \n- Using Python, you can utilize the `add_panel` method and specify a tab. If that tab doesn't exist, it will create a new one along with the panel.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_panel_types.mdx",
+          "explanation": "Provided details on adding panels and the relationship with tabs."
+        },
+        {
+          "file_path": "docs/platform/dashboard_panel_types.mdx",
+          "explanation": "Explained how to create a tab and add panels."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is supported by explicit statements regarding the addition of panels either with or without tabs, and how they can be created in conjunction if needed.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "How do I delete a panel?",
+        "Can I customize the panels further?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer is based solely on documented content",
+          "passed": true,
+          "explanation": "The answer was formulated using the contents of the retrieved documents without external information."
+        },
+        {
+          "rule": "All significant aspects of the user's question are addressed",
+          "passed": true,
+          "explanation": "The answer clearly explains the relationship between tabs and panels, and whether creating a tab is necessary."
+        },
+        {
+          "rule": "Response is concise and clear",
+          "passed": true,
+          "explanation": "The response is straightforward, answering the user's question directly."
+        },
+        {
+          "rule": "References to supporting documentation are included where appropriate",
+          "passed": true,
+          "explanation": "The answer includes references to relevant documents where users can find further information."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"create a tab before adding a panel\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_panel_types.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/datasets_workflow.mdx\"}"
+      }
+    ],
+    "cost": 0.00168855,
+    "judge_answer_correctness": {
+      "reasoning": "The user's question specifically asks if a tab needs to be created before adding a panel. The reference answer clarifies that if a tab is not set, the system will default to the first tab or create a new \"General\" tab, indicating that creating a tab is not a strict requirement. The agent's answer acknowledges that a tab does not need to be created beforehand and provides additional context on default behavior and the option to create a new tab if needed. The agent's answer accurately summarizes the most critical points from the reference answer while providing additional relevant details regarding how tabs and panels can be managed. The answer also addresses the essence of the question, which is whether creating a tab is necessary.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "What\u2019s the purpose of the correctness judge in this setup?",
+      "reference_answer": "We implement the correctness evaluator, using an Evidently template for binary classification. We ask the LLM to classify each response as \"correct\" or \"incorrect\" based on the `target_response` column and provide reasoning for its decision.",
+      "line_number_start": 234,
+      "line_number_end": 236,
+      "question_type": "direct_inquirer",
+      "filename": "examples/LLM_regression_testing.mdx"
+    },
+    "rag_response": {
+      "answer": "The correctness judge serves a critical role in evaluating the performance of language models (LLMs) by assessing the correctness of generated responses based on defined criteria. Here\u2019s a summary of its purpose:\n\n1. **Evaluative Function**: The correctness judge uses a binary classification system to evaluate responses against reference answers. It determines if responses match the expected output in terms of facts and details, and it identifies whether the current responses mistakenly contradict, add incorrect information to, or omit important details from the reference responses.\n\n2. **Reference-Based Evaluation**: By comparing responses to a reference answer, the correctness judge can identify failures and successes in the model's output. This is particularly useful in regression testing scenarios where it\u2019s essential to maintain the quality of outputs over time as changes are introduced to the system.\n\n3. **Customization and Flexibility**: Users can customize the prompt and criteria used by the judge. For instance, you can dictate how strict or lenient the evaluation needs to be, allowing for adjustments based on the context and use case.\n\n4. **Integration for Monitoring**: It integrates seamlessly within overall testing frameworks to monitor performance and track changes over time, ensuring that the model adheres to quality standards and improving reliability in the model's predictions.\n\n5. **Data Precision**: The correctness judge also provides detailed reasoning alongside its evaluations, contributing to a better understanding of the model's decisions and helping refine the training and evaluation processes.",
+      "references": [
+        {
+          "file_path": "examples/LLM_judge.mdx",
+          "explanation": "The document explains how to set up an LLM as a judge for correctness evaluations by comparing outputs to reference responses."
+        },
+        {
+          "file_path": "examples/LLM_regression_testing.mdx",
+          "explanation": "This document details the evaluation and testing setup using LLMs to assess the correctness of responses over time."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The information is sourced directly from the documentation that describes the functions and purposes of the LLM correctness judge within a testing framework.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "How is the correctness judge implemented?",
+        "What are the common pitfalls in using the correctness judge?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer should be based on documented facts only.",
+          "passed": true,
+          "explanation": "All information presented is derived solely from the retrieved documentation."
+        },
+        {
+          "rule": "Answer should be comprehensive and structured.",
+          "passed": true,
+          "explanation": "The answer includes multiple aspects of the correctness judge's purpose, ensuring clarity."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"correctness judge purpose\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_judge.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/library/prompt_optimization.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_regression_testing.mdx\"}"
+      }
+    ],
+    "cost": 0.00319485,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer covers the purpose of the correctness judge in evaluating responses, emphasizing its evaluative function through binary classification, reference comparison, customization, integration in testing frameworks, and providing detailed reasoning. However, it lacks the specific mention of 'using an Evidently template for binary classification' as stated in the reference answer. The agent provides a broader description that is accurate but does not adhere precisely to the reference\u2019s details about the implementation. While the essential elements of the correctness judge's purpose are addressed, the absence of the specific implementation detail about the Evidently template is notable.",
+      "score": "bad"
+    }
+  },
+  {
+    "input": {
+      "question": "How do I plot multiple values in a single panel?",
+      "reference_answer": "A single Panel can show multiple values. For example, this will add multiple lines on a Line chart:\n\n```python\nproject.dashboard.add_panel(\n    DashboardPanelPlot(\n        title=\"Text Length\",\n        subtitle=\"Text length stats (symbols).\",\n        size=\"full\",\n        values=[\n            PanelMetric(legend=\"max\", metric=\"MaxValue\", metric_labels={\"column\": \"length\"}),\n            PanelMetric(legend=\"mean\", metric=\"MeanValue\", metric_labels={\"column\": \"length\"}),\n            PanelMetric(legend=\"min\", metric=\"MinValue\", metric_labels={\"column\": \"length\"}),\n        ]\n    )\n)\n```",
+      "line_number_start": 194,
+      "line_number_end": 208,
+      "question_type": "direct_inquirer",
+      "filename": "docs/platform/dashboard_add_panels.mdx"
+    },
+    "rag_response": {
+      "answer": "To plot multiple values in a single panel, you can use the `DashboardPanelPlot` class with multiple `PanelValue` instances. Each `PanelValue` points to a specific metric and its result, allowing you to visualize different metrics together in one plot. Here is a brief overview of how to set it up:\n\n### Steps to Plot Multiple Values:\n1. **Create a Panel** with the `DashboardPanelPlot` class:\n   - Specify the `title` of the panel.\n   - Use the `values` parameter to pass a list of `PanelValue` instances.\n   - Choose the `plot_type` (e.g., LINE, BAR, or SCATTER) depending on how you want to visualize your data.\n\n2. **Define Multiple PanelValues**:\n   - Each `PanelValue` should include `metric_args` pointing to the respective metric's ID, `field_path` indicating the specific result you want to display (e.g., \"value\"), and an optional `legend` for identification.\n\n### Example Code:\n```python\nproject.dashboard.add_panel(\n    DashboardPanelPlot(\n        title=\"Multiple Metrics\",\n        values=[\n            PanelValue(\n                metric_args={\"metric.metric_id\": MinValue(column=\"length\").metric_id},\n                field_path=\"value\",\n                legend=\"min\",\n            ),\n            PanelValue(\n                metric_args={\"metric.metric_id\": MeanValue(column=\"length\").metric_id},\n                field_path=\"value\",\n                legend=\"mean\",\n            ),\n            PanelValue(\n                metric_args={\"metric.metric_id\": MaxValue(column=\"length\").metric_id},\n                field_path=\"value\",\n                legend=\"max\",\n            ),\n        ],\n        plot_type=PlotType.LINE,\n        size=WidgetSize.HALF,\n    ),\n    tab=\"Overview\"\n)\nproject.save()\n```\n### Key Points:\n- You can plot metrics like minimum, mean, and maximum values together.\n- Make sure to specify the correct metric ID and result path for each value.\n- Adjust the `plot_type` based on your preference for data visualization.\n\nThis approach allows you to visualize how different metrics relate to each other over time, enhancing your analysis capabilities.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_panel_types.mdx",
+          "explanation": "Provided detailed explanation on Dashboard panels including PanelPlot usage."
+        },
+        {
+          "file_path": "docs/platform/dashboard_overview.mdx",
+          "explanation": "Outlined the importance of reports in creating dashboard panels."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is derived directly from the relevant documentation detailing how to use multiple PanelValues in a Dashboard panel for comprehensive data visualization.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the different types of plots available?",
+        "How do I customize the appearance of a panel?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in the documentation knowledge base",
+          "passed": true,
+          "explanation": "All content is sourced directly from the documentation provided."
+        },
+        {
+          "rule": "Avoid external sources or assumptions",
+          "passed": true,
+          "explanation": "No outside knowledge or assumptions were included in the response."
+        },
+        {
+          "rule": "Clarity and completeness of the answer",
+          "passed": true,
+          "explanation": "The answer comprehensively covers the process of plotting multiple values in a single panel."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"plot multiple values in a single panel\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_panel_types.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_overview.mdx\"}"
+      }
+    ],
+    "cost": 0.0018794999999999999,
+    "judge_answer_correctness": {
+      "reasoning": "The user's question asks how to plot multiple values in a single panel. The reference answer provides a specific Python code example using the `DashboardPanelPlot`, which includes multiple `PanelMetric` instances, showing how to visualize multiple metrics in one plot. The agent's answer correctly describes this process, also providing a code example that uses `DashboardPanelPlot` with `PanelValue`. It effectively captures the essential facts of using a panel to display multiple values and includes specific details about metrics and legends. Both answers align on using similar metrics (max, mean, min) but with slightly different implementations (PanelMetric vs PanelValue). Therefore, the essential information about plotting multiple values is covered well in the agent's response, making it a good answer.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "I saw something about detecting toxicity. Can you tell me more?",
+      "reference_answer": "<ul><li>Detects toxic texts.</li><li>Returns a label (TOXICITY or OK) or a score.</li></ul>",
+      "line_number_start": 103,
+      "line_number_end": 103,
+      "question_type": "direct_inquirer",
+      "filename": "metrics/all_descriptors.mdx"
+    },
+    "rag_response": {
+      "answer": "Evidently provides tools for detecting toxicity in text through its evaluators. Here\u2019s a brief overview of the key functionalities:\n\n1. **Built-in Evaluators**: You can use the built-in evaluator `ToxicityLLMEval`, which is a binary classifier that helps detect toxicity in text. This evaluator defaults to using the `gpt-4o-mini` model from OpenAI and returns a label indicating the presence of toxicity along with reasoning for the decision.\n\n   ```python\n   eval_df.add_descriptors(descriptors=[\n       ToxicityLLMEval(\"response\", alias=\"toxicity\"),\n   ])\n   ```\n\n2. **Custom Evaluation**: Besides built-in evaluators, you can create custom LLM evaluators using templates to define specific criteria for evaluation. For instance, you might set criteria to detect specific types of toxic language based on your application\u2019s needs.\n\n3. **Adversarial Testing**: You can also generate adversarial datasets that include scenarios to test the robustness against harmful content, including toxicity. This can be set up through the Evidently UI, allowing you to select predefined scenarios related to harmful content or forbidden topics.\n\n4. **Dataset Generation**: You can create datasets specifically tailored for toxicity detection by navigating to 'Datasets' and selecting the 'Adversarial testing' option. Multiple scenarios related to toxicity can be configured and tested.\n\nHere is a simple example of evaluating text for toxicity:\n\n```python\nimport pandas as pd\nfrom evidently.descriptors import ToxicityLLMEval\n\ndf = pd.DataFrame(data)\ndf.eval_df.add_descriptors(descriptors=[\n    ToxicityLLMEval(\"response\", alias=\"toxicity\")[\n])\n``` \n\n5. **Integration Options**: You can integrate different LLM models and providers to perform the evaluation, offering flexibility based on your requirements.\n\nThis synthesis of tools allows you to effectively evaluate and detect toxic content in text using Evidently's framework.",
+      "references": [
+        {
+          "file_path": "metrics/customize_llm_judge.mdx",
+          "explanation": "Contains detailed methods on utilizing built-in and custom descriptors for evaluating toxicity."
+        },
+        {
+          "file_path": "synthetic-data/adversarial_data.mdx",
+          "explanation": "Provides insight into adversarial testing, including categories relevant for detecting toxicity."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The content retrieved directly discusses toxicity detection and methods available in the Evidently platform, ensuring a high relevance to the user's question.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What are the specific criteria for detecting toxicity?",
+        "How do I create and customize my adversarial test datasets?"
+      ],
+      "checks": [
+        {
+          "rule": "The response includes factual information only from relevant documents.",
+          "passed": true,
+          "explanation": "The answer is based on information retrieved from the Evidently documentation."
+        },
+        {
+          "rule": "The answer is synthesized and coherent based on the retrieved facts.",
+          "passed": true,
+          "explanation": "Information is clearly synthesized to provide a complete answer regarding toxicity detection."
+        },
+        {
+          "rule": "No external knowledge or assumptions are included.",
+          "passed": true,
+          "explanation": "The response strictly uses the facts found in the documentation context."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"detecting toxicity\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_llm_judge.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"synthetic-data/adversarial_data.mdx\"}"
+      }
+    ],
+    "cost": 0.0017285999999999998,
+    "judge_answer_correctness": {
+      "reasoning": "The user's query about detecting toxicity required information about the detection of toxic texts and a return label or score. The reference answer specifies that the detection process identifies toxic texts and returns labels like 'TOXICITY' or 'OK'. The agent's answer encompasses functionality for detecting toxicity, specifically mentions returning labels, and describes the use of an evaluator called `ToxicityLLMEval`. However, it doesn't explicitly mention returning a score or the terms 'TOXICITY' and 'OK'; rather, it focuses on labels and reasoning for the decision. While the provided answer gives detail about additional features and code examples, it does not fully encapsulate the core elements of the reference answer. Therefore, while it is informative, it is missing the direct mention of basic outcomes, particularly the scores or explicit toxicity labels outlined in the reference.",
+      "score": "bad"
+    }
+  },
+  {
+    "input": {
+      "question": "Can HuggingFace score texts? What do I specify?",
+      "reference_answer": "<ul><li>Scores the text using a user-selected HuggingFace model.</li><li>See [HuggingFace descriptor docs](/metrics/customize_hf_descriptor) for example models.</li></ul>",
+      "line_number_start": 114,
+      "line_number_end": 114,
+      "question_type": "direct_inquirer",
+      "filename": "metrics/all_descriptors.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, you can score texts using HuggingFace models. To do this, you can follow these steps:\n\n### 1. Setup\n- Ensure you have the necessary libraries installed, specifically `HuggingFace` descriptors from the Evidently library.\n- You will typically import these in your Python script:\n  ```python\n  from evidently.descriptors import HuggingFace, HuggingFaceToxicity\n  ```\n\n### 2. Prepare Your Dataset\n- Create a dataset either by uploading a CSV or using an existing one in the platform.\n- Define your dataset schema appropriately.\n\n### 3. Add Descriptors for Scoring\n- Use `HuggingFace` descriptors to specify which texts to score. You can either:\n  - Use built-in evaluators for specific models,\n  - Custom specify the model you want to use:\n    ```python\n    eval_df.add_descriptors(descriptors=[\n       HuggingFace(\"column_name\",\n           model=\"model_identifier\",\n           params={\"label\": \"label_name\"},\n           alias=\"Custom Alias\"\n       )\n    ])\n    ```\n- Examples of models you can evaluate with include:\n  - Emotion classification models that return scores for various emotions.\n  - Zero-shot classification models to sort content into predefined categories.\n\n### 4. Run Evaluation\n- Execute the evaluation through the interface or programmatically to get the scores for each evaluated text.\n\nThis process allows you to score your text based on criteria relevant to the model you choose, such as sentiment, emotion, or category classification.",
+      "references": [
+        {
+          "file_path": "metrics/customize_hf_descriptor.mdx",
+          "explanation": "This document explains how to utilize HuggingFace models for scoring texts and provides examples of descriptors."
+        },
+        {
+          "file_path": "docs/platform/evals_no_code.mdx",
+          "explanation": "This document outlines the process of scoring texts in a no-code environment and discusses how to configure evaluations."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is based on the details provided in the retrieved documents, which thoroughly explain how to score texts using HuggingFace models.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the available models for scoring?",
+        "Can I customize the scoring criteria?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer includes specific steps and details based on documentation.",
+          "passed": true,
+          "explanation": "The response outlines a clear process for scoring texts using HuggingFace and cites relevant document content."
+        },
+        {
+          "rule": "All information is derived from the documentation without outside knowledge or assumptions.",
+          "passed": true,
+          "explanation": "The answer is crafted solely from the documentation retrieved."
+        },
+        {
+          "rule": "Use proper formatting and structure for clarity.",
+          "passed": true,
+          "explanation": "The response is structured in clear steps for better understanding."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"HuggingFace score texts\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_hf_descriptor.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/evals_no_code.mdx\"}"
+      }
+    ],
+    "cost": 0.0012936,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer indicates that HuggingFace models can be used to score texts and provides a step-by-step process to do so. The answer mentions the ability to add descriptors for scoring and gives an example of how to specify a model and use descriptors correctly. However, it does not explicitly mention scoring being done using a user-selected HuggingFace model as stated in the reference answer. Moreover, while it details the setup and preparation of datasets, the essential aspect of the scoring mechanism via a user-selected model is downplayed. It also lacks a direct mention of the HuggingFace descriptor documentation reference without linking or citing it directly. Overall, the answer has several relevant details but does not completely cover the essential information established in the reference answer. Thus, it lacks the specificity and clarity required.",
+      "score": "bad"
+    }
+  },
+  {
+    "input": {
+      "question": "How do I calculate semantic similarity? Do I need both columns?",
+      "reference_answer": "<ul><li>Calculates pairwise semantic similarity (Cosine Similarity) between two columns using a sentence embeddings model [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).</li><li>Returns a score from 0 to 1: (0: different, 0.5: unrelated, 1: identical) </li><li>Example use: `SemanticSimilarity(columns=[\"Question\", \"Answer\"])`.</li></ul>",
+      "line_number_start": 111,
+      "line_number_end": 111,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/all_descriptors.mdx"
+    },
+    "rag_response": {
+      "answer": "To calculate semantic similarity, you would typically use the **Semantic Similarity** descriptor provided in the platform. This method converts texts to embeddings and calculates Cosine Similarity between the evaluated column and another specified column. The resulting score will range from 0 to 1, where 0 indicates the texts are completely different, 0.5 signifies they are unrelated, and 1 means they are identical.\n\n### Do You Need Both Columns?\nYes, you need both columns for calculation. One column serves as the reference (the one you want to compare against), while the other is the column being evaluated. The procedure allows you to assess how similar the responses are to a specific question or reference text.",
+      "references": [
+        {
+          "file_path": "docs/platform/evals_no_code.mdx",
+          "explanation": "Detailed explanation of how to calculate semantic similarity and the requirement of both columns."
+        },
+        {
+          "file_path": "examples/LLM_evals.mdx",
+          "explanation": "Provides examples on evaluating text including semantic similarity metrics."
+        },
+        {
+          "file_path": "examples/LLM_rag_evals.mdx",
+          "explanation": "Illustrates different evaluation methods including semantic similarity."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is derived from multiple sections of the documentation explaining the semantic similarity calculation and its requirements.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What are the other evaluation methods available?",
+        "How do I set up a dataset for evaluation?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer is based on the documentation",
+          "passed": true,
+          "explanation": "Information retrieved from relevant documents."
+        },
+        {
+          "rule": "Includes a direct answer to the user's question",
+          "passed": true,
+          "explanation": "The response directly addresses the user's questions on calculation and column requirements."
+        },
+        {
+          "rule": "Cites relevant documents",
+          "passed": true,
+          "explanation": "Cited multiple documents relevant to the question."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"calculate semantic similarity\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/evals_no_code.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_evals.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"examples/LLM_rag_evals.mdx\"}"
+      }
+    ],
+    "cost": 0.00178245,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer explains how to calculate semantic similarity by mentioning the use of embeddings and Cosine Similarity, which aligns with the reference answer. It specifies the range of scores from 0 to 1 and interprets what those scores mean, which is also in line with the reference. Furthermore, it confirms the necessity of both columns for the calculation, which directly addresses the user's question about needing both columns. Therefore, all essential facts from the reference answer are present and accurately conveyed.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "I'm trying to figure out this Data Drift thing, but I don't really understand how to use the datasets for testing. Can you help?",
+      "reference_answer": "You always need to pass two datasets: current (dataset evaluated for drift) and reference (dataset that serves as a benchmark).",
+      "line_number_start": 25,
+      "line_number_end": 25,
+      "question_type": "frustrated_beginner",
+      "filename": "metrics/explainer_drift.mdx"
+    },
+    "rag_response": {
+      "answer": "## Understanding Data Drift and Testing Datasets\n\n**Data Drift** refers to changes in the distribution of data that can affect model performance. To effectively test for data drift, you need to work with two main datasets: the **current** dataset (the one you want to evaluate) and the **reference** dataset (the one you are comparing against).\n\n### Steps to Test for Data Drift\n\n1. **Prepare Your Datasets**: \n   - You must ensure the datasets are non-empty and contain the necessary columns. You can define and map your dataset using the [Data Definition](https://www.evidentlyai.com/docs/library/data_definition).\n   - The datasets must be uploaded in a compatible format like CSV, or you can create them synthetically if using Evidently Cloud.\n   \n2. **Create a Report**:\n   - Utilize the `DataDriftPreset` to run evaluations on the datasets. Here\u2019s a sample code snippet:\n     ```python\n     report = Report([\n         DataDriftPreset(),\n     ])\n     my_eval = report.run(current, ref)\n     ```\n\n3. **Enable Tests (Optional)**:\n   - If you want to include more detailed testing conditions, such as explicit pass/fail for each column, you can modify the Report as follows:\n     ```python\n     report = Report([\n         DataDriftPreset(),\n     ], include_tests=True)\n     my_eval = report.run(current, ref)\n     ```\n\n### Data Drift Metrics and Methods\n- The `DataDriftPreset` evaluates shifts in data distributions and identifies whether significant changes have occurred between the two datasets. Metrics like the Percentage of Drifting Columns and individual Column Drift checks are performed.\n\n### Customizing Detection\n- You have options to modify how the detection works by changing methods (e.g., PSI, K-L divergence) or thresholds. Here\u2019s how to set custom drift methods for categorical columns:\n  ```python\n  report = Report([\n      DataDriftPreset(cat_method='psi', cat_threshold=0.3)\n  ])\n  ```\n\n### Use Cases for Monitoring Data Drift\n- **Monitoring ML Model Performance**: You can track feature drift and prediction drift even without ground truth.\n- **Debugging Quality Issues**: Assess drift when there\u2019s a perception of model quality decay to pinpoint issues.\n- **Determining Model Retraining**: Before retraining, use drift evaluation to confirm if the environment has changed significantly.\n\n### Summary\nTo test for data drift, create relevant datasets, define your reports using `DataDriftPreset`, and run evaluations. You can customize methods and thresholds based on your specific requirements. This comprehensive approach allows for effective monitoring and maintenance of model performance in dynamic environments.",
+      "references": [
+        {
+          "file_path": "metrics/preset_data_drift.mdx",
+          "explanation": "Detailed overview of the DataDirtPreset, including how to create and run reports."
+        },
+        {
+          "file_path": "metrics/explainer_drift.mdx",
+          "explanation": "Explains how data drift detection works and the default algorithms used."
+        },
+        {
+          "file_path": "docs/platform/datasets_overview.mdx",
+          "explanation": "Information on how to create and manage datasets."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.9,
+      "confidence_explanation": "The answer provides a clear, step-by-step approach based on documented functionality for testing data drift using datasets, covering the necessary metrics and customization options.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What specific features should I monitor for data drift?",
+        "How can I visualize the results of data drift detection?"
+      ],
+      "checks": [
+        {
+          "rule": "The answer must use information strictly derived from the documentation.",
+          "passed": true,
+          "explanation": "All information provided is sourced directly from the documents retrieved."
+        },
+        {
+          "rule": "The response must cover how to test datasets for data drift.",
+          "passed": true,
+          "explanation": "The response clearly outlines the steps for testing data drift using current and reference datasets."
+        },
+        {
+          "rule": "Relevant examples must be included to facilitate understanding.",
+          "passed": true,
+          "explanation": "Sample code snippets and explanations of the processes are included."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"Data Drift datasets testing\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/preset_data_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/explainer_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"metrics/customize_data_drift.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/datasets_overview.mdx\"}"
+      }
+    ],
+    "cost": 0.0021147,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer explains the concepts of data drift and how to use datasets for testing, addressing the user's request. It specifies the need for two datasets: the current dataset being evaluated and the reference dataset for comparison, directly paralleling the essential facts from the reference answer. The response also details steps for testing, provides code snippets for implementation, and mentions metrics for evaluating drift. All key components required by the user and outlined in the reference answer are covered, making the response fully comprehensive. Therefore, the claim that the agent's answer semantically contains the reference answer is validated.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "I can't find the option to add a Tab. How do I do that?",
+      "reference_answer": "To add a Tab: - Enter \"Edit\" mode on the Dashboard (top right corner). - Click the plus sign with \"add Tab\" on the left. - To create a custom Tab, select \"empty\" and enter a name.",
+      "line_number_start": 11,
+      "line_number_end": 15,
+      "question_type": "frustrated_beginner",
+      "filename": "docs/platform/dashboard_add_panels_ui.mdx"
+    },
+    "rag_response": {
+      "answer": "To add a Tab in the Dashboard, follow these steps:\n\n1. **Enter \"Edit\" Mode**: Navigate to the Dashboard and click on the edit icon located at the top right corner.\n2. **Add a Tab**: Look for the plus sign labeled \"add Tab\" on the left side of the Dashboard interface. Click on it.\n3. **Create a Custom Tab (optional)**: If you want to create a custom Tab, select \"empty\" and enter a name for the Tab.\n\nYou also have the option to start with pre-built Tabs, which are templates that come with preset Panel combinations. If you choose to add a Tab while adding a Panel, it will create that Tab if it does not already exist.\n\n### To Delete a Tab\n- Re-enter \"Edit\" mode, click the \"edit Tabs\" icon next to the Tab names, and select the Tab you wish to delete.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_add_panels_ui.mdx",
+          "explanation": "Contains step-by-step instructions on adding a Tab in the Dashboard."
+        },
+        {
+          "file_path": "docs/platform/dashboard_add_panels.mdx",
+          "explanation": "Discusses adding Tabs and Panels in the Dashboard, including pre-built Tabs."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 1.0,
+      "confidence_explanation": "The information is directly sourced from official documentation that clearly outlines the process.",
+      "answer_type": "how-to",
+      "followup_questions": [
+        "What can I do if I encounter issues while adding a Tab?",
+        "Are there any limitations on the number of Tabs I can add?"
+      ],
+      "checks": [
+        {
+          "rule": "Answer should be based on the documentation.",
+          "passed": true,
+          "explanation": "All information is sourced directly from the documentation."
+        },
+        {
+          "rule": "Include references to the relevant documents.",
+          "passed": true,
+          "explanation": "References to specific documents are provided."
+        },
+        {
+          "rule": "Be clear and concise in the instructions.",
+          "passed": true,
+          "explanation": "The response provides step-by-step instructions for the user."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"add a Tab\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels_ui.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels.mdx\"}"
+      }
+    ],
+    "cost": 0.0013126499999999998,
+    "judge_answer_correctness": {
+      "reasoning": "The agent's answer contains all the essential steps to add a Tab, matching the information in the reference answer. It includes entering 'Edit' mode, clicking the plus sign to add a Tab, and selecting 'empty' to create a custom Tab, which are all directly outlined in the reference answer. Additionally, the mention of pre-built Tabs and the option to delete a Tab adds relevant context without contradicting the essential points. Therefore, the response is comprehensive and accurate.",
+      "score": "good"
+    }
+  },
+  {
+    "input": {
+      "question": "So, do I need to add Reports to use Pre-built Tabs?",
+      "reference_answer": "**Pre-built Tabs** rely on having related Metrics (or Presets that include the specific Metrics) within the Project. If the necessary data is not available, the Panels will appear empty until you add Reports that contain those Metrics.",
+      "line_number_start": 21,
+      "line_number_end": 21,
+      "question_type": "context_assumer",
+      "filename": "docs/platform/dashboard_add_panels_ui.mdx"
+    },
+    "rag_response": {
+      "answer": "Yes, to use Pre-built Tabs, you need to first add Reports with evaluation results to the Project. Pre-built Tabs organize your dashboard panels, but they rely on having related Metrics available in the Reports. If the necessary data is not available, the panels will remain empty until you add the relevant Reports.",
+      "references": [
+        {
+          "file_path": "docs/platform/dashboard_add_panels_ui.mdx",
+          "explanation": "Details how to organize Panels in dashboards and the necessity of Reports for Pre-built Tabs."
+        },
+        {
+          "file_path": "docs/platform/dashboard_overview.mdx",
+          "explanation": "Explains the importance of Reports as a data source for populating dashboards."
+        }
+      ],
+      "found_answer": true,
+      "confidence": 0.95,
+      "confidence_explanation": "The answer is directly supported by official documentation regarding dashboard functionality and Pre-built Tabs.",
+      "answer_type": "explanation",
+      "followup_questions": [
+        "What types of Reports do I need to add?",
+        "How do I add Reports to my Project?"
+      ],
+      "checks": [
+        {
+          "rule": "Use only facts found in documentation",
+          "passed": true,
+          "explanation": "The answer is based strictly on documentation regarding Pre-built Tabs and Reports."
+        },
+        {
+          "rule": "Provide clear answer to user question",
+          "passed": true,
+          "explanation": "The response directly addresses the user's query about needing Reports for using Pre-built Tabs."
+        },
+        {
+          "rule": "Include references for the provided information",
+          "passed": true,
+          "explanation": "References to specific documentation files were included to support the answer."
+        }
+      ]
+    },
+    "tools": [
+      {
+        "name": "search",
+        "args": "{\"query\":\"Pre-built Tabs Reports\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_add_panels_ui.mdx\"}"
+      },
+      {
+        "name": "get_file",
+        "args": "{\"filename\":\"docs/platform/dashboard_overview.mdx\"}"
+      }
+    ],
+    "cost": 0.0009208499999999999,
+    "judge_answer_correctness": {
+      "reasoning": "The user's question asks whether adding Reports is necessary for using Pre-built Tabs. The reference answer specifies that Pre-built Tabs depend on having related Metrics within the Project, and mentions that if the necessary data is unavailable, Panels will appear empty until Reports containing those Metrics are added. The agent's answer confirms that Reports are needed to use Pre-built Tabs, states that they organize dashboard panels, and explains the consequence of missing data. This aligns with the reference answer, as it addresses the essential subjects (Pre-built Tabs and Reports), actions (adding Reports), and outcomes (Panels appearing empty without necessary data). Therefore, the agent's response semantically contains the essential content of the reference answer.",
+      "score": "good"
+    }
+  }
+]

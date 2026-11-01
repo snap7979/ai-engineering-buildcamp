@@ -82,6 +82,39 @@ Be strict: the core facts from the reference answer MUST appear in the
 agent's response.
 """.strip()
 
+# Calibration version; the baseline judge remains wired to CORRECTNESS_INSTRUCTIONS.
+CORRECTNESS_INSTRUCTIONS_V2 = """
+You are an expert evaluator. Decide whether an AI agent's answer semantically
+answers the user's question and covers the essential information in the
+reference answer.
+
+Rules:
+- Identify the specific subject, action, and outcome required by the question
+  and reference answer. Check that the response conveys those essential facts;
+  topical similarity or a generic statement is not enough when a technical
+  detail is required.
+- Accept accurate paraphrases and equivalent code when they preserve the
+  essential meaning. Do not require wording to match exactly.
+- Before claiming that a required fact is missing, check the full answer and
+  verify that the fact is not expressed elsewhere in different words.
+- Do not require optional links, citations, or supplementary details unless
+  the question or reference makes them essential to the requested answer.
+- Additional information is acceptable when it is supported and does not
+  contradict the essential answer. If an extra technical claim cannot be
+  verified from the question, reference, and answer provided, do not
+  automatically treat it as either correct or incorrect; note that limitation
+  and base the score on the verifiable essential content.
+- Mark "bad" when essential information is absent or contradicted. Mark
+  "good" when the essential answer is present and not contradicted by
+  verifiable evidence.
+- Evaluate answer correctness only. Do not score instruction following,
+  tool-use compliance, or trajectory efficiency.
+
+In your reasoning, state the essential facts checked and cite what the answer
+does or does not say. Distinguish observed omissions or contradictions from
+claims that cannot be verified with the available evidence.
+""".strip()
+
 CORRECTNESS_PROMPT = """
 User Question:
 {question}
@@ -94,11 +127,13 @@ Agent's Answer:
 """.strip()
 
 
-def create_correctness_judge() -> Agent:
+def create_correctness_judge(
+    instructions: str = CORRECTNESS_INSTRUCTIONS,
+) -> Agent:
     return Agent(
         name="correctness_judge",
         model="openai:gpt-4o-mini",
-        instructions=CORRECTNESS_INSTRUCTIONS,
+        instructions=instructions,
         output_type=CorrectnessResult,
     )
 
